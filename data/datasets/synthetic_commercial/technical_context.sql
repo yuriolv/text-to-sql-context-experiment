@@ -1,0 +1,9 @@
+-- PostgreSQL public schema. Use only tables/columns below; return SQL only.
+-- regions(region_id PK integer, name text unique)
+-- customers(customer_id PK integer, name text, region_id FK -> regions.region_id, segment text, created_at date)
+-- categories(category_id PK integer, name text unique)
+-- products(product_id PK integer, name text, category_id FK -> categories.category_id, unit_price numeric, active boolean)
+-- sales_reps(rep_id PK integer, name text, region_id FK -> regions.region_id, hired_at date)
+-- orders(order_id PK integer, customer_id FK -> customers.customer_id, rep_id FK -> sales_reps.rep_id, order_date date, status text {OPEN, INVOICED, CANCELLED}, freight numeric)
+-- order_items(order_item_id PK integer, order_id FK -> orders.order_id, product_id FK -> products.product_id, quantity integer, unit_price numeric, discount_pct numeric)
+-- sales_targets(target_id PK integer, rep_id FK -> sales_reps.rep_id, month_start date, target_amount numeric, unique(rep_id, month_start))

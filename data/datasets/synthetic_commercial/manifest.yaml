@@ -1,0 +1,8 @@
+dataset_id: synthetic_commercial
+source_type: postgres
+version: "1.0"
+loader: scripts/prepare_dataset.py
+technical_context: data/datasets/synthetic_commercial/technical_context.sql
+semantic_context: data/datasets/synthetic_commercial/semantic_context.yaml
+questions_pilot: data/datasets/synthetic_commercial/questions_pilot.jsonl
+questions_final: data/datasets/synthetic_commercial/questions_final.jsonl

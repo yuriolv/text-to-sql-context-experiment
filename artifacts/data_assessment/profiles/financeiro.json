@@ -1,0 +1,468 @@
+{
+  "candidate": "financeiro",
+  "classification": "DO_NOT_USE",
+  "formats": [
+    "xlsx",
+    "pbix"
+  ],
+  "tables": 10,
+  "profiles": [
+    {
+      "file": "dCFOP_Produtos.xlsx",
+      "format": "xlsx",
+      "records": 5776,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "DESCRICAO",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dEmpresas.xlsx",
+      "format": "xlsx",
+      "records": 16,
+      "columns": [
+        {
+          "name": "CODIGO_FISCAL_EST",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "EST_NOME",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "EST_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "NOME",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "CODIGO_FISCAL",
+          "type": "int64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dFornecedores_Compras.xlsx",
+      "format": "xlsx",
+      "records": 470,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "EMP_ESTCODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "FORNECEDOR",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "UF",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "PAIS",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "MUNICIPIO",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "UF_MUNICIPIO",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "TRIBUTACAO",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dPlanoDeContas.xlsx",
+      "format": "xlsx",
+      "records": 1903,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "NOME",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "BP_N1",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "BP_N2",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "BP_N3",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "BP_N4",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "BP_GRUPO",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "COD_DFC",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "DFC_N3",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "ORDEM_N2",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "ORDEM_N3",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "DRE",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "fCFOP_Entradas.xlsx",
+      "format": "xlsx",
+      "records": 12750,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "EMP_ESTCODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "PRO_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "QTDE",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "TOTAL",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "CFOP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "PERIODO",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "COD_FORNECEDOR",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "NOTA",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "CFOP_DESCRICAO",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "fCFOP_Vendas.xlsx",
+      "format": "xlsx",
+      "records": 34999,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "EMP_ESTCODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "PRO_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "COD_FORNECEDOR",
+          "type": "float64",
+          "missing": 34999
+        },
+        {
+          "name": "DATA",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "CFOP",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "QUANTIDADE1",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "VRLIQUIDO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "Unnamed: 9",
+          "type": "int64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "fLancamentos_74.xlsx",
+      "format": "xlsx",
+      "records": 1017149,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "LAN_DATA",
+          "type": "datetime64[ns]",
+          "missing": 0
+        },
+        {
+          "name": "CON_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "VALOR",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "SEQ_ENCERRAMENTO",
+          "type": "float64",
+          "missing": 1016674
+        },
+        {
+          "name": "EST_CODIGO",
+          "type": "float64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 644898
+    },
+    {
+      "file": "fLancamentos_75.xlsx",
+      "format": "xlsx",
+      "records": 256925,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "LAN_DATA",
+          "type": "datetime64[ns]",
+          "missing": 0
+        },
+        {
+          "name": "CON_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "VALOR",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "SEQ_ENCERRAMENTO",
+          "type": "float64",
+          "missing": 256805
+        },
+        {
+          "name": "EST_CODIGO",
+          "type": "float64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 160965
+    },
+    {
+      "file": "fLancamentos_76.xlsx",
+      "format": "xlsx",
+      "records": 387816,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "LAN_DATA",
+          "type": "datetime64[ns]",
+          "missing": 0
+        },
+        {
+          "name": "CON_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "VALOR",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "SEQ_ENCERRAMENTO",
+          "type": "float64",
+          "missing": 387678
+        },
+        {
+          "name": "EST_CODIGO",
+          "type": "float64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 241567
+    },
+    {
+      "file": "fLancamentos_77_97.xlsx",
+      "format": "xlsx",
+      "records": 693904,
+      "columns": [
+        {
+          "name": "EMP_CODIGO",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "LAN_DATA",
+          "type": "datetime64[ns]",
+          "missing": 0
+        },
+        {
+          "name": "CON_CODIGO",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "VALOR",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "SEQ_ENCERRAMENTO",
+          "type": "float64",
+          "missing": 693765
+        },
+        {
+          "name": "EST_CODIGO",
+          "type": "float64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 423418
+    }
+  ],
+  "risk": "authorization and privacy assessment unresolved; names of companies/suppliers and proprietary financial records may be identifying",
+  "reproducibility": "requires semantic reconstruction and partition consolidation"
+}

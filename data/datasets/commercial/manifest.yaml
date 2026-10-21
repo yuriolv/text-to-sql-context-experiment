@@ -1,0 +1,8 @@
+dataset_id: commercial
+source_type: xlsx_postgres
+version: "1.0-deidentified"
+loader: scripts/load_dataset.py
+technical_context: data/datasets/commercial/technical_context.sql
+semantic_context: data/datasets/commercial/semantic_context.yaml
+questions_pilot: data/datasets/commercial/questions_pilot.jsonl
+questions_final: data/datasets/commercial/questions_final.jsonl

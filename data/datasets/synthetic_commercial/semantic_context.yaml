@@ -1,0 +1,19 @@
+domain: "Vendas comerciais sintéticas; todos os valores são fictícios."
+definitions:
+  faturamento_liquido: "Somatório por item de quantity * unit_price * (1 - discount_pct). Frete não integra faturamento líquido."
+  pedido_valido: "Pedido com status INVOICED. OPEN ainda não faturou; CANCELLED nunca entra em indicadores de vendas."
+  ticket_medio: "Faturamento líquido de pedidos válidos dividido pela quantidade de pedidos válidos, sem duplicar pedidos por item."
+  atingimento_meta: "Faturamento líquido no mês dividido por target_amount do representante no mesmo month_start."
+temporal_rules:
+  - "Mês é DATE_TRUNC('month', order_date)::date; metas referem-se ao primeiro dia do mês."
+  - "Clientes novos no mês usam customers.created_at; vendas no mês usam orders.order_date."
+relationships:
+  - "orders é cabeçalho; order_items é detalhe 1:N. Agregar valores de item antes de combinar com métricas por pedido."
+  - "sales_targets é 1:1 por representante e mês; não a combine diretamente a itens sem pré-agregação."
+synonyms:
+  faturamento: faturamento_liquido
+  receita: faturamento_liquido
+  vendedor: sales_reps
+  representante: sales_reps
+  cliente: customers
+  produto: products

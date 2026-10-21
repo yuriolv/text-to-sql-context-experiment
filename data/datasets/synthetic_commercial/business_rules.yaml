@@ -1,0 +1,7 @@
+included_sales_status: INVOICED
+net_revenue_formula: "quantity * unit_price * (1 - discount_pct)"
+month_key: "DATE_TRUNC('month', order_date)::date"
+grain:
+  orders: "one row per order"
+  order_items: "one row per product line in an order"
+  sales_targets: "one row per representative per calendar month"

@@ -1,0 +1,11 @@
+{
+  "selected_dataset": "commercial",
+  "classification": "USE_WITH_TRANSFORMATIONS",
+  "reason": "authorized deidentified commercial source with 11 related entities, dates, statuses, monetary measures and aggregation/temporal ambiguities; normalized locally without sending rows externally",
+  "alternatives": {
+    "financeiro": "DO_NOT_USE",
+    "csv_synthetic_fragments": "DO_NOT_USE",
+    "synthetic_commercial": "available for tests"
+  },
+  "source_root_hash": "dd78fb864e0c849a249b4cc59337cce5d8678872ccdbb5e891355574384498c9"
+}

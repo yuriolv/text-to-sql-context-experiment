@@ -1,0 +1,22 @@
+domain: "Base comercial descaracterizada, autorizada pelo responsável do estudo para uso acadêmico local."
+privacy: "Não incluir valores de linhas, nomes, razão social nem identificadores descaracterizados em chamadas a provedores externos."
+definitions:
+  valor_pedido: "orders.total_amount é a medida no grão de pedido; não a some após juntar order_items."
+  valor_itens: "SUM(order_items.total_amount), no grão de item."
+  desconto: "orders.discount_amount é desconto no cabeçalho do pedido; desconto médio deve ser calculado no grão de pedido."
+  meta_realizada: "targets.achieved_amount registra o realizado por representante e target_date; não é uma meta planejada."
+temporal_rules:
+  - "Vendas usam orders.issued_at; entrega prevista usa orders.expected_delivery_date."
+  - "Metas/realizado usam targets.target_date; não derive o período de orders sem necessidade."
+  - "Coleções têm vigência em collections.start_date e collections.end_date."
+relationships:
+  - "orders é cabeçalho e order_items é detalhe 1:N: junte/agregue itens antes de combinar métricas de pedido."
+  - "products pertence a grupo, subgrupo, coleção e linha; subgroup também pertence a grupo."
+  - "customers e orders podem apontar para representantes diferentes historicamente; para atribuição de venda use orders.representative_id."
+synonyms:
+  vendedor: representatives
+  representante: representatives
+  pedido: orders
+  item: order_items
+  produto: products
+  faturamento: valor_pedido

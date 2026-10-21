@@ -1,0 +1,11 @@
+-- PostgreSQL public schema. Return one SELECT/WITH query only.
+-- collections(collection_id PK, name, start_date, end_date)
+-- families(family_id PK, name, collection_id FK -> collections)
+-- groups(group_id PK, name); lines(line_id PK, name)
+-- subgroups(subgroup_id PK, name, group_id FK -> groups)
+-- representatives(representative_id PK, name, trade_name, commission_rate, price_table_id, active, city_id, classification)
+-- customers(customer_id PK, name, registered_at, legal_name, city_id, representative_id FK -> representatives, store_id, customer_type_id, inactive, deidentified_tax_id)
+-- products(product_id PK, name, category_id, list_price, group_id FK -> groups, subgroup_id FK -> subgroups, collection_id FK -> collections, line_id FK -> lines, unit_class, inactive, gender, store_id, purchase_value, cost_value, employee_value)
+-- targets(representative_id FK -> representatives, month_number, year_number, achieved_amount, month_label, target_date; PK representative_id+target_date)
+-- orders(order_id PK, total_amount, item_count, customer_id FK -> customers, representative_id FK -> representatives, payment_id, gross_amount, discount_amount, delivered_amount, expected_delivery_date, status, issued_at, representative_classification)
+-- order_items(order_item_id PK, order_id FK -> orders, product_id FK -> products, quantity, unit_price, total_amount, source_order_id)

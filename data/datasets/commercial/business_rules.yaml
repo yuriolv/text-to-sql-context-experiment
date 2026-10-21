@@ -1,0 +1,5 @@
+order_grain: "orders: uma linha por pedido"
+item_grain: "order_items: uma linha por item de pedido"
+sales_date: issued_at
+delivery_date: expected_delivery_date
+aggregation_warning: "Nunca some orders.total_amount depois de relacionamento 1:N com order_items."

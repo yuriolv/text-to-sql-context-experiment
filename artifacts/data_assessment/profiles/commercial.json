@@ -1,0 +1,499 @@
+{
+  "candidate": "commercial",
+  "classification": "USE_WITH_TRANSFORMATIONS",
+  "authorization": "confirmed by project owner on 2026-09-26",
+  "formats": [
+    "xlsx",
+    "pbix",
+    "csv fragments"
+  ],
+  "tables": 11,
+  "profiles": [
+    {
+      "file": "dClientes.xlsx",
+      "format": "xlsx",
+      "records": 2644,
+      "columns": [
+        {
+          "name": "codCliente",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "clienteNome",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "dataCadastro",
+          "type": "datetime64[ns]",
+          "missing": 0
+        },
+        {
+          "name": "clienteRazaoSocial",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "codCidade",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codVendedor",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codLoja",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codTipoCliente",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "estaInativo",
+          "type": "bool",
+          "missing": 0
+        },
+        {
+          "name": "numCnpjCpf",
+          "type": "int64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dColecoes.xlsx",
+      "format": "xlsx",
+      "records": 41,
+      "columns": [
+        {
+          "name": "codColecao",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "colecaoNome",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "dataInicio",
+          "type": "datetime64[ns]",
+          "missing": 1
+        },
+        {
+          "name": "dataFinal",
+          "type": "datetime64[ns]",
+          "missing": 2
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dFamilias.xlsx",
+      "format": "xlsx",
+      "records": 38,
+      "columns": [
+        {
+          "name": "codFamilia",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "familiaNome",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "codColecao",
+          "type": "int64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dGrupos.xlsx",
+      "format": "xlsx",
+      "records": 79,
+      "columns": [
+        {
+          "name": "codGrupo",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "grupoNome",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dLinhas.xlsx",
+      "format": "xlsx",
+      "records": 4,
+      "columns": [
+        {
+          "name": "codLinha",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "linhaNome",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dProdutos.xlsx",
+      "format": "xlsx",
+      "records": 1922,
+      "columns": [
+        {
+          "name": "codRef",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "prodNome",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "codCategoria",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "valorPreco",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "codGrupo",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codSubGrupo",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codColecao",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codLinha",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "classUND",
+          "type": "object",
+          "missing": 1
+        },
+        {
+          "name": "estaInativo",
+          "type": "bool",
+          "missing": 0
+        },
+        {
+          "name": "prodGenero",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "codLoja",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "valorCompra",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "valorCusto",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "valorFuncionario",
+          "type": "float64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dRepresentantes.xlsx",
+      "format": "xlsx",
+      "records": 135,
+      "columns": [
+        {
+          "name": "codRepresentante",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "representanteNome",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "representanteNomeFantasia",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "representanteComissao",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "codTabela",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "estaAtivo",
+          "type": "bool",
+          "missing": 0
+        },
+        {
+          "name": "codCidade",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "Classificacao",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "dSubGrupos.xlsx",
+      "format": "xlsx",
+      "records": 168,
+      "columns": [
+        {
+          "name": "codSubGrupo",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "subGrupoNome",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "codGrupo",
+          "type": "int64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "fMetas.xlsx",
+      "format": "xlsx",
+      "records": 597,
+      "columns": [
+        {
+          "name": "codRepresentante",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "Mes",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "Ano",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "metaRealizada",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "mesAno",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "dataMeta",
+          "type": "datetime64[ns]",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "fPedidos.xlsx",
+      "format": "xlsx",
+      "records": 10931,
+      "columns": [
+        {
+          "name": "valorTotal",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "codPedido",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "qtdeItens",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codCliente",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codRepresentante",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codPagamento",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "valorBruto",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "valorDesconto",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "valorEntregue",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "dataEntregaPrevista",
+          "type": "object",
+          "missing": 1
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "dataEmissao",
+          "type": "object",
+          "missing": 0
+        },
+        {
+          "name": "dRepresentantes (2).Classificacao",
+          "type": "object",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    },
+    {
+      "file": "fPedidosItens.xlsx",
+      "format": "xlsx",
+      "records": 246737,
+      "columns": [
+        {
+          "name": "codPedido",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "codRef",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "qtdeItens",
+          "type": "int64",
+          "missing": 0
+        },
+        {
+          "name": "valorUnitario",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "valorTotal",
+          "type": "float64",
+          "missing": 0
+        },
+        {
+          "name": "codPedido.1",
+          "type": "int64",
+          "missing": 0
+        }
+      ],
+      "duplicate_full_rows": 0
+    }
+  ],
+  "relationships_inferred": [
+    "orders.customer_id -> customers.customer_id",
+    "orders.representative_id -> representatives.representative_id",
+    "order_items.order_id -> orders.order_id",
+    "order_items.product_id -> products.product_id",
+    "products subgroup/group/collection/line dimensions",
+    "targets.representative_id -> representatives.representative_id"
+  ],
+  "quality": {
+    "referential_integrity": "deferred to strict FK validation in PostgreSQL setup; load aborts on violations",
+    "related_entities": 11,
+    "contains_dates": true,
+    "contains_status": true,
+    "contains_monetary_values": true,
+    "derived_indicators": [
+      "order value",
+      "item value",
+      "discount rate",
+      "sales by issue period",
+      "representative achieved amount"
+    ],
+    "temporal_ambiguities": [
+      "issue versus expected-delivery date",
+      "customer registration versus sales date",
+      "collection validity versus target date"
+    ],
+    "aggregation_risks": [
+      "orders to order_items 1:N duplicates header amount",
+      "targets must be aggregated before joining items"
+    ]
+  },
+  "risk": "deidentified fields and names are never sent as row values to external providers; source is read-only",
+  "transformations": [
+    "normalize 11 XLSX tables to PostgreSQL",
+    "add PK/FK/indexes",
+    "freeze SHA-256 manifest",
+    "disable model result samples"
+  ]
+}

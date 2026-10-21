@@ -1,0 +1,11 @@
+{
+  "candidate": "csv_synthetic_fragments",
+  "classification": "DO_NOT_USE",
+  "formats": [
+    "csv"
+  ],
+  "files": 27,
+  "records": 290171,
+  "risk": "fragmented derivative files do not constitute a coherent relational snapshot",
+  "reproducibility": "no declared keys, DDL, or reliable source-to-table mapping"
+}

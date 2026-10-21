@@ -1,0 +1,12 @@
+CREATE TABLE collections (collection_id integer PRIMARY KEY, name text NOT NULL, start_date date, end_date date);
+CREATE TABLE families (family_id integer PRIMARY KEY, name text NOT NULL, collection_id integer REFERENCES collections);
+CREATE TABLE groups (group_id integer PRIMARY KEY, name text NOT NULL);
+CREATE TABLE lines (line_id integer PRIMARY KEY, name text NOT NULL);
+CREATE TABLE subgroups (subgroup_id integer PRIMARY KEY, name text NOT NULL, group_id integer REFERENCES groups);
+CREATE TABLE representatives (representative_id integer PRIMARY KEY, name text NOT NULL, trade_name text, commission_rate numeric, price_table_id integer, active boolean, city_id integer, classification text);
+CREATE TABLE customers (customer_id integer PRIMARY KEY, name text NOT NULL, registered_at date, legal_name text, city_id integer, representative_id integer REFERENCES representatives, store_id integer, customer_type_id integer, inactive boolean, deidentified_tax_id text);
+CREATE TABLE products (product_id integer PRIMARY KEY, name text NOT NULL, category_id integer, list_price numeric, group_id integer REFERENCES groups, subgroup_id integer REFERENCES subgroups, collection_id integer REFERENCES collections, line_id integer REFERENCES lines, unit_class text, inactive boolean, gender text, store_id integer, purchase_value numeric, cost_value numeric, employee_value numeric);
+CREATE TABLE targets (representative_id integer NOT NULL REFERENCES representatives, month_number integer, year_number integer, achieved_amount numeric, month_label text, target_date date, PRIMARY KEY(representative_id, target_date));
+CREATE TABLE orders (order_id integer PRIMARY KEY, total_amount numeric, item_count integer, customer_id integer REFERENCES customers, representative_id integer REFERENCES representatives, payment_id integer, gross_amount numeric, discount_amount numeric, delivered_amount numeric, expected_delivery_date date, status text, issued_at date, representative_classification text);
+CREATE TABLE order_items (order_item_id bigserial PRIMARY KEY, order_id integer NOT NULL REFERENCES orders, product_id integer REFERENCES products, quantity numeric, unit_price numeric, total_amount numeric, source_order_id integer);
+CREATE INDEX orders_issued_at_idx ON orders(issued_at); CREATE INDEX order_items_order_idx ON order_items(order_id);
