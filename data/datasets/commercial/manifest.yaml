@@ -6,3 +6,7 @@ technical_context: data/datasets/commercial/technical_context.sql
 semantic_context: data/datasets/commercial/semantic_context.yaml
 questions_pilot: data/datasets/commercial/questions_pilot.jsonl
 questions_final: data/datasets/commercial/questions_final.jsonl
+repetitions_final: 1
+repetitions_rationale: "Provedor Groq com temperature=0 e seed por request e quase deterministico; poder estatistico vem das 40 perguntas pareadas conforme D-002."
+provider: groq
+model: openai/gpt-oss-120b

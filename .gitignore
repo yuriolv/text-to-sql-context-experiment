@@ -13,12 +13,12 @@ venv/
 !.env.example
 
 # Artefatos produzidos pelas execuções
+# raw/ contem registros brutos com SQL gerado — fica local
 artifacts/raw/*
-artifacts/processed/*
-artifacts/reports/*
 !artifacts/raw/.gitkeep
-!artifacts/processed/.gitkeep
-!artifacts/reports/.gitkeep
+# processed/ e reports/ sao agregados sem valores de linha — versionaveis
+!artifacts/processed/*.csv
+!artifacts/reports/*.md
 
 # Dados locais de origem
 data/raw/
