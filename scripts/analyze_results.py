@@ -8,9 +8,10 @@ def ci(p,n):
  if not n:return (float("nan"),float("nan"))
  e=1.96*math.sqrt(p*(1-p)/n);return max(0,p-e),min(1,p+e)
 def main():
- import argparse; parser=argparse.ArgumentParser(); parser.add_argument("--split",default="final",choices=["final","pilot"]); parser.add_argument("--latest-only",action="store_true",default=True,help="analisa apenas o run mais recente do split"); parser.add_argument("--all-runs",dest="latest_only",action="store_false"); args=parser.parse_args()
+ import argparse; parser=argparse.ArgumentParser(); parser.add_argument("--split",default="final",choices=["final","pilot"]); parser.add_argument("--latest-only",action="store_true",default=True,help="analisa apenas o run mais recente do split"); parser.add_argument("--all-runs",dest="latest_only",action="store_false"); parser.add_argument("--run",default=None,help="substring que deve estar no nome do arquivo raw (ex: run_id)"); parser.add_argument("--suffix",default=None,help="sufixo do relatorio: results_{split}_{suffix}.md"); args=parser.parse_args()
  files=sorted((ROOT/"artifacts/raw").glob(f"*_{args.split}_*.jsonl"))
- if args.latest_only and files: files = [files[-1]]
+ if args.run: files = [f for f in files if args.run in f.name]
+ elif args.latest_only and files: files = [files[-1]]
  rows=[json.loads(line) for f in files for line in f.read_text(encoding="utf-8").splitlines() if line.strip()]
  if not rows: raise SystemExit(f"Nenhuma execução bruta encontrada para split={args.split}")
  data=pd.DataFrame(rows); final=data[data.attempt==data.groupby(["run_id","question_id","condition","repetition"])["attempt"].transform("max")].copy()
@@ -23,9 +24,10 @@ def main():
  wilcoxon_p="not available"
  if len(latency) and (latency.semantic-latency.technical).abs().sum()>0:
   wilcoxon_p=f"{wilcoxon(latency.semantic,latency.technical,zero_method='wilcox').pvalue:.6g}"
- summary_df=pd.DataFrame(summary);summary_df.to_csv(ROOT/"artifacts/processed/accuracy.csv",index=False)
- final.groupby(["condition","category"]).correct.agg(["count","mean"]).reset_index().to_csv(ROOT/"artifacts/processed/by_category.csv",index=False)
- final.error_type.fillna("none").groupby([final.condition,final.error_type.fillna("none")]).size().reset_index(name="count").to_csv(ROOT/"artifacts/processed/error_types.csv",index=False)
+ suffix_slug = f"_{args.suffix}" if args.suffix else ""
+ summary_df=pd.DataFrame(summary);summary_df.to_csv(ROOT/"artifacts/processed"/f"accuracy{suffix_slug}.csv",index=False)
+ final.groupby(["condition","category"]).correct.agg(["count","mean"]).reset_index().to_csv(ROOT/"artifacts/processed"/f"by_category{suffix_slug}.csv",index=False)
+ final.error_type.fillna("none").groupby([final.condition,final.error_type.fillna("none")]).size().reset_index(name="count").to_csv(ROOT/"artifacts/processed"/f"error_types{suffix_slug}.csv",index=False)
  report=["# Resultados do experimento","",summary_df.to_markdown(index=False),"",f"Diferença absoluta (semântica − técnica): {summary_df.set_index('condition').accuracy.get('semantic',float('nan'))-summary_df.set_index('condition').accuracy.get('technical',float('nan')):.4f}.",f"","## Pares","",f"Técnica correta / semântica incorreta: {b}; técnica incorreta / semântica correta: {c}; teste exato de McNemar: p={mcnemar:.6g}.",f"Wilcoxon pareado para latência do modelo: p={wilcoxon_p}.","","Os CSVs derivados encontram-se em `artifacts/processed/`. Intervalos da acurácia usam aproximação normal; para amostras pequenas, interpretar junto do teste pareado."]
- out=(ROOT/"artifacts/reports"/f"results_{args.split}.md"); out.write_text("\n".join(report)+"\n",encoding="utf-8"); print(out)
+ out=(ROOT/"artifacts/reports"/f"results_{args.split}{suffix_slug}.md"); out.write_text("\n".join(report)+"\n",encoding="utf-8"); print(out)
 if __name__=="__main__":main()

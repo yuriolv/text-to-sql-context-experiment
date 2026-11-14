@@ -20,25 +20,41 @@ O projeto implementa um experimento controlado de Text-to-SQL para comparar duas
 - Piloto executado (10 perguntas × 2 condições): **20/20 corretos**, 1ª tentativa, sem retry.
 - Coleta final executada (40 perguntas × 2 condições × 1 repetição, conforme `manifest.yaml`).
 
-## Resultados (`artifacts/reports/results_final.md`)
+## Resultados
 
-Após D-005 (contexto semântico reescrito, evaluator relaxado) + D-006 (padronização estrutural do gold em perguntas "associado"):
+Relatórios em `artifacts/reports/results_final_<modelo>.md`.
+
+### Modelo principal: `openai/gpt-oss-120b` (Groq)
 
 - **semantic**: 35/40 = 87.5% (CI95 ≈ 77.3–97.7%)
 - **technical**: 26/40 = 65.0% (CI95 ≈ 50.2–79.8%)
 - Δ = **+22.5 pp** a favor de `semantic`.
-- McNemar pareado: 9 pares discordantes, **9 a favor de semantic e 0 a favor de technical**. **p = 0.0039 — significativo a α=0.01.**
-- Wilcoxon de latência: p ≈ 10⁻⁴; `semantic` continua mais lento (mediana 3438 ms vs 1488 ms).
+- McNemar pareado: 9 pares discordantes, 9:0 a favor de `semantic`. **p = 0.0039** (α=0.01).
+- Latência: `semantic` mediana 3438 ms vs `technical` 1488 ms (Wilcoxon p ≈ 10⁻⁴).
 
-Histórico das três iterações metodológicas:
+### Réplica (validade externa): `qwen/qwen3.8-27b` (Groq)
+
+Mesmo protocolo, mesma base, mesmas perguntas; família de modelo diferente (Alibaba vs OpenAI), tamanho menor (27B vs 120B).
+
+- **semantic**: 34/40 = 85.0% (CI95 ≈ 73.9–96.1%)
+- **technical**: 22/40 = 55.0% (CI95 ≈ 39.6–70.4%)
+- Δ = **+30.0 pp**.
+- McNemar pareado: 12 pares discordantes, 12:0 a favor de `semantic`. **p = 0.00049**.
+- Latência: `semantic` mediana ~10.3 s vs `technical` ~3.2 s.
+
+### Histórico de iterações metodológicas (modelo principal)
 
 | iteração | semantic | technical | Δ | McNemar p | arquivo raw |
 |---|---|---|---|---|---|
 | inicial (contexto genérico, evaluator estrito) | 24/40 (60.0%) | 26/40 (65.0%) | −5.0 pp | 1.0 | `*_30bfd1ed.jsonl` |
 | pós-D-005 | 34/40 (85.0%) | 29/40 (72.5%) | +12.5 pp | 0.18 | `*_7f82b1f5.jsonl` |
-| pós-D-006 (atual) | 35/40 (87.5%) | 26/40 (65.0%) | **+22.5 pp** | **0.0039** | `*_243a0e26.jsonl` |
+| pós-D-006 | 35/40 (87.5%) | 26/40 (65.0%) | **+22.5 pp** | **0.0039** | `*_243a0e26.jsonl` |
+| réplica Qwen 27B (pós-D-007) | 34/40 (85.0%) | 22/40 (55.0%) | **+30.0 pp** | **0.00049** | `*_06a0ccb0.jsonl` |
 
-A trajetória é o achado central do TCC: a qualidade do contexto semântico e a consistência estrutural do banco de perguntas determinam fortemente se o efeito aparece. Mal projetados, parecem não haver diferença — ou haver diferença negativa. Projetados cuidadosamente, o efeito é estatisticamente significativo mesmo com n=40.
+Dois achados centrais do TCC:
+
+1. **Design importa**: a qualidade do contexto semântico e a consistência do banco de perguntas determinam se o efeito aparece. Mal projetados, parece não haver diferença (Δ = −5 pp inicial, não significativo); projetados cuidadosamente, o efeito é significativo mesmo com n=40.
+2. **Efeito replica em modelo diferente**: direção, magnitude e significância se preservam ao trocar `gpt-oss-120b` por `qwen3.8-27b`. A condição semântica mantém ~85% de acurácia em ambos; a técnica degrada com o modelo menor (65% → 55%). Isso sugere que **modelos menos capazes se beneficiam ainda mais do contexto semântico**.
 
 ## Próximos passos (escrita do TCC)
 

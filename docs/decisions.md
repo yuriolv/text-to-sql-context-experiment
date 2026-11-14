@@ -39,3 +39,17 @@ Essa inconsistência impunha um teto artificial: qualquer condição lexicalment
 Padronizamos os golds de Q013, Q014 e Q016 para a forma `JOIN`, alinhando aos Q011, Q012, Q015 e Q017 pré-existentes. A escolha de `JOIN` em vez de `IS NOT NULL` segue a interpretação "associado = ligado a um referente existente", consistente com a semântica natural em pt-BR e com a convenção majoritária já presente no gold original (4 das 7 perguntas de associação).
 
 A padronização é estrutural: foi decidida pela forma linguística, não pela condição favorecida. O resultado da rodada anterior (34 × 29, gold inconsistente) fica preservado em `artifacts/raw/*_final_7f82b1f5.jsonl` para transparência da iteração e possível análise de sensibilidade.
+
+## D-007 — Replicação em segundo modelo para validade externa
+
+Para testar se o efeito observado depende do modelo específico ou generaliza, replicamos a coleta final com `qwen/qwen3.8-27b` (Alibaba, família de modelos diferente da GPT-OSS da OpenAI, 27B parâmetros contra 120B). Todos os demais fatores — dataset `commercial`, perguntas pós-D-006, contexto pós-D-005, evaluator relaxado, snapshot da base — foram mantidos idênticos.
+
+Resultado (`artifacts/reports/results_final_qwen3-27b.md`):
+
+- semantic 34/40 = 85.0% (CI95 73.9–96.1%)
+- technical 22/40 = 55.0% (CI95 39.6–70.4%)
+- Δ = +30.0 pp
+- McNemar: 12 pares discordantes, **12 a favor de semantic, 0 a favor de technical**, p = 0.00049
+- Latência: semantic ~10.3s vs technical ~3.2s (p ≈ 10⁻¹¹)
+
+A acurácia da condição semântica permaneceu quase idêntica (34 contra 35 em `gpt-oss-120b`), enquanto a técnica caiu de 26 para 22. O gap aumentou em vez de diminuir no modelo menor, sugerindo que **modelos menos capazes se beneficiam mais do contexto semântico**. A direção e a significância do efeito se preservam entre famílias de modelo, atendendo o critério básico de validade externa com n=40.
