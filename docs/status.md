@@ -22,7 +22,27 @@ O projeto implementa um experimento controlado de Text-to-SQL para comparar duas
 
 ## Resultados
 
-Relatórios em `artifacts/reports/results_final_<modelo>.md`.
+Relatórios em `artifacts/reports/results_final_<modelo>[_tiers].md`.
+
+### Ablação de 3 tiers (D-008): `qwen/qwen3.8-27b`
+
+Desenho progressivamente aditivo (technical ⊂ catalog ⊂ semantic), análogo ao benchmark da comunidade Databricks ("Which context improves Genie accuracy most?", 40% → 47% → 97%).
+
+- **technical** (DDL puro): 23/39 = 58.97% (CI95 43.5–74.4%)
+- **catalog** (DDL + descrições por tabela e coluna): 24/39 = 61.54% (CI95 46.3–76.8%)
+- **semantic** (catalog + regras de grão + temporais + referenciais + estilo + sinônimos): **34/39 = 87.18%** (CI95 76.7–97.7%)
+
+McNemar pareado:
+
+- technical vs catalog: 1:2 discordantes, **p = 1.0** — adicionar apenas comentários de catálogo não muda acurácia de forma significativa.
+- catalog vs semantic: 0:10 discordantes, **p = 0.00195** — adicionar a camada semântica estruturada é o que produz o salto.
+- technical vs semantic: 0:11 discordantes, **p = 0.000977** — gap total significativo a α=0.001.
+
+Latência mediana: 2.9 s → 7.7 s → 14.8 s (todas as comparações pareadas significativas, p < 10⁻⁸).
+
+Replicação do shape do benchmark Databricks com modelo open-source e sem Unity Catalog proprietário.
+
+n=39 em vez de 40 por 1 questão com falha de execução SQL em pelo menos uma condição (a linha é descartada do pareamento McNemar/Wilcoxon por não ter dado comparável).
 
 ### Modelo principal: `openai/gpt-oss-120b` (Groq)
 
@@ -41,6 +61,10 @@ Mesmo protocolo, mesma base, mesmas perguntas; família de modelo diferente (Ali
 - Δ = **+30.0 pp**.
 - McNemar pareado: 12 pares discordantes, 12:0 a favor de `semantic`. **p = 0.00049**.
 - Latência: `semantic` mediana ~10.3 s vs `technical` ~3.2 s.
+
+### Pendente — `openai/gpt-oss-120b` para a ablação de 3 tiers
+
+O TPD de 200k tokens/dia da conta Groq esgotou depois dos runs anteriores. Rodar de novo após a próxima virada do dia (UTC).
 
 ### Histórico de iterações metodológicas (modelo principal)
 

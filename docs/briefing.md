@@ -20,10 +20,13 @@ A hipótese nula é "não há diferença entre as duas condições". A alternati
 
 ## 3. Condições comparadas
 
-Pareamento perfeito: cada pergunta é apresentada nas duas condições na mesma rodada; a ordem (técnica primeiro ou semântica primeiro) é contrabalanceada por uma permutação com semente (D-002).
+Pareamento perfeito: cada pergunta é apresentada em **três condições progressivamente aditivas** na mesma rodada; a ordem é contrabalanceada por 6 permutações rotacionadas (D-002 + D-008).
 
-- **Técnica (`technical`)**: apenas DDL comentada do schema em `data/datasets/commercial/technical_context.sql`. Descreve tabelas, colunas, PKs e FKs textualmente.
-- **Semântica (`semantic`)**: schema técnico **mais** o conteúdo de `data/datasets/commercial/semantic_context.yaml`: campos monetários e de contagem por tabela, regras de grão (pedido vs item), regras temporais, regras referenciais (como tratar FKs órfãs de D-004), sinônimos pt-BR, e estilo de resposta (não adicionar colunas descritivas não pedidas; não castar desnecessariamente).
+- **Técnica (`technical`)**: DDL textualizado em `data/datasets/commercial/technical_context.sql`. Descreve tabelas, colunas, PKs e FKs textualmente, sem descrição de campo. Análogo a "tables only" no benchmark da comunidade Databricks.
+- **Catálogo (`catalog`)**: DDL + descrições por tabela e por coluna para campos não triviais, em `data/datasets/commercial/catalog_context.sql`. Análogo direto a `COMMENT ON TABLE`/`COMMENT ON COLUMN` do Unity Catalog ou "tables + UC descriptions" no benchmark citado.
+- **Semântica (`semantic`)**: catálogo + conteúdo de `semantic_context.yaml` (regras de grão pedido↔item, regras temporais, regras referenciais para FKs órfãs de D-004, sinônimos pt-BR, estilo de resposta). Análogo a "+ metric views + instructions" no benchmark citado.
+
+O desenho de três tiers aditivos permite isolar o salto "catálogo → semântico" do salto "técnico → catálogo".
 
 ## 4. Trajetória metodológica (D-001 a D-007)
 
@@ -38,6 +41,7 @@ Resumo das 7 decisões (texto integral em `docs/decisions.md`):
 | D-005 | Reescrever `semantic_context.yaml` + relaxar evaluator | Rodada pré-D-005 apontou glossário mal projetado (sinônimo genérico `valor_pedido`) e avaliador penalizando equivalências de tipo (`int` vs `Decimal`, `date` vs `datetime` à meia-noite). |
 | D-006 | Padronizar gold SQL em perguntas "associado" | Gold era internamente inconsistente (4 perguntas com `JOIN`, 3 com `IS NOT NULL`); escolha estrutural pela maioria pré-existente (`JOIN`). |
 | D-007 | Replicar em `qwen/qwen3.8-27b` | Testar validade externa — efeito depende do modelo? |
+| D-008 | Adicionar terceiro tier `catalog` | Alinhar ao benchmark Databricks Genie (40→47→97): separar o salto DDL→comentários de catálogo do salto catálogo→camada semântica. |
 
 ## 5. Resultados
 

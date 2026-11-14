@@ -53,3 +53,24 @@ Resultado (`artifacts/reports/results_final_qwen3-27b.md`):
 - Latência: semantic ~10.3s vs technical ~3.2s (p ≈ 10⁻¹¹)
 
 A acurácia da condição semântica permaneceu quase idêntica (34 contra 35 em `gpt-oss-120b`), enquanto a técnica caiu de 26 para 22. O gap aumentou em vez de diminuir no modelo menor, sugerindo que **modelos menos capazes se beneficiam mais do contexto semântico**. A direção e a significância do efeito se preservam entre famílias de modelo, atendendo o critério básico de validade externa com n=40.
+
+## D-008 — Terceiro tier: catálogo como condição intermediária
+
+Após revisão da literatura e do benchmark da comunidade Databricks ("Which context improves Genie accuracy most?", 2025), identificamos que a comparação técnica × semântica implicitamente colapsa dois saltos distintos:
+
+1. Do DDL cru para o DDL anotado com descrições por tabela e coluna (análogo a `COMMENT ON TABLE` + `COMMENT ON COLUMN` no Unity Catalog, ou a "tables + UC descriptions" no benchmark citado, que subiu 40% → 47%).
+2. Do catálogo anotado para a camada semântica plena (metric views, regras de grão, regras temporais, regras referenciais, estilo de resposta — análogo a "+ metric views" no mesmo benchmark, que foi de 47% → 97%).
+
+Para distinguir esses dois saltos, adicionamos um terceiro contexto `catalog_context.sql`: o DDL textualizado acrescido de descrição por tabela e descrição por coluna para campos não triviais (valores monetários, contagens, datas), **sem** grain_rules, temporal_rules, referential_rules, synonyms ou response_style. É o análogo direto de "tables + UC descriptions" no benchmark Databricks.
+
+As condições do experimento passaram a ser três, progressivamente aditivas:
+
+- `technical`: `technical_context.sql` (DDL textualizado, sem comentários além do FK).
+- `catalog`: `catalog_context.sql` (DDL + descrições por tabela e por coluna).
+- `semantic`: `catalog_context.sql` + `semantic_context.yaml` (adiciona regras de grão, temporais, referenciais, sinônimos, estilo).
+
+O pareamento foi estendido para 6 permutações rotacionadas (`PERMS` em `runner.py`). A análise computa McNemar exato e Wilcoxon de latência para os três pares (`technical`↔`catalog`, `catalog`↔`semantic`, `technical`↔`semantic`).
+
+Essa estrutura alinha o experimento ao desenho dos benchmarks industriais, permite isolar o efeito do catálogo (metadado em tabela/coluna) do efeito da camada semântica (regras + glossário + estilo), e muda o enquadramento do trabalho de "contexto técnico × contexto semântico" para "replicação de um claim sobre ablação de tiers de contexto com LLMs open-source e sem catálogo proprietário".
+
+O resultado anterior (duas condições pós-D-006/D-007) permanece preservado em `artifacts/raw/*_243a0e26.jsonl` e `*_06a0ccb0.jsonl`.

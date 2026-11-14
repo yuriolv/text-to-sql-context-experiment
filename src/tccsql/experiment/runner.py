@@ -9,19 +9,23 @@ from tccsql.agent.text2sql import TextToSQLAgent
 from tccsql.experiment.controls import validate_protocol
 def sha(text): return hashlib.sha256(text.encode()).hexdigest()
 def questions(path): return [json.loads(x) for x in Path(path).read_text(encoding="utf-8").splitlines() if x]
+PERMS=[["technical","catalog","semantic"],["technical","semantic","catalog"],["catalog","technical","semantic"],["catalog","semantic","technical"],["semantic","technical","catalog"],["semantic","catalog","technical"]]
 def run(dataset, split, provider, settings, repetitions=1):
- d=ROOT/"data/datasets"/dataset; qs=questions(d/f"questions_{split}.jsonl"); technical=(d/"technical_context.sql").read_text(); semantic=technical+"\n\nSEMÂNTICA:\n"+(d/"semantic_context.yaml").read_text(); validate_protocol(d,qs,technical,semantic)
+ d=ROOT/"data/datasets"/dataset; qs=questions(d/f"questions_{split}.jsonl")
+ technical=(d/"technical_context.sql").read_text(); catalog=(d/"catalog_context.sql").read_text(); semantic=catalog+"\n\nSEMÂNTICA:\n"+(d/"semantic_context.yaml").read_text()
+ validate_protocol(d,qs,technical,catalog,semantic)
  out=ROOT/"artifacts/raw"/f"{datetime.now().strftime('%Y%m%dT%H%M%S')}_{dataset}_{split}_{uuid.uuid4().hex[:8]}.jsonl"; out.parent.mkdir(parents=True,exist_ok=True)
- agent=TextToSQLAgent(provider,{"temperature":0,"max_tokens":800}); contexts={"technical":technical,"semantic":semantic}
+ agent=TextToSQLAgent(provider,{"temperature":0,"max_tokens":800}); contexts={"technical":technical,"catalog":catalog,"semantic":semantic}
+ technical_hash=sha(technical); catalog_hash=sha(catalog); semantic_hash=sha(semantic)
  with out.open("x",encoding="utf-8") as file:
   for rep in range(repetitions):
    for index,item in enumerate(qs):
-    order=["technical","semantic"] if (index+rep)%2==0 else ["semantic","technical"]
+    order=PERMS[(index+rep)%6]
     gold=execute_readonly(settings.readonly_database_url,item["gold_sql"],settings.timeout_ms)
     for condition in order:
      feedback=None; final=False
      for attempt_no in range(1,4):
-      attempt=agent.attempt(item["question"],contexts[condition],feedback); record={"run_id":out.stem,"timestamp":datetime.now(timezone.utc).isoformat(),"experiment_version":settings.experiment_version,"dataset":dataset,"question_id":item["id"],"category":item["category"],"condition":condition,"repetition":rep+1,"attempt":attempt_no,"model":attempt.response.model,"sql":attempt.sql,"validation_error":attempt.validation_error,"input_tokens":attempt.response.input_tokens,"output_tokens":attempt.response.output_tokens,"model_latency_ms":attempt.response.latency_ms,"prompt_hash":sha(contexts[condition]),"technical_schema_hash":sha(technical),"semantic_hash":sha((d/"semantic_context.yaml").read_text()) if condition=="semantic" else None,"gold_in_prompt":False,"new_conversation":True,"condition_order":order}
+      attempt=agent.attempt(item["question"],contexts[condition],feedback); record={"run_id":out.stem,"timestamp":datetime.now(timezone.utc).isoformat(),"experiment_version":settings.experiment_version,"dataset":dataset,"question_id":item["id"],"category":item["category"],"condition":condition,"repetition":rep+1,"attempt":attempt_no,"model":attempt.response.model,"sql":attempt.sql,"validation_error":attempt.validation_error,"input_tokens":attempt.response.input_tokens,"output_tokens":attempt.response.output_tokens,"model_latency_ms":attempt.response.latency_ms,"prompt_hash":sha(contexts[condition]),"technical_hash":technical_hash,"catalog_hash":catalog_hash,"semantic_hash":semantic_hash,"gold_in_prompt":False,"new_conversation":True,"condition_order":order}
       if attempt.sql:
        try:
         result=execute_readonly(settings.readonly_database_url,attempt.sql,settings.timeout_ms); correct,result_hash=compare(result.rows,gold.rows,item["numeric_tolerance"],item["order_sensitive"]); record.update({"execution_success":True,"database_latency_ms":result.latency_ms,"result_hash":result_hash,"correct":correct,"error_type":None})
