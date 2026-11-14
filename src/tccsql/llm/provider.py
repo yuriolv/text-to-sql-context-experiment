@@ -1,8 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from time import perf_counter
+from time import perf_counter, sleep
 from typing import Protocol
-import json, os, urllib.request
+import json, os, urllib.request, urllib.error
 @dataclass(frozen=True)
 class Message: role: str; content: str
 @dataclass(frozen=True)
@@ -19,8 +19,16 @@ class OpenAICompatibleProvider:
     def __init__(self, api_key: str, base_url: str, model: str): self.api_key, self.base_url, self.model = api_key, base_url.rstrip("/"), model
     def generate(self, messages, configuration):
         payload={"model":self.model,"messages":[m.__dict__ for m in messages], **configuration}; started=perf_counter()
-        request=urllib.request.Request(self.base_url+"/chat/completions", data=json.dumps(payload).encode(), headers={"Authorization":f"Bearer {self.api_key}","Content-Type":"application/json"})
-        with urllib.request.urlopen(request, timeout=90) as response: body=json.loads(response.read()); request_id=response.headers.get("x-request-id")
+        for attempt in range(6):
+            request=urllib.request.Request(self.base_url+"/chat/completions", data=json.dumps(payload).encode(), headers={"Authorization":f"Bearer {self.api_key}","Content-Type":"application/json","User-Agent":"tccsql-experiment/1.0"})
+            try:
+                with urllib.request.urlopen(request, timeout=90) as response: body=json.loads(response.read()); request_id=response.headers.get("x-request-id")
+                break
+            except urllib.error.HTTPError as error:
+                if error.code in (429, 500, 502, 503) and attempt < 5:
+                    retry_after = error.headers.get("Retry-After"); wait = float(retry_after) if retry_after and retry_after.replace(".","",1).isdigit() else min(60, 2**attempt + 1)
+                    sleep(wait); continue
+                raise
         usage=body.get("usage",{}); text=body["choices"][0]["message"]["content"]
         return ModelResponse(text, body.get("model",self.model), usage.get("prompt_tokens"), usage.get("completion_tokens"), (perf_counter()-started)*1000, request_id)
 def provider_from_settings(s):

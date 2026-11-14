@@ -1,0 +1,3 @@
+# Arquivos do protocolo experimental sao congelados por checksum SHA256.
+# Forcar LF evita que `core.autocrlf` no checkout invalide o freeze no Windows.
+data/datasets/** text eol=lf

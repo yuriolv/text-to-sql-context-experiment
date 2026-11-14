@@ -13,7 +13,7 @@ def execute_readonly(url: str, sql: str, timeout_ms: int = 5000) -> QueryResult:
     with psycopg.connect(url, row_factory=tuple_row, autocommit=False) as conn:
         with conn.cursor() as cur:
             cur.execute("SET TRANSACTION READ ONLY")
-            cur.execute("SET LOCAL statement_timeout = %s", (timeout_ms,))
+            cur.execute(f"SET LOCAL statement_timeout = {int(timeout_ms)}")
             cur.execute(sql)
             rows = cur.fetchall(); columns = [x.name for x in cur.description or []]
         conn.rollback()

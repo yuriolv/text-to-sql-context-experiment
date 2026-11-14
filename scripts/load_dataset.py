@@ -1,10 +1,21 @@
 """Carrega a fonte XLSX comercial sem alterá-la; usado apenas por setup_database."""
 from __future__ import annotations
-import math, os
+import math, os, re
+from datetime import date
 from pathlib import Path
 import pandas as pd
 import psycopg
 from psycopg import sql
+
+_PT_MONTHS = {"janeiro":1,"fevereiro":2,"marco":3,"março":3,"abril":4,"maio":5,"junho":6,"julho":7,"agosto":8,"setembro":9,"outubro":10,"novembro":11,"dezembro":12}
+_PT_DATE_RE = re.compile(r"(\d{1,2})\s+de\s+([a-zç]+)\s+de\s+(\d{4})", re.IGNORECASE)
+def _parse_pt_date(value: str):
+    m = _PT_DATE_RE.search(value)
+    if not m: return None
+    day, month_name, year = int(m.group(1)), m.group(2).lower(), int(m.group(3))
+    month = _PT_MONTHS.get(month_name)
+    if not month: return None
+    return date(year, month, day)
 
 SOURCE = {"collections":"dColecoes.xlsx", "families":"dFamilias.xlsx", "groups":"dGrupos.xlsx", "lines":"dLinhas.xlsx", "subgroups":"dSubGrupos.xlsx", "representatives":"dRepresentantes.xlsx", "customers":"dClientes.xlsx", "products":"dProdutos.xlsx", "targets":"fMetas.xlsx", "orders":"fPedidos.xlsx", "order_items":"fPedidosItens.xlsx"}
 COLUMNS = {
@@ -19,6 +30,9 @@ def source_root() -> Path: return Path(os.getenv("CANDIDATES_ROOT", r"C:\Users\Y
 def clean(value):
     if value is None or (isinstance(value,float) and math.isnan(value)): return None
     if hasattr(value, "to_pydatetime"): return value.to_pydatetime()
+    if isinstance(value, str):
+        parsed = _parse_pt_date(value)
+        if parsed is not None: return parsed
     return value
 def load_commercial(conn: psycopg.Connection) -> None:
     root=source_root()
