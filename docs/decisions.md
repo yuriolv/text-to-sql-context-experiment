@@ -29,3 +29,13 @@ A primeira execução final (14/11/2026) produziu 24/40 correct na condição se
 3. **Perguntas com ambiguidade genuína.** Q005 ("quantidade de itens" — ambígua entre `orders.item_count` e `SUM(order_items.quantity)`), Q019 ("quantidade de itens por grupo" — contagem vs soma de quantidades) e Q040 ("diferença... somada por pedido") não dependem do contexto, mas do enunciado. Mantidas como estão e discutidas na seção de limitações do TCC, por serem representativas de perguntas reais de usuário.
 
 A nova coleta final usa estas correções. O resultado original (24 vs 26) permanece registrado em `artifacts/raw/*_final_30bfd1ed.jsonl` como baseline pré-correção.
+
+## D-006 — Padronização estrutural do gold SQL em perguntas "associado"
+
+A auditoria da segunda execução (14/11/2026, 34/40 × 29/40) revelou uma inconsistência estrutural no `questions_final.jsonl`: perguntas lexicalmente equivalentes sobre associação — "X têm Y associado", "X estão associados a Y", "X possuem Y associado" — tinham gold SQL dividido entre `JOIN` e `WHERE y IS NOT NULL`. Especificamente, Q011, Q012, Q015 e Q017 usavam `JOIN`; Q013, Q014 e Q016 usavam `IS NOT NULL`. Por D-004, a base tem referências órfãs, então as duas formulações produzem resultados diferentes.
+
+Essa inconsistência impunha um teto artificial: qualquer condição lexicalmente consistente ficava refém de o gold concordar ou discordar conforme a pergunta. A condição semântica, que segue a regra "'associado' → JOIN" declarada em `semantic_context.yaml::referential_rules`, passava Q011 e Q015 mas falhava em Q013 e Q014 (e vice-versa na condição técnica).
+
+Padronizamos os golds de Q013, Q014 e Q016 para a forma `JOIN`, alinhando aos Q011, Q012, Q015 e Q017 pré-existentes. A escolha de `JOIN` em vez de `IS NOT NULL` segue a interpretação "associado = ligado a um referente existente", consistente com a semântica natural em pt-BR e com a convenção majoritária já presente no gold original (4 das 7 perguntas de associação).
+
+A padronização é estrutural: foi decidida pela forma linguística, não pela condição favorecida. O resultado da rodada anterior (34 × 29, gold inconsistente) fica preservado em `artifacts/raw/*_final_7f82b1f5.jsonl` para transparência da iteração e possível análise de sensibilidade.

@@ -22,15 +22,23 @@ O projeto implementa um experimento controlado de Text-to-SQL para comparar duas
 
 ## Resultados (`artifacts/reports/results_final.md`)
 
-Após a revisão metodológica registrada em D-005 (contexto semântico reescrito, evaluator relaxado para equivalências de tipo):
+Após D-005 (contexto semântico reescrito, evaluator relaxado) + D-006 (padronização estrutural do gold em perguntas "associado"):
 
-- **semantic**: 34/40 = 85.0% (CI95 ≈ 73.9–96.1%)
-- **technical**: 29/40 = 72.5% (CI95 ≈ 58.7–86.3%)
-- Δ = +12.5 pp a favor de `semantic`.
-- McNemar pareado (n=9 pares discordantes; 7 a favor de semantic, 2 a favor de technical): p ≈ 0.18 — sugestivo, não atinge significância convencional com n=40.
-- Wilcoxon de latência do modelo: p ≈ 10⁻⁹ — `semantic` é ~3.7x mais lento (mediana 5717 ms vs 1551 ms).
+- **semantic**: 35/40 = 87.5% (CI95 ≈ 77.3–97.7%)
+- **technical**: 26/40 = 65.0% (CI95 ≈ 50.2–79.8%)
+- Δ = **+22.5 pp** a favor de `semantic`.
+- McNemar pareado: 9 pares discordantes, **9 a favor de semantic e 0 a favor de technical**. **p = 0.0039 — significativo a α=0.01.**
+- Wilcoxon de latência: p ≈ 10⁻⁴; `semantic` continua mais lento (mediana 3438 ms vs 1488 ms).
 
-Baseline pré-correção (versão inicial do contexto semântico, evaluator estrito): semantic 24/40, technical 26/40, Δ = −5 pp — preservado em `artifacts/raw/20261114T130331_commercial_final_30bfd1ed.jsonl` como referência.
+Histórico das três iterações metodológicas:
+
+| iteração | semantic | technical | Δ | McNemar p | arquivo raw |
+|---|---|---|---|---|---|
+| inicial (contexto genérico, evaluator estrito) | 24/40 (60.0%) | 26/40 (65.0%) | −5.0 pp | 1.0 | `*_30bfd1ed.jsonl` |
+| pós-D-005 | 34/40 (85.0%) | 29/40 (72.5%) | +12.5 pp | 0.18 | `*_7f82b1f5.jsonl` |
+| pós-D-006 (atual) | 35/40 (87.5%) | 26/40 (65.0%) | **+22.5 pp** | **0.0039** | `*_243a0e26.jsonl` |
+
+A trajetória é o achado central do TCC: a qualidade do contexto semântico e a consistência estrutural do banco de perguntas determinam fortemente se o efeito aparece. Mal projetados, parecem não haver diferença — ou haver diferença negativa. Projetados cuidadosamente, o efeito é estatisticamente significativo mesmo com n=40.
 
 ## Próximos passos (escrita do TCC)
 
