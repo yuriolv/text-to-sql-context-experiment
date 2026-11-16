@@ -8,7 +8,10 @@ sys.path.insert(0, str(ROOT/"src"))
 from tccsql.database.safety import validate_readonly_sql
 
 URL = os.environ["READONLY_DATABASE_URL"]
-RAW = sorted((ROOT/"artifacts/raw").glob("*_final_*.jsonl"))[-1]
+import os
+_run_filter = os.environ.get("AUDIT_RUN_ID")
+_candidates = sorted((ROOT/"artifacts/raw").glob("*_final_*.jsonl"))
+RAW = next((f for f in _candidates if _run_filter and _run_filter in f.name), _candidates[-1])
 rows = [json.loads(l) for l in open(RAW, encoding="utf-8") if l.strip()]
 best = {}
 for r in rows:
@@ -45,7 +48,8 @@ for qid in qids:
     print(f"Gold: {q['gold_sql']}")
     gold_res = execute(q['gold_sql'])
     print(f"Gold result: {gold_res}")
-    for cond in ("technical", "semantic"):
+    present_conditions = sorted({c for (q2, c) in best if q2 == qid}, key=lambda x: ["technical","catalog","semantic"].index(x) if x in ("technical","catalog","semantic") else 99)
+    for cond in present_conditions:
         r = best[(qid, cond)]
         status = "OK" if r.get("correct") else (r.get("error_type") or "wrong_result")
         print(f"\n  [{cond}] {status}")

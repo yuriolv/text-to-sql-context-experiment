@@ -77,6 +77,8 @@ Raw files de cada iteração preservados em `artifacts/raw/` para auditoria.
 2. **Replicação externa**: direção, magnitude e significância se preservam ao trocar `gpt-oss-120b` por `qwen3.8-27b`. A condição semântica mantém ~85% em ambos; a técnica degrada no modelo menor (65% → 55%).
 3. **Efeito compensatório em modelos menos capazes**: o gap aumenta (não diminui) com modelo menor. Interpretação: o contexto semântico compensa parte da capacidade bruta do modelo — modelo menor com contexto bom se aproxima de modelo grande com contexto técnico apenas.
 4. **Trade-off de latência**: semantic é 2–3x mais lento em ambos os modelos (prompt maior). Custo real de produção que merece menção.
+5. **Base real descaracterizada, não base sintética pronta**: a fonte é um recorte comercial descaracterizado autorizado pelo responsável do estudo (D-001), com 11 tabelas, ~262k linhas, referências órfãs reais, datas em formato longo pt-BR, nomes de coluna em português e inglês misturados. Diferente de benchmarks acadêmicos (Spider, BIRD) que usam schemas sintéticos balanceados, nosso teto de acurácia já carrega o ruído de dados comerciais autênticos — o que torna o ganho medido mais informativo para cenários de produção. Esse ponto merece destaque na seção de metodologia.
+6. **Baixo custo e totalmente reprodutível sem stack proprietária**: o experimento inteiro roda com Python 3.12, PostgreSQL 16 em Docker, dois LLMs open-weights (`openai/gpt-oss-120b`, `qwen/qwen3.8-27b`) servidos pela API gratuita da Groq. Zero custo financeiro, zero dependência de Databricks, Snowflake, dbt Cloud, OpenAI API ou Anthropic API. Alguém sem orçamento consegue replicar o trabalho num notebook — ou expandir com modelos próprios. Esse ponto também precisa estar em destaque: o resultado demonstra que a validação da tese do semantic layer para agentes **não exige stack industrial cara**; se o leitor da banca ou da área quiser testar a hipótese, pode faz isso com tooling aberto.
 
 ## 7. Limitações a foreground no texto
 
@@ -89,13 +91,18 @@ Raw files de cada iteração preservados em `artifacts/raw/` para auditoria.
 
 ## 8. Onde encontrar o quê
 
+- **Esqueleto para o texto do TCC**:
+  - [`docs/qualitative_examples.md`](qualitative_examples.md) — 5 perguntas (Q005, Q011, Q013, Q032, Q038) lado a lado, com SQL e resultado real de cada tier, prontas para citação direta na seção de resultados.
+  - [`docs/error_taxonomy.md`](error_taxonomy.md) — 7 classes de erro (A a G) com perguntas associadas, tier mínimo que resolve, e qual seção do YAML endereça. Decomposição numérica do ganho por classe.
+  - [`docs/semantic_layer_mapping.md`](semantic_layer_mapping.md) — tabela conceitual mapeando cada seção do nosso `semantic_context.yaml` para dbt Semantic Layer, Unity Catalog, LookML e Cube. Posicionamento no estado da arte.
 - Protocolo e perguntas congeladas (conteúdo): `data/datasets/commercial/`
-- Decisões metodológicas (D-001 a D-007): `docs/decisions.md`
+- Decisões metodológicas (D-001 a D-008): `docs/decisions.md`
+- Arquitetura do agente e discussão da "garantia" da camada semântica: `docs/architecture.md`
 - Estado e resultados agregados: `docs/status.md`
-- Relatórios estatísticos por modelo (markdown com tabelas): `artifacts/reports/results_final_gpt-oss-120b.md`, `artifacts/reports/results_final_qwen3-27b.md`
-- CSVs por modelo (prontos pra tabular no TCC): `artifacts/processed/accuracy_<modelo>.csv`, `by_category_<modelo>.csv`, `error_types_<modelo>.csv`
+- Relatórios estatísticos por modelo (markdown com tabelas): `artifacts/reports/results_final_gpt-oss-120b-tiers.md`, `artifacts/reports/results_final_qwen3-27b-tiers.md` (3-tier atuais) e versões pre-D-008 para contexto histórico.
+- CSVs por modelo (prontos pra tabular no TCC): `artifacts/processed/accuracy_<modelo>.csv`, `by_category_<modelo>.csv`, `error_types_<modelo>.csv`, `mcnemar_pairs_<modelo>.csv`.
 - Registros brutos por execução (uma linha JSON por tentativa): `artifacts/raw/*.jsonl`
-- Auditoria qualitativa das falhas (classificação pergunta a pergunta, com SQL gerado e resultado real): `artifacts/processed/_failures_audit.txt` (pré-D-005) e `_failures_audit_v2.txt` (pós-D-005)
+- Auditoria qualitativa completa das falhas (classificação pergunta a pergunta, com SQL gerado e resultado real): `artifacts/processed/_failures_audit_tiers_gpt-oss.txt`
 - Código do experimento (agente, runner, evaluator, provedor LLM, controles): `src/tccsql/`
 - Scripts operacionais: `scripts/`
 
