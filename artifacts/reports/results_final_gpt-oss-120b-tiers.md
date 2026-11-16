@@ -10,19 +10,19 @@
 
 ## Pares (McNemar exato)
 
-| a         | b        |   a_only_correct |   b_only_correct |   discordant |         p |
-|:----------|:---------|-----------------:|-----------------:|-------------:|----------:|
-| technical | catalog  |                0 |                3 |            3 | 0.25      |
-| technical | semantic |                1 |                9 |           10 | 0.0214844 |
-| catalog   | semantic |                2 |                7 |            9 | 0.179688  |
+| a         | b        |   a_only_correct |   b_only_correct |   discordant |         p |    p_holm |
+|:----------|:---------|-----------------:|-----------------:|-------------:|----------:|----------:|
+| technical | catalog  |                0 |                3 |            3 | 0.25      | 0.359375  |
+| technical | semantic |                1 |                9 |           10 | 0.0214844 | 0.0644531 |
+| catalog   | semantic |                2 |                7 |            9 | 0.179688  | 0.359375  |
 
 ## Latência do modelo (Wilcoxon pareado)
 
-| a         | b        |   median_a_ms |   median_b_ms |           p |
-|:----------|:---------|--------------:|--------------:|------------:|
-| technical | catalog  |       1399.89 |       1394.41 | 0.0481645   |
-| technical | semantic |       1399.89 |       7898.2  | 7.82165e-11 |
-| catalog   | semantic |       1394.41 |       7898.2  | 1.38607e-09 |
+| a         | b        |   median_a_ms |   median_b_ms |           p |      p_holm |
+|:----------|:---------|--------------:|--------------:|------------:|------------:|
+| technical | catalog  |       1399.89 |       1394.41 | 0.0481645   | 0.0481645   |
+| technical | semantic |       1399.89 |       7898.2  | 7.82165e-11 | 2.3465e-10  |
+| catalog   | semantic |       1394.41 |       7898.2  | 1.38607e-09 | 2.77214e-09 |
 
 
 Os CSVs derivados encontram-se em `artifacts/processed/`. Intervalos da acurácia usam aproximação normal; para amostras pequenas, interpretar junto dos testes pareados.

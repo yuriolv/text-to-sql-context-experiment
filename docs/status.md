@@ -32,11 +32,11 @@ Relatório: `artifacts/reports/results_final_qwen3-27b-tiers.md` (run `07a25f55`
 - **catalog** (DDL + descrições por tabela e coluna): 24/40 = 60.00% (CI95 44.8–75.2%)
 - **semantic** (catalog + regras de grão + temporais + referenciais + estilo + sinônimos): **35/40 = 87.50%** (CI95 77.3–97.7%)
 
-McNemar pareado:
+McNemar pareado (p bruto / p ajustado por Holm na família de 3 comparações):
 
-- technical vs catalog: 1:2 discordantes, **p = 1.0** — adicionar apenas comentários de catálogo não muda acurácia de forma significativa.
-- catalog vs semantic: 0:11 discordantes, **p = 0.00098** — adicionar a camada semântica estruturada é o que produz o salto.
-- technical vs semantic: 0:12 discordantes, **p = 0.00049** — gap total significativo a α=0.001.
+- technical vs catalog: 1:2 discordantes, **p = 1.0 / 1.0** — adicionar apenas comentários de catálogo não muda acurácia de forma significativa.
+- catalog vs semantic: 0:11 discordantes, **p = 0.00098 / 0.0020** — adicionar a camada semântica estruturada é o que produz o salto.
+- technical vs semantic: 0:12 discordantes, **p = 0.00049 / 0.0015** — gap total significativo após ajuste.
 
 Latência mediana: 2.9 s → 7.7 s → 14.8 s (todas as comparações pareadas significativas, p < 10⁻⁸).
 
@@ -68,11 +68,13 @@ Mesmo protocolo, mesma base, mesmas perguntas; família de modelo diferente (Ali
 - **catalog** (DDL + descrições por tabela e coluna): 28/40 = 70.00% (CI95 55.8–84.2%)
 - **semantic** (catalog + regras + estilo): **33/40 = 82.50%** (CI95 70.7–94.3%)
 
-McNemar pareado:
+McNemar pareado (p bruto / p ajustado por Holm na família de 3 comparações):
 
-- technical vs catalog: 0:3 discordantes, **p = 0.25** — direção correta, não significativo com n=40.
-- catalog vs semantic: 2:7 discordantes, **p = 0.18** — direção correta, não significativo.
-- technical vs semantic: 1:9 discordantes, **p = 0.0215** — significativo a α=0.05.
+- technical vs catalog: 0:3 discordantes, **p = 0.25 / 0.36** — direção correta, não significativo com n=40.
+- catalog vs semantic: 2:7 discordantes, **p = 0.18 / 0.36** — direção correta, não significativo.
+- technical vs semantic: 1:9 discordantes, **p = 0.0215 / 0.064** — significativo a α=0.05 só sem ajuste; após Holm, não significativo.
+
+Decisão de 16/11/2026: o TCC reporta p bruto e p ajustado por Holm lado a lado, e a significância é decidida pelo ajustado. `scripts/analyze_results.py` passou a gravar a coluna `p_holm` em `mcnemar_pairs_*.csv` e nos relatórios.
 
 Latência mediana: 1.4 s → 1.4 s → 7.9 s. O catálogo praticamente não altera a mediana de latência (1400 ms vs 1394 ms; Wilcoxon p = 0.048, diferença estatística sem relevância prática); a camada semântica adiciona ~5,6× de latência.
 

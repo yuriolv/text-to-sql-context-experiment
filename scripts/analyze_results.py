@@ -9,6 +9,12 @@ TIER_ORDER=["technical","catalog","semantic"]
 def ci(p,n):
  if not n:return (float("nan"),float("nan"))
  e=1.96*math.sqrt(p*(1-p)/n);return max(0,p-e),min(1,p+e)
+def holm(rows):
+ """Ajuste de Holm-Bonferroni sobre os p-valores da família de comparações pareadas."""
+ m=len(rows); order=sorted(range(m),key=lambda i:rows[i]["p"]); running=0.0
+ for rank,i in enumerate(order):
+  running=max(running,min(1.0,(m-rank)*rows[i]["p"])); rows[i]["p_holm"]=running
+ return rows
 def pairwise_mcnemar(pivot, a, b):
  if a not in pivot.columns or b not in pivot.columns: return None
  ba=int(((pivot[a]==True)&(pivot[b]==False)).sum()); bb=int(((pivot[a]==False)&(pivot[b]==True)).sum())
@@ -35,8 +41,8 @@ def main():
  pivot=final.pivot_table(index=["run_id","question_id","repetition"],columns="condition",values="correct",aggfunc="first").dropna()
  latency=final.pivot_table(index=["run_id","question_id","repetition"],columns="condition",values="model_latency_ms",aggfunc="last").dropna()
  pairs=[(a,b) for a,b in combinations(present,2)]
- mcnemar_rows=[r for r in (pairwise_mcnemar(pivot,a,b) for a,b in pairs) if r]
- wilcoxon_rows=[r for r in (pairwise_wilcoxon(latency,a,b) for a,b in pairs) if r]
+ mcnemar_rows=holm([r for r in (pairwise_mcnemar(pivot,a,b) for a,b in pairs) if r])
+ wilcoxon_rows=holm([r for r in (pairwise_wilcoxon(latency,a,b) for a,b in pairs) if r])
  suffix_slug = f"_{args.suffix}" if args.suffix else ""
  summary_df=pd.DataFrame(summary); summary_df.to_csv(ROOT/"artifacts/processed"/f"accuracy{suffix_slug}.csv",index=False)
  final.groupby(["condition","category"]).correct.agg(["count","mean"]).reset_index().to_csv(ROOT/"artifacts/processed"/f"by_category{suffix_slug}.csv",index=False)
