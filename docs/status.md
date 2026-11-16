@@ -26,23 +26,23 @@ Relatórios em `artifacts/reports/results_final_<modelo>[_tiers].md`.
 
 ### Ablação de 3 tiers (D-008): `qwen/qwen3.8-27b`
 
-Desenho progressivamente aditivo (technical ⊂ catalog ⊂ semantic), análogo ao benchmark da comunidade Databricks ("Which context improves Genie accuracy most?", 40% → 47% → 97%).
+Relatório: `artifacts/reports/results_final_qwen3-27b-tiers.md` (run `07a25f55`). Desenho progressivamente aditivo (technical ⊂ catalog ⊂ semantic), análogo ao benchmark da comunidade Databricks ("Which context improves Genie accuracy most?", 40% → 47% → 97%).
 
-- **technical** (DDL puro): 23/39 = 58.97% (CI95 43.5–74.4%)
-- **catalog** (DDL + descrições por tabela e coluna): 24/39 = 61.54% (CI95 46.3–76.8%)
-- **semantic** (catalog + regras de grão + temporais + referenciais + estilo + sinônimos): **34/39 = 87.18%** (CI95 76.7–97.7%)
+- **technical** (DDL puro): 23/40 = 57.50% (CI95 42.2–72.8%)
+- **catalog** (DDL + descrições por tabela e coluna): 24/40 = 60.00% (CI95 44.8–75.2%)
+- **semantic** (catalog + regras de grão + temporais + referenciais + estilo + sinônimos): **35/40 = 87.50%** (CI95 77.3–97.7%)
 
 McNemar pareado:
 
 - technical vs catalog: 1:2 discordantes, **p = 1.0** — adicionar apenas comentários de catálogo não muda acurácia de forma significativa.
-- catalog vs semantic: 0:10 discordantes, **p = 0.00195** — adicionar a camada semântica estruturada é o que produz o salto.
-- technical vs semantic: 0:11 discordantes, **p = 0.000977** — gap total significativo a α=0.001.
+- catalog vs semantic: 0:11 discordantes, **p = 0.00098** — adicionar a camada semântica estruturada é o que produz o salto.
+- technical vs semantic: 0:12 discordantes, **p = 0.00049** — gap total significativo a α=0.001.
 
 Latência mediana: 2.9 s → 7.7 s → 14.8 s (todas as comparações pareadas significativas, p < 10⁻⁸).
 
 Replicação do shape do benchmark Databricks com modelo open-source e sem Unity Catalog proprietário.
 
-n=39 em vez de 40 por 1 questão com falha de execução SQL em pelo menos uma condição (a linha é descartada do pareamento McNemar/Wilcoxon por não ter dado comparável).
+Correção (16/11/2026): a primeira versão deste relatório mostrava n=39 porque foi gerada antes do fim da run `07a25f55` — o último registro (Q040, condição technical) foi gravado às 19:36:35 UTC e o relatório foi commitado às 19:37:27 UTC. A explicação anterior ("questão descartada por falha de execução") estava errada: as 40 perguntas têm as três condições completas, e falhas de execução (Q027 em technical e catalog) contam como `correct=False`. Relatório e CSVs regenerados a partir do raw completo com `scripts/analyze_results.py --run 07a25f55 --suffix qwen3-27b-tiers`.
 
 ### Modelo principal: `openai/gpt-oss-120b` (Groq)
 
@@ -74,15 +74,15 @@ McNemar pareado:
 - catalog vs semantic: 2:7 discordantes, **p = 0.18** — direção correta, não significativo.
 - technical vs semantic: 1:9 discordantes, **p = 0.0215** — significativo a α=0.05.
 
-Latência mediana: 1.4 s → 1.4 s → 7.9 s. O catálogo não adiciona custo de inferência mensurável; a camada semântica adiciona ~5× de latência.
+Latência mediana: 1.4 s → 1.4 s → 7.9 s. O catálogo praticamente não altera a mediana de latência (1400 ms vs 1394 ms; Wilcoxon p = 0.048, diferença estatística sem relevância prática); a camada semântica adiciona ~5,6× de latência.
 
 ### Comparação entre modelos (D-008)
 
 | tier | gpt-oss-120b | qwen3.8-27b | Databricks Genie |
 |---|---|---|---|
-| technical | 62.5% | 59.0% | 40% |
-| catalog | 70.0% (+7.5pp) | 61.5% (+2.5pp) | 47% (+7pp) |
-| semantic | 82.5% (+12.5pp) | 87.2% (+25.6pp) | 97% (+50pp) |
+| technical | 62.5% | 57.5% | 40% |
+| catalog | 70.0% (+7.5pp) | 60.0% (+2.5pp) | 47% (+7pp) |
+| semantic | 82.5% (+12.5pp) | 87.5% (+27.5pp) | 97% (+50pp) |
 
 Padrão replicado nos três conjuntos: três tiers, acurácia monotônica crescente, salto maior no último tier. O ganho absoluto do catálogo varia com o modelo (maior em gpt-oss-120b, menor em qwen3.8-27b), mas o ganho da camada semântica sobre o catálogo é consistente e significativo no agregado.
 

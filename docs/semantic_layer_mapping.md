@@ -39,7 +39,7 @@ Essas cinco categorias são o **irredutível conceitual** da camada semântica. 
 
 ## Implicações para o posicionamento do TCC
 
-O trabalho pode ser lido como um **estudo de ablação do piso dessa camada semântica**: ao invés de usar dbt ou Unity Catalog, usamos o formato mais barato possível (um YAML em disco injetado no prompt) e medimos o efeito empírico. O fato de o resultado replicar o shape do benchmark da Databricks (40% → 47% → 97%, análogo aos nossos 62% → 70% → 83% em gpt-oss e 59% → 62% → 87% em qwen) é evidência de que:
+O trabalho pode ser lido como um **estudo de ablação do piso dessa camada semântica**: ao invés de usar dbt ou Unity Catalog, usamos o formato mais barato possível (um YAML em disco injetado no prompt) e medimos o efeito empírico. O fato de o resultado replicar o shape do benchmark da Databricks (40% → 47% → 97%, análogo aos nossos 62,5% → 70% → 82,5% em gpt-oss e 57,5% → 60% → 87,5% em qwen) é evidência de que:
 
 - A **categoria de informação** é o que importa, não o formato de autoria ou o tooling de runtime.
 - A camada semântica é um conceito transferível entre stacks, não um lock-in de plataforma.
