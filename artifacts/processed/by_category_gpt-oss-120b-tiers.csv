@@ -1,0 +1,13 @@
+condition,category,count,mean
+catalog,business_rules,10,0.5
+catalog,filters_aggregations,10,1.0
+catalog,relationships,10,0.4
+catalog,temporal,10,0.9
+semantic,business_rules,10,0.8
+semantic,filters_aggregations,10,1.0
+semantic,relationships,10,0.7
+semantic,temporal,10,0.8
+technical,business_rules,10,0.4
+technical,filters_aggregations,10,0.9
+technical,relationships,10,0.3
+technical,temporal,10,0.9

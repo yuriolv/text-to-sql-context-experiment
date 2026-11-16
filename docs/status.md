@@ -62,9 +62,29 @@ Mesmo protocolo, mesma base, mesmas perguntas; família de modelo diferente (Ali
 - McNemar pareado: 12 pares discordantes, 12:0 a favor de `semantic`. **p = 0.00049**.
 - Latência: `semantic` mediana ~10.3 s vs `technical` ~3.2 s.
 
-### Pendente — `openai/gpt-oss-120b` para a ablação de 3 tiers
+### Ablação de 3 tiers (D-008): `openai/gpt-oss-120b`
 
-O TPD de 200k tokens/dia da conta Groq esgotou depois dos runs anteriores. Rodar de novo após a próxima virada do dia (UTC).
+- **technical** (DDL puro): 25/40 = 62.50% (CI95 47.5–77.5%)
+- **catalog** (DDL + descrições por tabela e coluna): 28/40 = 70.00% (CI95 55.8–84.2%)
+- **semantic** (catalog + regras + estilo): **33/40 = 82.50%** (CI95 70.7–94.3%)
+
+McNemar pareado:
+
+- technical vs catalog: 0:3 discordantes, **p = 0.25** — direção correta, não significativo com n=40.
+- catalog vs semantic: 2:7 discordantes, **p = 0.18** — direção correta, não significativo.
+- technical vs semantic: 1:9 discordantes, **p = 0.0215** — significativo a α=0.05.
+
+Latência mediana: 1.4 s → 1.4 s → 7.9 s. O catálogo não adiciona custo de inferência mensurável; a camada semântica adiciona ~5× de latência.
+
+### Comparação entre modelos (D-008)
+
+| tier | gpt-oss-120b | qwen3.8-27b | Databricks Genie |
+|---|---|---|---|
+| technical | 62.5% | 59.0% | 40% |
+| catalog | 70.0% (+7.5pp) | 61.5% (+2.5pp) | 47% (+7pp) |
+| semantic | 82.5% (+12.5pp) | 87.2% (+25.6pp) | 97% (+50pp) |
+
+Padrão replicado nos três conjuntos: três tiers, acurácia monotônica crescente, salto maior no último tier. O ganho absoluto do catálogo varia com o modelo (maior em gpt-oss-120b, menor em qwen3.8-27b), mas o ganho da camada semântica sobre o catálogo é consistente e significativo no agregado.
 
 ### Histórico de iterações metodológicas (modelo principal)
 

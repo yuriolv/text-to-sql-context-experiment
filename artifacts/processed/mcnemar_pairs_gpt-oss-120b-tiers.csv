@@ -1,0 +1,4 @@
+a,b,a_only_correct,b_only_correct,discordant,p
+technical,catalog,0,3,3,0.25
+technical,semantic,1,9,10,0.021484375
+catalog,semantic,2,7,9,0.1796875
