@@ -1,0 +1,26 @@
+% Folha de rosto — Guia UECE p. 31 (modelos p. 32-33): autor e título em
+% maiúsculas; nota com recuo de 8 cm, espaço simples; orientador com titulação.
+% Primeira folha contada na paginação (p. 79-80), sem número impresso.
+\begin{center}
+  \thispagestyle{empty}
+  \bfseries
+  \MakeUppercase{\imprimirautor}
+  \par\vspace*{\fill}
+  \MakeUppercase{\imprimirtitulo}
+  \par\vspace*{\fill}
+\end{center}
+\noindent\hspace{8cm}\begin{minipage}{\dimexpr\textwidth-8cm}
+  \begin{SingleSpacing}
+  \imprimirpreambulo
+  \par\vspace{0.5cm}
+  \imprimirorientadorRotulo~\imprimirorientador
+  \end{SingleSpacing}
+\end{minipage}
+\begin{center}
+  \vspace*{\fill}
+  \bfseries
+  \MakeUppercase{\imprimirlocal}
+  \par
+  \imprimirdata
+\end{center}
+\cleardoublepage

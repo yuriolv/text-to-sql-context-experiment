@@ -1,0 +1,76 @@
+% =============================================================================
+% 1 INTRODUÇÃO — escrita por ÚLTIMO entre os textuais (passo 5 da ordem).
+% Guia UECE p. 64: seção numerada, alinhada à esquerda.
+% Blocos esboco = roteiro do conteúdo; não aparecem no PDF.
+% =============================================================================
+\chapter{Introdução}
+\label{cap:introducao}
+
+\section{Contextualização}
+\label{sec:contextualizacao}
+\begin{esboco}
+  Agentes baseados em LLM consultando bancos relacionais em linguagem natural.
+  O problema prático: o modelo vê o esquema físico (DDL), mas a pergunta usa
+  vocabulário de negócio. Camadas semânticas industriais (dbt, Unity Catalog,
+  LookML, Cube) existem para essa ponte em BI; a questão é se ajudam agentes.
+  Fontes: docs/briefing.md §1; docs/semantic_layer_mapping.md (só conceito).
+  Referências externas: PENDENTE levantar literatura (ver Seções 2 e 3).
+\end{esboco}
+
+\section{Problema de pesquisa}
+\label{sec:problema}
+\begin{esboco}
+  Pergunta (briefing §1): enriquecer o contexto técnico com uma camada
+  semântica melhora a correção das consultas geradas? Refinada por D-008 em
+  dois saltos: DDL -> catálogo e catálogo -> camada semântica.
+\end{esboco}
+
+\section{Hipóteses}
+\label{sec:hipoteses}
+\begin{esboco}
+  H0: não há diferença de acurácia entre as condições.
+  H1 bilateral (briefing §1). Formulação para os três pares de condições.
+\end{esboco}
+
+\section{Objetivos}
+\label{sec:objetivos}
+
+\subsection{Objetivo geral}
+\begin{esboco}
+  Medir o efeito da representação do esquema (técnica, catálogo, semântica)
+  na correção do SQL gerado e executado por um agente LLM.
+\end{esboco}
+
+\subsection{Objetivos específicos}
+\begin{esboco}
+  a) construir protocolo experimental pareado e reprodutível;
+  b) comparar três condições aditivas de contexto em dois modelos;
+  c) classificar os erros e identificar qual nível de contexto resolve cada classe;
+  d) medir o custo em latência;
+  e) posicionar o resultado frente a camadas semânticas industriais e ao benchmark Databricks.
+\end{esboco}
+
+\section{Justificativa}
+\label{sec:justificativa}
+\begin{esboco}
+  Destaques obrigatórios:
+  - base real descaracterizada, não sintética (briefing §6 item 5);
+  - tooling aberto e custo zero: Python, PostgreSQL em Docker, modelos
+    open-weights via Groq gratuito (briefing §6 item 6).
+\end{esboco}
+
+\section{Contribuições}
+\label{sec:contribuicoes}
+\begin{esboco}
+  - Ablação em três níveis replicada em dois modelos;
+  - taxonomia de erros ligando cada classe ao nível que a resolve;
+  - evidência de que o projeto do contexto e do gold determina se o efeito
+    aparece (iterações D-005/D-006);
+  - artefato e protocolo abertos para replicação.
+\end{esboco}
+
+\section{Organização do trabalho}
+\label{sec:organizacao}
+\begin{esboco}
+  Um parágrafo descrevendo as Seções 2 a 7.
+\end{esboco}

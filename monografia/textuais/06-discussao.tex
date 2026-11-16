@@ -1,0 +1,77 @@
+% =============================================================================
+% 6 DISCUSSÃO — passo 4 da ordem.
+% Fontes: docs/semantic_layer_mapping.md, docs/architecture.md (seção sobre
+% garantia), docs/briefing.md §6-7, docs/error_taxonomy.md.
+% =============================================================================
+\chapter{Discussão}
+\label{cap:discussao}
+
+\section{Catálogo e camada semântica resolvem erros diferentes}
+\label{sec:catalogo-vs-semantica}
+\begin{esboco}
+  Descrições de coluna resolvem escolha de coluna (classe A, G);
+  só regras resolvem FK órfã (B) e colunas extras (C).
+  Liga a taxonomia aos saltos medidos no Capítulo 5.
+\end{esboco}
+
+\section{Comparação com o benchmark da Databricks}
+\label{sec:databricks}
+\begin{esboco}
+  40% -> 47% -> 97% (Databricks) vs 62,5 -> 70 -> 82,5 (gpt-oss) e
+  57,5 -> 60 -> 87,5 (qwen). Mesmo formato: maior salto no último nível.
+  Diferenças: base, perguntas, modelos, plataforma; não é réplica direta.
+  PENDENTE: referência primária do benchmark.
+  Tabela prevista: Tabela -- Comparação com o benchmark Databricks.
+\end{esboco}
+
+\section{Posicionamento frente às camadas semânticas industriais}
+\label{sec:industriais}
+\begin{esboco}
+  Mapeamento seção do YAML -> dbt / Unity Catalog / LookML / Cube.
+  response_style sem análogo (compilador resolve lá); referential_rules
+  mais explícito aqui. Ponto: o metadado chega como texto no prompt em
+  todas elas. "Piso" da camada semântica, sem ferramenta paga.
+  Quadro previsto: Quadro -- Equivalência entre o contexto semântico e
+  ferramentas industriais.
+\end{esboco}
+
+\section{Efeito maior no modelo menor}
+\label{sec:modelo-menor}
+\begin{esboco}
+  qwen (27B): técnico 57,5% e semântico 87,5%; gpt-oss (120B): 62,5% e 82,5%.
+  Salto técnico -> semântico maior no qwen (+30,0 pp vs +20,0 pp).
+  Interpretação cautelosa (briefing §6.3): contexto compensa capacidade,
+  com só dois modelos.
+\end{esboco}
+
+\section{O que garante o uso do contexto}
+\label{sec:garantia}
+\begin{esboco}
+  architecture.md: nada estrutural; o YAML entra como texto e compete por
+  atenção. Contexto semântico = engenharia de prompt sobre metadado, não
+  camada de dados. Instruções ambíguas vazam (Q008 antes de D-005). Ganho
+  estatístico, não garantia caso a caso.
+\end{esboco}
+
+\section{Custo em latência}
+\label{sec:custo-latencia}
+\begin{esboco}
+  Semântico ~5,6x mais lento no gpt-oss e ~5,1x no qwen (medianas dos
+  relatórios de três níveis). Custo real em produção.
+\end{esboco}
+
+\section{O projeto do experimento importa}
+\label{sec:design-importa}
+\begin{esboco}
+  Contexto genérico e gold inconsistente escondem (ou invertem) o efeito:
+  -5,0 pp na rodada inicial. Lição metodológica (briefing §6.1).
+\end{esboco}
+
+\section{Ameaças à validade}
+\label{sec:ameacas}
+\begin{esboco}
+  briefing §7: n = 40; dois modelos; snapshot único; iteração sobre dados
+  vistos (D-005, D-006); avaliador conservador; perguntas ambíguas
+  (Q019, Q035, Q040). Organizar em validade interna, externa, de construto
+  e de conclusão.
+\end{esboco}

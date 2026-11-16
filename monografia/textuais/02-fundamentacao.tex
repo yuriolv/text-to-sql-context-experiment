@@ -1,0 +1,49 @@
+% =============================================================================
+% 2 FUNDAMENTAÇÃO TEÓRICA — passo 7 da ordem (junto com Trabalhos Relacionados).
+% Repositório NÃO tem literatura (briefing §9): só esqueleto + temas a buscar.
+% =============================================================================
+\chapter{Fundamentação teórica}
+\label{cap:fundamentacao}
+
+\section{Modelos de linguagem de grande escala}
+\label{sec:llm}
+\begin{esboco}
+  Transformer e atenção (base para a discussão de "garantia" em docs/architecture.md);
+  modelos open-weights; decodificação determinística (temperature = 0).
+  Temas a buscar: Transformer; model cards de gpt-oss e Qwen.
+\end{esboco}
+
+\section{Tradução de linguagem natural para SQL}
+\label{sec:text2sql}
+\begin{esboco}
+  Definição da tarefa; abordagens (regras -> seq2seq -> LLM com prompt);
+  métricas: exact match vs execution accuracy (o trabalho usa igualdade de resultado).
+  Temas a buscar: surveys de text-to-SQL; métricas de execução.
+\end{esboco}
+
+\section{Representação do esquema no prompt}
+\label{sec:representacao-esquema}
+\begin{esboco}
+  Formas de apresentar o esquema ao modelo: DDL, descrições de colunas,
+  exemplos de linhas, few-shot; engenharia de prompt.
+  Temas a buscar: schema linking; prompt engineering para text-to-SQL.
+\end{esboco}
+
+\section{Camada semântica}
+\label{sec:camada-semantica}
+\begin{esboco}
+  Conceito: definições de métricas, grão, dimensões temporais,
+  relacionamentos, sinônimos. As cinco categorias "irredutíveis" de
+  docs/semantic_layer_mapping.md. Exemplos industriais: dbt Semantic Layer
+  (MetricFlow), Unity Catalog (comentários e metric views), LookML, Cube.
+  Temas a buscar: documentação oficial de cada ferramenta; literatura de
+  data governance / metadados.
+\end{esboco}
+
+\section{Avaliação estatística pareada}
+\label{sec:estatistica}
+\begin{esboco}
+  Teste de McNemar exato (pares discordantes, binomial), teste de Wilcoxon
+  pareado para latência, intervalo de confiança da proporção (aproximação normal).
+  Temas a buscar: referências clássicas de McNemar e Wilcoxon.
+\end{esboco}

@@ -1,0 +1,48 @@
+% =============================================================================
+% 3 TRABALHOS RELACIONADOS — passo 7 da ordem. Só esqueleto: as referências
+% reais precisam ser levantadas pelo autor (biblioteca/bases da UECE).
+% =============================================================================
+\chapter{Trabalhos relacionados}
+\label{cap:trabalhos-relacionados}
+
+\section{Benchmarks de text-to-SQL}
+\label{sec:benchmarks}
+\begin{esboco}
+  Spider, BIRD e sucessores: esquemas majoritariamente sintéticos/balanceados
+  vs base comercial real deste trabalho (briefing §6 item 5).
+  Temas a buscar: Spider; BIRD; benchmarks com dados "sujos" ou corporativos.
+\end{esboco}
+
+\section{Contexto e conhecimento externo em text-to-SQL}
+\label{sec:contexto-externo}
+\begin{esboco}
+  Trabalhos que adicionam descrições de colunas, "evidence"/conhecimento de
+  domínio ou documentação ao prompt e medem o ganho.
+  Temas a buscar: BIRD external knowledge; column descriptions; schema documentation.
+\end{esboco}
+
+\section{Camadas semânticas para agentes na indústria}
+\label{sec:industria}
+\begin{esboco}
+  Benchmark da comunidade Databricks "Which context improves Genie accuracy
+  most?" (2025): 40% -> 47% -> 97% (decisions.md D-008).
+  PENDENTE: URL, autor e data do benchmark Databricks.
+  Materiais de dbt Labs, Looker, Cube sobre LLMs consumindo a camada semântica.
+\end{esboco}
+
+\section{Governança de dados para agentes}
+\label{sec:governanca}
+\begin{esboco}
+  Privacidade (nenhum dado de linha enviado ao provedor: D-003), execução
+  somente leitura, validação de SQL.
+  Temas a buscar: data governance for LLM agents; guardrails para SQL gerado.
+\end{esboco}
+
+\section{Síntese e lacuna}
+\label{sec:lacuna}
+\begin{esboco}
+  Quadro comparativo: trabalho x base (sintética/real) x níveis de contexto
+  x modelos (proprietários/abertos) x custo. Lacuna: ablação de níveis de
+  contexto com base real e tooling aberto, sem plataforma proprietária.
+  Quadro previsto: Quadro -- Comparação com trabalhos relacionados.
+\end{esboco}

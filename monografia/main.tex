@@ -1,0 +1,50 @@
+% =============================================================================
+% Monografia (TCC) — Yuri de Oliveira Magalhães — UECE
+% Classe abnTeX2 ajustada ao Guia de Normalização da UECE (SisBUECE, 2026).
+% Compilar: latexmk -pdf main.tex   (ou Overleaf, compilador pdfLaTeX)
+% Marcações \pendente{...} aparecem em vermelho no PDF: dado ainda não confirmado.
+% =============================================================================
+\documentclass[
+  12pt,
+  oneside,          % trabalho entregue em PDF
+  a4paper,
+  english,
+  brazil            % último idioma = idioma principal
+]{abntex2}
+
+\input{config/preambulo}
+\input{config/dados}
+
+\begin{document}
+
+\pretextual
+\input{pretextuais/capa}
+\input{pretextuais/folha-de-rosto}
+\input{pretextuais/ficha-catalografica}
+\input{pretextuais/folha-de-aprovacao}
+% \input{pretextuais/dedicatoria}     % opcional — \pendente: incluir?
+% \input{pretextuais/agradecimentos}  % opcional — \pendente: incluir?
+% \input{pretextuais/epigrafe}        % opcional — \pendente: incluir?
+\input{pretextuais/resumo}
+\input{pretextuais/abstract}
+\input{pretextuais/listas}
+
+\textual
+\input{textuais/01-introducao}
+\input{textuais/02-fundamentacao}
+\input{textuais/03-trabalhos-relacionados}
+\input{textuais/04-metodologia}
+\input{textuais/05-resultados}
+\input{textuais/06-discussao}
+\input{textuais/07-conclusao}
+
+\postextual
+\nocite{*}  % provisório: lista o .bib inteiro enquanto não há citações no texto
+\bibliography{referencias}
+
+\begin{apendicesenv}
+\partapendices
+\input{postextuais/apendices}
+\end{apendicesenv}
+
+\end{document}

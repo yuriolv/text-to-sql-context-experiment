@@ -1,0 +1,86 @@
+% =============================================================================
+% 5 RESULTADOS — passo 3 da ordem.
+% Números: SOMENTE de artifacts/reports/results_final_*-tiers.md e
+% artifacts/processed/*-tiers.csv (3 níveis = resultado principal).
+% gpt-oss-120b: run 22e3f8ce | qwen3.8-27b: run 07a25f55 (n = 40, regenerado).
+% =============================================================================
+\chapter{Resultados}
+\label{cap:resultados}
+
+\section{Estudo piloto}
+\label{sec:piloto}
+\begin{esboco}
+  10 perguntas x 2 condições: 20/20 corretas, 1a tentativa (status.md).
+  Função: validar o pipeline, não testar hipótese.
+  PENDENTE: conferir em artifacts/raw/*_pilot_*.jsonl qual run citar.
+\end{esboco}
+
+\section{Acurácia por condição}
+\label{sec:acuracia}
+\begin{esboco}
+  gpt-oss-120b: 62,5% -> 70,0% -> 82,5%, com IC 95%.
+  qwen3.8-27b: 57,5% -> 60,0% -> 87,5%, com IC 95%.
+  Tabela prevista: Tabela -- Acurácia por condição e modelo (n, acertos,
+  acurácia, IC 95%).
+  Figura prevista: Figura -- Acurácia por condição nos dois modelos
+  (barras com IC).
+\end{esboco}
+
+\section{Comparações pareadas}
+\label{sec:mcnemar}
+\begin{esboco}
+  McNemar exato, três pares por modelo (mcnemar_pairs_*-tiers.csv):
+  gpt-oss: tech x cat 0:3 p=0,25; cat x sem 2:7 p=0,18; tech x sem 1:9 p=0,021.
+  qwen:    tech x cat 1:2 p=1,0;  cat x sem 0:11 p=0,00098; tech x sem 0:12 p=0,00049.
+  Tabela prevista: Tabela -- Pares discordantes e valor-p (McNemar exato).
+\end{esboco}
+
+\section{Acurácia por categoria de pergunta}
+\label{sec:categorias}
+\begin{esboco}
+  by_category_*-tiers.csv (10 perguntas por categoria x condição).
+  Tabela prevista: Tabela -- Acurácia por categoria, condição e modelo.
+  Figura prevista: Figura -- Mapa de calor categoria x condição.
+\end{esboco}
+
+\section{Latência}
+\label{sec:latencia}
+\begin{esboco}
+  Medianas e IQR (relatórios), Wilcoxon pareado.
+  gpt-oss: ~1,4 s -> ~1,4 s -> ~7,9 s. qwen: ~2,9 s -> ~7,7 s -> ~14,8 s.
+  Tabela prevista: Tabela -- Latência mediana do modelo por condição.
+\end{esboco}
+
+\section{Taxonomia de erros}
+\label{sec:taxonomia}
+\begin{esboco}
+  docs/error_taxonomy.md: 16 perguntas com erro em algum nível (gpt-oss),
+  7 classes (A a G), nível mínimo que resolve e seção do YAML responsável.
+  NÃO usar os "6 pontos"/"9 pontos" do arquivo: não batem com as perguntas
+  listadas. Recontar a partir de _failures_audit_tiers_gpt-oss.txt.
+  PENDENTE: taxonomia equivalente para o qwen (não existe no repositório).
+  Quadro previsto: Quadro -- Classes de erro, nível que resolve e seção do contexto.
+  Figura prevista: Figura -- Decomposição do ganho por classe de erro.
+\end{esboco}
+
+\section{Exemplos qualitativos}
+\label{sec:exemplos}
+\begin{esboco}
+  docs/qualitative_examples.md: Q005 (classe A), Q011 e Q013 (classe B/C),
+  Q032 (A), Q038 (C). SQL de cada nível lado a lado.
+  Cuidado: não reproduzir valores de linha além dos que já estão no doc.
+  Quadros previstos: um por exemplo (pergunta, SQL por nível, correto/errado).
+\end{esboco}
+
+\section{Histórico: desenho com duas condições}
+\label{sec:historico}
+\begin{esboco}
+  Desenho anterior (técnico x semântico), por iteração, gpt-oss:
+  inicial 65,0% x 60,0% (p=1,0); pós-D-005 72,5% x 85,0% (p=0,18);
+  pós-D-006 65,0% x 87,5% (p=0,0039). Réplica qwen: 55,0% x 85,0% (p=0,00049).
+  Fontes: results_final_gpt-oss-120b.md, results_final_qwen3-27b.md,
+  tabela "Histórico" de status.md com os arquivos brutos.
+  Observação: o "semântico" de duas condições = técnico + YAML; no desenho
+  de três = catálogo + YAML. Prompts diferentes, números não comparáveis 1:1.
+  Tabela prevista: Tabela -- Evolução do resultado por iteração.
+\end{esboco}

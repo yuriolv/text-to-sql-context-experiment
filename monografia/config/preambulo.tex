@@ -1,0 +1,118 @@
+% Pacotes e ajustes de formatação ao Guia UECE 2026.
+% Páginas citadas são do PDF do guia (página impressa = PDF − 2).
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath}   % Times (guia p. 76: Arial ou Times 12)
+\usepackage{indentfirst}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}              % tabelas com fios só no cabeçalho e fechamento (p. 85-86, IBGE)
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{listings}              % SQL e YAML nos exemplos e apêndices
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{microtype}
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf,abnt-emphasize=bf]{abntex2cite}  % autor-data (p. 103, 112)
+
+% --- Marcação de pendências -------------------------------------------------
+\newcommand{\pendente}[1]{\textcolor{red}{[PENDENTE: #1]}}
+% Roteiro de rascunho: \begin{esboco} ... \end{esboco} (cada um em linha
+% própria). Conteúdo lido verbatim e descartado — não aparece no PDF.
+% Para revisar o roteiro no PDF, troque \excludecomment por \includecomment
+% (aí o conteúdo precisa ser LaTeX válido).
+\usepackage{comment}
+\excludecomment{esboco}
+
+% --- Nomes de arquivo, tabela e coluna (aceita "_" sem escape) ------------
+\newcommand{\arq}[1]{\texttt{\detokenize{#1}}}
+
+% --- Margens (p. 76): sup. e esq. 3 cm; dir. e inf. 2 cm ---------------------
+\setlrmarginsandblock{3cm}{2cm}{*}
+\setulmarginsandblock{3cm}{2cm}{*}
+\checkandfixthelayout
+
+% --- Parágrafo e espaçamento (p. 76-79) --------------------------------------
+\setlength{\parindent}{2cm}
+\setlength{\parskip}{0pt}
+\OnehalfSpacing
+
+% --- Hierarquia de títulos (p. 61, 79-80), todos em corpo 12 ----------------
+% primária: MAIÚSCULAS + negrito | secundária: negrito | terciária: normal
+% quaternária: negrito + itálico | quinária: itálico
+\renewcommand{\ABNTEXchapterfont}{\bfseries}
+\renewcommand{\ABNTEXchapterfontsize}{\normalsize}
+\renewcommand{\ABNTEXsectionfont}{\bfseries}
+\renewcommand{\ABNTEXsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsectionupperifneeded}[1]{#1}
+\renewcommand{\ABNTEXsubsectionfont}{\normalfont}
+\renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsectionupperifneeded}[1]{#1}
+\renewcommand{\ABNTEXsubsubsectionfont}{\bfseries\itshape}
+\renewcommand{\ABNTEXsubsubsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsubsectionupperifneeded}[1]{#1}
+\renewcommand{\ABNTEXsubsubsubsectionfont}{\itshape}
+\renewcommand{\ABNTEXsubsubsubsectionfontsize}{\normalsize}
+
+% --- Paginação (p. 79-80): arábico, canto sup. direito, corpo 10 ------------
+\makeoddhead{abntheadings}{}{}{\footnotesize\thepage}
+
+% --- Legendas (p. 85): título acima, centralizado, negrito; fonte abaixo -----
+\captionnamefont{\bfseries\normalsize}
+\captiontitlefont{\bfseries\normalsize}
+\captiondelim{ -- }
+% \fonte{...} do abnTeX2 já posiciona a fonte abaixo, em corpo menor.
+
+% --- Quadros (dados descritivos, fechados; p. 50) ---------------------------
+\newcommand{\listofquadrosname}{Lista de quadros}
+\newcommand{\quadroname}{Quadro}
+\newfloat[chapter]{quadro}{loq}{\quadroname}
+\newlistof{listofquadros}{loq}{\listofquadrosname}
+\newlistentry{quadro}{loq}{0}
+\renewcommand{\cftquadroname}{\quadroname\space}
+\renewcommand*{\cftquadroaftersnum}{\hfill--\hfill}
+
+% --- Nomes usados por \autoref (guia p. 61: não usar "capítulo") -----------
+\addto\extrasbrazil{%
+  \renewcommand{\chapterautorefname}{Seção}%
+  \renewcommand{\sectionautorefname}{Seção}%
+  \renewcommand{\subsectionautorefname}{Seção}%
+  \renewcommand{\subsubsectionautorefname}{Seção}%
+}
+\providecommand{\quadroautorefname}{Quadro}
+\renewcommand{\lstlistingname}{Código}
+
+% --- Código ------------------------------------------------------------------
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  columns=fullflexible,
+  frame=tb,
+  showstringspaces=false,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate={á}{{\'a}}1 {à}{{\`a}}1 {ã}{{\~a}}1 {â}{{\^a}}1 {é}{{\'e}}1
+           {ê}{{\^e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {õ}{{\~o}}1 {ô}{{\^o}}1
+           {ú}{{\'u}}1 {ç}{{\c c}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Ç}{{\c C}}1
+}
+
+% --- PDF ----------------------------------------------------------------------
+\makeatletter
+\hypersetup{
+  pdftitle={\@title},
+  pdfauthor={\@author},
+  pdfsubject={Trabalho de Conclusão de Curso},
+  pdfkeywords={text-to-SQL}{camada semântica}{modelos de linguagem}{agentes},
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black,
+  bookmarksdepth=4
+}
+\makeatother
+
+\makeindex
