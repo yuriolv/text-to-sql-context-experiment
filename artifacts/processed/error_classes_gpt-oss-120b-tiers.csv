@@ -1,0 +1,8 @@
+class,name,questions_listed,questions_with_error,technical,catalog,semantic
+A,Escolha de coluna ou grão,4,2,0,2,2
+B,FK órfã (JOIN x IS NOT NULL),4,4,0,1,3
+C,Colunas descritivas extras,5,5,0,0,4
+D,Tipo e formato temporal,3,2,1,1,0
+E,Percentual como fração,1,1,0,0,0
+F,Ambiguidade do enunciado,2,2,0,0,0
+G,Interpretação de média,1,1,0,0,1

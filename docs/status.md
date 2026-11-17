@@ -92,7 +92,7 @@ Padrão replicado nos três conjuntos: três tiers, acurácia monotônica cresce
 
 | iteração | semantic | technical | Δ | McNemar p | arquivo raw |
 |---|---|---|---|---|---|
-| inicial (contexto genérico, evaluator estrito) | 24/40 (60.0%) | 26/40 (65.0%) | −5.0 pp | 1.0 | `*_30bfd1ed.jsonl` |
+| inicial (contexto genérico, evaluator estrito) | 24/40 (60.0%) | 26/40 (65.0%) | −5.0 pp | 0.625 | `*_30bfd1ed.jsonl` |
 | pós-D-005 | 34/40 (85.0%) | 29/40 (72.5%) | +12.5 pp | 0.18 | `*_7f82b1f5.jsonl` |
 | pós-D-006 | 35/40 (87.5%) | 26/40 (65.0%) | **+22.5 pp** | **0.0039** | `*_243a0e26.jsonl` |
 | réplica Qwen 27B (pós-D-007) | 34/40 (85.0%) | 22/40 (55.0%) | **+30.0 pp** | **0.00049** | `*_06a0ccb0.jsonl` |

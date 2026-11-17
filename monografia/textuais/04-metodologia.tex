@@ -49,19 +49,23 @@ entre catálogo e semântica isola o efeito das regras da camada semântica
   \centering
   \caption{Condições de contexto progressivamente aditivas}
   \label{fig:delineamento}
-  \begin{tikzpicture}[
-      font=\small,
-      nivel/.style={draw, rounded corners=2pt, align=left, inner sep=6pt}]
-    \node[nivel, minimum width=4.2cm] (t) {\textbf{Técnica}\\DDL textual: tabelas,\\colunas, PK e FK};
-    \node[nivel, fit=(t), inner sep=10pt, label={[anchor=north east]north east:\textbf{Catálogo}}] (c) {};
-    \node[right=0.2cm of t, align=left, font=\footnotesize] (cdesc) {+ descrições por\\tabela e coluna};
-    \node[nivel, fit=(c)(cdesc), inner sep=10pt, label={[anchor=north east]north east:\textbf{Semântica}}] (s) {};
-    \node[right=0.3cm of cdesc, align=left, font=\footnotesize] {+ grão, regras temporais\\e referenciais, sinônimos,\\estilo de resposta};
+  \begin{tikzpicture}[font=\small]
+    % caixas aninhadas com coordenadas fixas (cm)
+    \draw[rounded corners=3pt] (0,0) rectangle (13,4.4);
+    \draw[rounded corners=3pt] (0.3,0.3) rectangle (8.6,3.7);
+    \draw[rounded corners=3pt, fill=gray!15] (0.6,0.6) rectangle (4.4,3.0);
+    \node[anchor=north west, font=\small\bfseries] at (0.15,4.35) {Semântica};
+    \node[anchor=north west, font=\small\bfseries] at (0.45,3.65) {Catálogo};
+    \node[anchor=north west, font=\small\bfseries] at (0.75,2.95) {Técnica};
+    \node[anchor=north west, align=left, font=\footnotesize] at (0.75,2.4)
+      {DDL textual:\\tabelas, colunas,\\PK e FK};
+    \node[anchor=north west, align=left, font=\footnotesize] at (4.7,2.4)
+      {+ descrição de\\cada tabela e das\\colunas não triviais};
+    \node[anchor=north west, align=left, font=\footnotesize] at (8.9,3.1)
+      {+ grão, regras\\temporais e\\referenciais,\\sinônimos e estilo\\de resposta};
   \end{tikzpicture}
   \fonte{Elaborado pelo autor.}
 \end{figure}
-
-\pendente{revisar o desenho da \autoref{fig:delineamento} após compilar no Overleaf}
 
 As variáveis dependentes são:
 \begin{alineas}
@@ -306,8 +310,6 @@ PERGUNTA:
 SQL:
 \end{lstlisting}
 \fonte{\arq{src/tccsql/agent/text2sql.py}.}
-
-\pendente{conferir no Overleaf se a legenda e a fonte da listagem seguem o padrão das demais ilustrações}
 
 O fluxo de execução de uma pergunta em uma condição é mostrado na
 \autoref{fig:fluxo}. A resposta do modelo é reduzida ao bloco de código

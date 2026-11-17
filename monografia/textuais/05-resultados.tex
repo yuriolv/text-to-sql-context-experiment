@@ -1,86 +1,518 @@
 % =============================================================================
-% 5 RESULTADOS — passo 3 da ordem.
-% Números: SOMENTE de artifacts/reports/results_final_*-tiers.md e
-% artifacts/processed/*-tiers.csv (3 níveis = resultado principal).
-% gpt-oss-120b: run 22e3f8ce | qwen3.8-27b: run 07a25f55 (n = 40, regenerado).
+% 5 RESULTADOS — primeira versão (16/11/2026).
+% Resultado principal: desenho de três níveis.
+%   gpt-oss-120b: run 22e3f8ce | qwen3.8-27b: run 07a25f55 (n = 40)
+% Fontes de cada número:
+%   artifacts/reports/results_final_{gpt-oss-120b,qwen3-27b}-tiers.md
+%   artifacts/processed/accuracy_*-tiers.csv, mcnemar_pairs_*-tiers.csv,
+%   by_category_*-tiers.csv, per_question_*-tiers.csv,
+%   error_classes_*-tiers.csv, history_iterations.csv
+%   (os três últimos gerados por scripts/results_tables.py)
 % =============================================================================
 \chapter{Resultados}
 \label{cap:resultados}
 
+Esta seção apresenta os resultados da coleta final no desenho de três
+condições, para os dois modelos. Começa pelo estudo piloto, segue com a
+acurácia por condição, as comparações pareadas, a acurácia por categoria
+de pergunta e a latência, e termina com a análise dos erros, exemplos
+qualitativos e o histórico das iterações com duas condições. A
+interpretação dos resultados é feita na \autoref{cap:discussao}.
+
+% -----------------------------------------------------------------------------
 \section{Estudo piloto}
 \label{sec:piloto}
-\begin{esboco}
-  10 perguntas x 2 condições: 20/20 corretas, 1a tentativa (status.md).
-  Função: validar o pipeline, não testar hipótese.
-  PENDENTE: conferir em artifacts/raw/*_pilot_*.jsonl qual run citar.
-\end{esboco}
 
+O estudo piloto usou as 10 perguntas reservadas para esse fim, com o modelo
+\arq{openai/gpt-oss-120b}. Na versão com duas condições, o agente acertou
+as 10 perguntas nas duas condições, todas na primeira tentativa (rodada
+\arq{8166ac52}). Repetido após a introdução da condição de catálogo, o
+piloto teve 10 acertos na condição técnica, 10 na de catálogo e 9 na
+semântica, também sem retentativas (rodada \arq{938b3bad}). O piloto
+cumpriu a função de validar o fluxo de ponta a ponta; por ter perguntas
+mais simples e em menor número, não é usado para testar as hipóteses.
+
+% -----------------------------------------------------------------------------
 \section{Acurácia por condição}
 \label{sec:acuracia}
-\begin{esboco}
-  gpt-oss-120b: 62,5% -> 70,0% -> 82,5%, com IC 95%.
-  qwen3.8-27b: 57,5% -> 60,0% -> 87,5%, com IC 95%.
-  Tabela prevista: Tabela -- Acurácia por condição e modelo (n, acertos,
-  acurácia, IC 95%).
-  Figura prevista: Figura -- Acurácia por condição nos dois modelos
-  (barras com IC).
-\end{esboco}
 
+A \autoref{tab:acuracia} e a \autoref{fig:acuracia} mostram a acurácia de
+cada condição nos dois modelos. Em ambos, a acurácia cresce de forma
+monotônica da condição técnica para a de catálogo e desta para a
+semântica. No \arq{gpt-oss-120b}, a acurácia passa de 62,5\% para
+70,0\% e 82,5\%. No \arq{qwen3.8-27b}, passa de 57,5\% para 60,0\% e
+87,5\%. O maior salto ocorre, nos dois modelos, entre o catálogo e a
+camada semântica, e é mais pronunciado no modelo menor.
+
+\begin{table}[htb]
+  \centering
+  \caption{Acurácia por condição e modelo na coleta final}
+  \label{tab:acuracia}
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{3}{c}{gpt-oss-120b} & \multicolumn{3}{c}{qwen3.8-27b} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    Condição & Acertos & Acurácia & IC 95\% & Acertos & Acurácia & IC 95\% \\
+    \midrule
+    Técnica   & 25/40 & 62,5\% & 47,5--77,5 & 23/40 & 57,5\% & 42,2--72,8 \\
+    Catálogo  & 28/40 & 70,0\% & 55,8--84,2 & 24/40 & 60,0\% & 44,8--75,2 \\
+    Semântica & 33/40 & 82,5\% & 70,7--94,3 & 35/40 & 87,5\% & 77,3--97,7 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{artifacts/processed/accuracy_gpt-oss-120b-tiers.csv} e
+    \arq{accuracy_qwen3-27b-tiers.csv}. IC por aproximação normal.}
+\end{table}
+
+\begin{figure}[htb]
+  \centering
+  \caption{Acurácia por condição nos dois modelos, com intervalo de confiança de 95\%}
+  \label{fig:acuracia}
+  \begin{tikzpicture}
+    \begin{axis}[
+        ybar, bar width=14pt, width=0.85\textwidth, height=6.5cm,
+        ymin=0, ymax=100, ylabel={Acurácia (\%)},
+        symbolic x coords={Técnica,Catálogo,Semântica}, xtick=data,
+        enlarge x limits=0.25,
+        legend style={at={(0.5,-0.15)}, anchor=north, legend columns=2, draw=none},
+        yticklabel style={/pgf/number format/use comma},
+        error bars/error bar style={black},
+        error bars/error mark options={black, mark size=2pt},
+        error bars/y dir=both, error bars/y explicit,
+      ]
+      \addplot[fill=gray!30, draw=black] coordinates {
+        (Técnica,62.5) +- (0,15.0)
+        (Catálogo,70.0) +- (0,14.2)
+        (Semântica,82.5) +- (0,11.8)};
+      \addplot[fill=gray!75, draw=black] coordinates {
+        (Técnica,57.5) +- (0,15.3)
+        (Catálogo,60.0) +- (0,15.2)
+        (Semântica,87.5) +- (0,10.2)};
+      \legend{gpt-oss-120b, qwen3.8-27b}
+    \end{axis}
+  \end{tikzpicture}
+  \fonte{Elaborado pelo autor a partir da \autoref{tab:acuracia}.}
+\end{figure}
+
+Os intervalos de confiança são largos, consequência das 40 perguntas, e se
+sobrepõem entre condições adjacentes. Por isso a comparação entre condições
+é feita pelos testes pareados da \autoref{sec:mcnemar}, que usam a
+informação de que as mesmas perguntas foram respondidas em todas as
+condições.
+
+Falhas de execução foram raras. No \arq{gpt-oss-120b}, 120 das 123
+chamadas foram primeiras tentativas, e apenas uma pergunta (Q027, na
+condição semântica) terminou sem consulta executável após três tentativas.
+No \arq{qwen3.8-27b}, 120 das 125 chamadas foram primeiras tentativas, e a
+mesma pergunta terminou sem consulta executável nas condições técnica e de
+catálogo. Todas as demais respostas incorretas são consultas que executam,
+mas devolvem resultado diferente do esperado.
+
+% -----------------------------------------------------------------------------
 \section{Comparações pareadas}
 \label{sec:mcnemar}
-\begin{esboco}
-  McNemar exato, três pares por modelo (mcnemar_pairs_*-tiers.csv):
-  gpt-oss: tech x cat 0:3 p=0,25; cat x sem 2:7 p=0,18; tech x sem 1:9 p=0,021.
-  qwen:    tech x cat 1:2 p=1,0;  cat x sem 0:11 p=0,00098; tech x sem 0:12 p=0,00049.
-  Tabela prevista: Tabela -- Pares discordantes e valor-p (McNemar exato).
-\end{esboco}
 
+A \autoref{tab:mcnemar} apresenta, para cada par de condições, o número de
+perguntas acertadas em apenas uma das duas condições e os valores-p do
+teste de McNemar exato, brutos e ajustados por Holm.
+
+\begin{table}[htb]
+  \centering
+  \caption{Pares discordantes e teste de McNemar exato}
+  \label{tab:mcnemar}
+  \begin{tabular}{llccc}
+    \toprule
+    Modelo & Comparação (A $\times$ B) & Só A : só B & $p$ bruto & $p$ Holm \\
+    \midrule
+    \multirow{3}{*}{gpt-oss-120b}
+      & Técnica $\times$ Catálogo  & 0 : 3 & 0,250 & 0,359 \\
+      & Catálogo $\times$ Semântica & 2 : 7 & 0,180 & 0,359 \\
+      & Técnica $\times$ Semântica  & 1 : 9 & 0,021 & 0,064 \\
+    \midrule
+    \multirow{3}{*}{qwen3.8-27b}
+      & Técnica $\times$ Catálogo  & 1 : 2  & 1,000 & 1,000 \\
+      & Catálogo $\times$ Semântica & 0 : 11 & 0,001 & \textbf{0,002} \\
+      & Técnica $\times$ Semântica  & 0 : 12 & $<$0,001 & \textbf{0,001} \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{artifacts/processed/mcnemar_pairs_gpt-oss-120b-tiers.csv} e
+    \arq{mcnemar_pairs_qwen3-27b-tiers.csv}. Em negrito, $p$ ajustado
+    menor que 0,05.}
+\end{table}
+
+\pendente{decidir o número de casas decimais dos valores-p; os CSVs têm
+precisão completa (p.\,ex.\ 0,000977 e 0,000488 no qwen3.8-27b)}
+
+No \arq{qwen3.8-27b}, a adição da camada semântica sobre o catálogo é
+significativa ($p$ ajustado de 0,002), assim como a comparação entre os
+extremos ($p$ ajustado de 0,001). Os pares discordantes são todos
+favoráveis à condição semântica: 11 perguntas passaram a ser acertadas e
+nenhuma passou a ser errada. A adição do catálogo sobre a condição
+técnica não produz diferença: uma pergunta foi perdida e duas foram
+ganhas.
+
+No \arq{gpt-oss-120b}, a direção é a mesma, mas nenhuma comparação é
+significativa após o ajuste. A comparação entre as condições técnica e
+semântica tem $p$ bruto de 0,021, abaixo de 0,05, e $p$ ajustado de 0,064.
+Entre catálogo e semântica, sete perguntas foram ganhas e duas perdidas.
+Entre técnica e catálogo, três foram ganhas e nenhuma perdida.
+
+Portanto, a hipótese nula de igualdade entre as condições é rejeitada no
+\arq{qwen3.8-27b} para as duas comparações que envolvem a camada semântica,
+e não é rejeitada no \arq{gpt-oss-120b} ao nível de 5\% com o ajuste para
+comparações múltiplas.
+
+% -----------------------------------------------------------------------------
 \section{Acurácia por categoria de pergunta}
 \label{sec:categorias}
-\begin{esboco}
-  by_category_*-tiers.csv (10 perguntas por categoria x condição).
-  Tabela prevista: Tabela -- Acurácia por categoria, condição e modelo.
-  Figura prevista: Figura -- Mapa de calor categoria x condição.
-\end{esboco}
 
+A \autoref{tab:categorias} desagrega os acertos pelas quatro categorias do
+banco de perguntas. As perguntas de filtros e agregações são resolvidas em
+quase todas as condições, e as temporais variam pouco entre condições. O
+ganho da camada semântica concentra-se nas categorias de relacionamentos e
+de regras de negócio. Em relacionamentos, o \arq{qwen3.8-27b} vai de 2
+acertos no catálogo para 8 na condição semântica, e o
+\arq{gpt-oss-120b}, de 4 para 7. Em regras de negócio, os dois modelos
+chegam a 8 acertos na condição semântica, partindo de 5 e 4 no catálogo.
+
+\begin{table}[htb]
+  \centering
+  \caption{Acertos por categoria de pergunta (de 10 perguntas por categoria)}
+  \label{tab:categorias}
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{3}{c}{gpt-oss-120b} & \multicolumn{3}{c}{qwen3.8-27b} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    Categoria & Téc. & Cat. & Sem. & Téc. & Cat. & Sem. \\
+    \midrule
+    Filtros e agregações & 9 & 10 & 10 & 9 & 10 & 10 \\
+    Relacionamentos      & 3 & 4  & 7  & 3 & 2  & 8 \\
+    Temporal             & 9 & 9  & 8  & 8 & 8  & 9 \\
+    Regras de negócio    & 4 & 5  & 8  & 3 & 4  & 8 \\
+    \midrule
+    Total                & 25 & 28 & 33 & 23 & 24 & 35 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{artifacts/processed/by_category_gpt-oss-120b-tiers.csv} e
+    \arq{by_category_qwen3-27b-tiers.csv}.}
+\end{table}
+
+Com 10 perguntas por categoria, essas diferenças não foram submetidas a
+teste estatístico próprio e servem para localizar onde o efeito agregado
+se produz.
+
+% -----------------------------------------------------------------------------
 \section{Latência}
 \label{sec:latencia}
-\begin{esboco}
-  Medianas e IQR (relatórios), Wilcoxon pareado.
-  gpt-oss: ~1,4 s -> ~1,4 s -> ~7,9 s. qwen: ~2,9 s -> ~7,7 s -> ~14,8 s.
-  Tabela prevista: Tabela -- Latência mediana do modelo por condição.
-\end{esboco}
 
-\section{Taxonomia de erros}
+A \autoref{tab:latencia} mostra a latência mediana do modelo por condição.
+A condição semântica é a mais lenta nos dois modelos: cerca de 5,6 vezes a
+mediana da condição técnica no \arq{gpt-oss-120b} e cerca de 5,1 vezes no
+\arq{qwen3.8-27b}. Todas as diferenças pareadas são significativas após o
+ajuste de Holm. No \arq{gpt-oss-120b}, porém, a diferença entre as
+condições técnica e de catálogo é de apenas 5 ms na mediana ($p$ ajustado
+de 0,048), sem relevância prática.
+
+\begin{table}[htb]
+  \centering
+  \caption{Latência do modelo por condição, em segundos}
+  \label{tab:latencia}
+  \begin{tabular}{lcccc}
+    \toprule
+    & \multicolumn{2}{c}{gpt-oss-120b} & \multicolumn{2}{c}{qwen3.8-27b} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    Condição & Mediana & IIQ & Mediana & IIQ \\
+    \midrule
+    Técnica   & 1,40 & 1,28 & 2,92  & 0,98 \\
+    Catálogo  & 1,39 & 4,07 & 7,67  & 1,00 \\
+    Semântica & 7,90 & 8,34 & 14,79 & 0,19 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{artifacts/processed/accuracy_gpt-oss-120b-tiers.csv} e
+    \arq{accuracy_qwen3-27b-tiers.csv}. IIQ: intervalo interquartil.
+    Testes de Wilcoxon em \arq{artifacts/reports/results_final_*-tiers.md}.}
+\end{table}
+
+Como descrito na \autoref{sec:analise}, a latência medida inclui as
+esperas por limite de taxa da camada gratuita do provedor. A distribuição
+no \arq{qwen3.8-27b} sugere que esse efeito domina a medida: na condição
+semântica, metade das chamadas ficou entre 14,70 e 14,89 segundos, uma
+dispersão incompatível com a variação natural do tempo de geração.
+\pendente{confirmar nos registros brutos (cabeçalho Retry-After não foi
+gravado); sem isso, a interpretação acima é uma inferência}
+A latência deve, portanto, ser lida como o custo do prompt maior sob as
+condições de uso deste estudo, e não como o tempo de inferência do modelo.
+
+% -----------------------------------------------------------------------------
+\section{Análise dos erros}
 \label{sec:taxonomia}
-\begin{esboco}
-  docs/error_taxonomy.md: 16 perguntas com erro em algum nível (gpt-oss),
-  7 classes (A a G), nível mínimo que resolve e seção do YAML responsável.
-  NÃO usar os "6 pontos"/"9 pontos" do arquivo: não batem com as perguntas
-  listadas. Recontar a partir de _failures_audit_tiers_gpt-oss.txt.
-  PENDENTE: taxonomia equivalente para o qwen (não existe no repositório).
-  Quadro previsto: Quadro -- Classes de erro, nível que resolve e seção do contexto.
-  Figura prevista: Figura -- Decomposição do ganho por classe de erro.
-\end{esboco}
 
+No \arq{gpt-oss-120b}, 24 das 40 perguntas foram acertadas nas três
+condições, e 16 tiveram erro em pelo menos uma. No \arq{qwen3.8-27b}, foram
+22 e 18, respectivamente. As perguntas com erro foram classificadas
+manualmente em sete classes, conforme a causa do erro observada no SQL
+gerado (\autoref{qua:classes}).
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Classes de erro}
+  \label{qua:classes}
+  \begin{tabularx}{\textwidth}{|c|l|X|}
+    \hline
+    \textbf{Classe} & \textbf{Nome} & \textbf{Descrição} \\ \hline
+    A & Escolha de coluna ou grão & O termo da pergunta corresponde a mais
+      de uma coluna ou grão, e o modelo escolhe o errado (por exemplo,
+      somar \arq{order_items.quantity} em vez de usar
+      \arq{orders.item_count}). \\ \hline
+    B & Referência órfã & A pergunta fala em ``associado'', e o modelo
+      conta o campo preenchido (\arq{IS NOT NULL}) em vez da ligação a uma
+      linha existente (\arq{JOIN}). \\ \hline
+    C & Colunas extras & A pergunta pede contagem ou agregação, e o modelo
+      acrescenta colunas descritivas, como nomes, ao resultado. \\ \hline
+    D & Tipo e formato temporal & O modelo devolve a data ou a duração em
+      formato ou tipo diferente do esperado, ou usa uma função incompatível
+      com o tipo da coluna. \\ \hline
+    E & Percentual & ``Percentual'' é calculado como valor multiplicado
+      por 100, e a referência devolve a fração. \\ \hline
+    F & Ambiguidade do enunciado & A pergunta admite duas leituras
+      defensáveis, e o modelo escolhe a outra. \\ \hline
+    G & Interpretação de média & O modelo calcula uma média diferente da
+      pedida (média geral ou média de médias). \\ \hline
+  \end{tabularx}
+  \fonte{Elaborado pelo autor a partir de \arq{docs/error_taxonomy.md}.}
+\end{quadro}
+
+A \autoref{tab:classes} cruza as classes com as condições: para cada
+classe, quantas perguntas tiveram erro em alguma condição e quantas delas
+foram acertadas em cada condição.
+
+\begin{table}[htb]
+  \centering
+  \caption{Perguntas com erro por classe e acertos em cada condição}
+  \label{tab:classes}
+  \begin{tabular}{clcccccccc}
+    \toprule
+    & & \multicolumn{4}{c}{gpt-oss-120b} & \multicolumn{4}{c}{qwen3.8-27b} \\
+    \cmidrule(lr){3-6}\cmidrule(lr){7-10}
+    & Classe & $n$ & Téc. & Cat. & Sem. & $n$ & Téc. & Cat. & Sem. \\
+    \midrule
+    A & Coluna ou grão     & 2 & 0 & 2 & 2 & 3 & 1 & 2 & 3 \\
+    B & Referência órfã    & 4 & 0 & 1 & 3 & 4 & 0 & 0 & 3 \\
+    C & Colunas extras     & 5 & 0 & 0 & 4 & 5 & 0 & 0 & 5 \\
+    D & Tipo temporal      & 2 & 1 & 1 & 0 & 3 & 0 & 0 & 2 \\
+    E & Percentual         & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    F & Ambiguidade        & 2 & 0 & 0 & 0 & 2 & 0 & 0 & 1 \\
+    G & Média              & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 0 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{artifacts/processed/error_classes_gpt-oss-120b-tiers.csv} e
+    \arq{error_classes_qwen3-27b-tiers.csv}. A pergunta Q013 pertence às
+    classes B e C e é contada nas duas.}
+\end{table}
+
+\pendente{revisar a classificação de Q017, Q031 (classe A) e Q036 (classe
+D), que só erram no qwen3.8-27b e foram classificadas nesta versão do texto}
+
+Três padrões aparecem na tabela.
+
+O primeiro é que a classe A é resolvida, em geral, já pelo catálogo. Nas
+perguntas Q005 e Q032 no \arq{gpt-oss-120b}, e Q005 e Q031 no
+\arq{qwen3.8-27b}, a descrição da coluna no catálogo basta para que o
+modelo escolha a coluna e o grão corretos, e a camada semântica não
+acrescenta nada. A exceção é a Q017 no \arq{qwen3.8-27b}, discutida
+adiante.
+
+O segundo é que as classes B e C só são resolvidas pela camada semântica. Das
+nove perguntas dessas classes com erro no \arq{gpt-oss-120b} (oito
+perguntas distintas), o catálogo acerta uma e a condição semântica, seis.
+No \arq{qwen3.8-27b}, o catálogo não acerta nenhuma e a condição semântica
+acerta sete das oito perguntas distintas. Essas duas classes respondem pela
+maior parte do ganho entre catálogo e semântica. A regra referencial e a
+regra de estilo de resposta não descrevem o que uma coluna significa, mas
+como a pergunta deve ser respondida, e por isso não cabem numa descrição
+de catálogo.
+
+O terceiro é que as classes D a G formam um resíduo sem padrão consistente
+entre condições e modelos: o \arq{gpt-oss-120b} acerta uma das seis
+perguntas dessas classes na condição semântica, e o \arq{qwen3.8-27b},
+três de sete, enquanto as condições técnica e de catálogo acertam no
+máximo uma. São erros de convenção de tipo, de
+ambiguidade do enunciado ou de divergência entre a linguagem natural e a
+consulta de referência, que o contexto atual não endereça. Esse resíduo
+limita a acurácia máxima observável com o banco de perguntas atual.
+
+Há também casos em que a condição mais rica erra onde a mais pobre acerta.
+No \arq{gpt-oss-120b}, a pergunta Q014 (classe B) foi acertada no catálogo
+e errada na condição semântica, e a Q027 (classe D) foi acertada nas
+condições técnica e de catálogo e terminou sem consulta executável na
+semântica. No \arq{qwen3.8-27b}, a Q017 foi acertada na condição técnica e
+errada no catálogo. Esses casos mostram que o contexto adicional muda a
+distribuição de respostas do modelo, e não apenas corrige erros.
+
+% -----------------------------------------------------------------------------
 \section{Exemplos qualitativos}
 \label{sec:exemplos}
-\begin{esboco}
-  docs/qualitative_examples.md: Q005 (classe A), Q011 e Q013 (classe B/C),
-  Q032 (A), Q038 (C). SQL de cada nível lado a lado.
-  Cuidado: não reproduzir valores de linha além dos que já estão no doc.
-  Quadros previstos: um por exemplo (pergunta, SQL por nível, correto/errado).
-\end{esboco}
 
+Os quadros a seguir mostram, para quatro perguntas, a consulta gerada pelo
+\arq{gpt-oss-120b} em cada condição. As consultas foram copiadas dos
+registros brutos da rodada \arq{22e3f8ce}, com quebras de linha
+acrescentadas para legibilidade.
+
+O \autoref{qua:ex-q005} ilustra a classe A. Sem descrição, o modelo
+interpreta ``quantidade de itens'' como a soma das quantidades dos itens
+de cada pedido. A descrição de \arq{orders.item_count} no catálogo
+(``quantidade de itens informada no cabeçalho do pedido'') é suficiente
+para a escolha correta.
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Q005: ``Qual é a média de quantidade de itens informada nos pedidos?''}
+  \label{qua:ex-q005}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|c|X|}
+    \hline
+    \textbf{Condição} & \textbf{Correta} & \textbf{Consulta gerada} \\ \hline
+    Referência & -- & \ttfamily SELECT AVG(item\_count) FROM orders \\ \hline
+    Técnica & Não & \ttfamily WITH order\_qty AS (SELECT oi.order\_id,
+      SUM(oi.quantity) AS total\_qty FROM order\_items AS oi GROUP BY
+      oi.order\_id) SELECT CAST(AVG(total\_qty) AS DECIMAL(10, 2)) AS
+      avg\_quantity\_per\_order FROM order\_qty \\ \hline
+    Catálogo & Sim & \ttfamily SELECT AVG(item\_count) AS average\_item\_count FROM orders \\ \hline
+    Semântica & Sim & \ttfamily SELECT AVG(item\_count) FROM orders \\ \hline
+  \end{tabularx}
+  \fonte{Registros brutos da rodada \arq{22e3f8ce}.}
+\end{quadro}
+
+O \autoref{qua:ex-q011} ilustra a classe B. Nas condições técnica e de
+catálogo, o modelo conta os pedidos com \arq{customer_id} preenchido. A
+consulta de referência conta os pedidos ligados a um cliente existente.
+Como a base tem referências órfãs, as duas formas divergem: 10.931 pedidos
+têm cliente informado, mas 10.375 têm cliente existente. Só a regra
+referencial da camada semântica leva o modelo a usar a junção.
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Q011: ``Quantos pedidos têm cliente associado?''}
+  \label{qua:ex-q011}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|c|X|}
+    \hline
+    \textbf{Condição} & \textbf{Correta} & \textbf{Consulta gerada} \\ \hline
+    Referência & -- & \ttfamily SELECT COUNT(*) FROM orders o JOIN customers
+      c ON c.customer\_id=o.customer\_id \\ \hline
+    Técnica & Não & \ttfamily SELECT COUNT(*) AS pedidos\_com\_cliente FROM
+      orders WHERE customer\_id IS NOT NULL \\ \hline
+    Catálogo & Não & \ttfamily SELECT COUNT(*) AS orders\_with\_customer FROM
+      orders WHERE customer\_id IS NOT NULL \\ \hline
+    Semântica & Sim & \ttfamily SELECT COUNT(*) AS total\_orders\_with\_customer
+      FROM orders AS o JOIN customers AS c ON o.customer\_id = c.customer\_id \\ \hline
+  \end{tabularx}
+  \fonte{Registros brutos da rodada \arq{22e3f8ce};
+    contagens em \arq{docs/qualitative_examples.md}.}
+\end{quadro}
+
+O \autoref{qua:ex-q013} combina as classes B e C. Na condição técnica, o
+modelo comete o erro de referência órfã. No catálogo, faz a junção, mas
+devolve uma contagem por representante, com o nome, em vez de um único
+número. Apenas a condição semântica, que combina a regra referencial com a
+regra de estilo de resposta, produz a consulta esperada.
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Q013: ``Quantos clientes estão associados a um representante?''}
+  \label{qua:ex-q013}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|c|X|}
+    \hline
+    \textbf{Condição} & \textbf{Correta} & \textbf{Consulta gerada} \\ \hline
+    Referência & -- & \ttfamily SELECT COUNT(*) FROM customers c JOIN
+      representatives r ON r.representative\_id=c.representative\_id \\ \hline
+    Técnica & Não & \ttfamily SELECT COUNT(*) AS total\_customers FROM
+      customers WHERE representative\_id IS NOT NULL \\ \hline
+    Catálogo & Não & \ttfamily SELECT r.representative\_id, r.name,
+      COUNT(c.customer\_id) AS customer\_count FROM representatives AS r LEFT
+      JOIN customers AS c ON c.representative\_id = r.representative\_id
+      GROUP BY r.representative\_id, r.name ORDER BY customer\_count DESC \\ \hline
+    Semântica & Sim & \ttfamily SELECT COUNT(*) AS total\_customers FROM
+      customers AS c JOIN representatives AS r ON c.representative\_id =
+      r.representative\_id \\ \hline
+  \end{tabularx}
+  \fonte{Registros brutos da rodada \arq{22e3f8ce}.}
+\end{quadro}
+
+O \autoref{qua:ex-q038} ilustra a classe C. As condições técnica e de
+catálogo produzem a mesma consulta, que acrescenta o nome do representante
+ao agrupamento. A condição semântica mantém a junção, mas devolve apenas o
+identificador e a soma, como pedido.
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Q038: ``Qual é o valor total de pedidos por representante?''}
+  \label{qua:ex-q038}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|c|X|}
+    \hline
+    \textbf{Condição} & \textbf{Correta} & \textbf{Consulta gerada} \\ \hline
+    Referência & -- & \ttfamily SELECT representative\_id, SUM(total\_amount)
+      FROM orders GROUP BY representative\_id \\ \hline
+    Técnica e catálogo & Não & \ttfamily SELECT r.representative\_id, r.name,
+      SUM(o.total\_amount) AS total\_order\_value FROM orders AS o JOIN
+      representatives AS r ON o.representative\_id = r.representative\_id
+      GROUP BY r.representative\_id, r.name \\ \hline
+    Semântica & Sim & \ttfamily SELECT r.representative\_id,
+      SUM(o.total\_amount) AS total\_order\_value FROM orders AS o JOIN
+      representatives AS r ON o.representative\_id = r.representative\_id
+      GROUP BY r.representative\_id \\ \hline
+  \end{tabularx}
+  \fonte{Registros brutos da rodada \arq{22e3f8ce}.}
+\end{quadro}
+
+% -----------------------------------------------------------------------------
 \section{Histórico: desenho com duas condições}
 \label{sec:historico}
-\begin{esboco}
-  Desenho anterior (técnico x semântico), por iteração, gpt-oss:
-  inicial 65,0% x 60,0% (p=1,0); pós-D-005 72,5% x 85,0% (p=0,18);
-  pós-D-006 65,0% x 87,5% (p=0,0039). Réplica qwen: 55,0% x 85,0% (p=0,00049).
-  Fontes: results_final_gpt-oss-120b.md, results_final_qwen3-27b.md,
-  tabela "Histórico" de status.md com os arquivos brutos.
-  Observação: o "semântico" de duas condições = técnico + YAML; no desenho
-  de três = catálogo + YAML. Prompts diferentes, números não comparáveis 1:1.
-  Tabela prevista: Tabela -- Evolução do resultado por iteração.
-\end{esboco}
+
+Antes da introdução da condição de catálogo, o experimento comparava apenas
+as condições técnica e semântica. Nesse desenho, a condição semântica era
+formada pelo contexto técnico seguido do contexto semântico, e não pelo
+catálogo seguido do contexto semântico. Por isso, os números desta seção
+não são diretamente comparáveis aos das seções anteriores. A
+\autoref{tab:historico} mostra a evolução ao longo das iterações descritas
+na \autoref{sec:trajetoria}.
+
+\begin{table}[htb]
+  \centering
+  \caption{Evolução do desenho com duas condições por iteração}
+  \label{tab:historico}
+  \begin{tabular}{llcccc}
+    \toprule
+    Iteração & Modelo & Técnica & Semântica & Só téc. : só sem. & $p$ \\
+    \midrule
+    Inicial         & gpt-oss-120b & 26/40 & 24/40 & 3 : 1  & 0,625 \\
+    Após D-005      & gpt-oss-120b & 29/40 & 34/40 & 2 : 7  & 0,180 \\
+    Após D-006      & gpt-oss-120b & 26/40 & 35/40 & 0 : 9  & 0,004 \\
+    Réplica (D-007) & qwen3.8-27b  & 22/40 & 34/40 & 0 : 12 & $<$0,001 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{artifacts/processed/history_iterations.csv} (rodadas
+    \arq{30bfd1ed}, \arq{7f82b1f5}, \arq{243a0e26} e \arq{06a0ccb0}).
+    McNemar exato; uma comparação por iteração, sem ajuste.}
+\end{table}
+
+Na primeira execução, com o contexto semântico original e o avaliador
+estrito, a condição semântica acertou duas perguntas a menos que a técnica.
+Após a reescrita do contexto e o ajuste do avaliador (D-005), passou a
+acertar cinco a mais, sem significância. Após a padronização das consultas
+de referência (D-006), a diferença chegou a nove perguntas, todas a favor
+da condição semântica, com $p = 0{,}004$. Na réplica com o
+\arq{qwen3.8-27b}, a diferença foi de doze perguntas, também todas a favor
+da condição semântica.
+
+O mesmo modelo, a mesma base e as mesmas perguntas produziram, portanto,
+desde uma diferença negativa até uma diferença significativa, conforme a
+qualidade do contexto semântico e a consistência das consultas de
+referência.

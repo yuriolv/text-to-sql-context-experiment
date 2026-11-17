@@ -13,6 +13,8 @@
 \usepackage{listings}              % SQL e YAML nos exemplos e apêndices
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,fit,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{microtype}
@@ -46,6 +48,7 @@
 % quaternária: negrito + itálico | quinária: itálico
 \renewcommand{\ABNTEXchapterfont}{\bfseries}
 \renewcommand{\ABNTEXchapterfontsize}{\normalsize}
+\renewcommand{\ABNTEXchapterupperifneeded}[1]{\MakeUppercase{#1}}
 \renewcommand{\ABNTEXsectionfont}{\bfseries}
 \renewcommand{\ABNTEXsectionfontsize}{\normalsize}
 \renewcommand{\ABNTEXsectionupperifneeded}[1]{#1}
@@ -60,17 +63,33 @@
 
 % --- Paginação (p. 79-80): arábico, canto sup. direito, corpo 10 ------------
 \makeoddhead{abntheadings}{}{}{\footnotesize\thepage}
+\makeheadrule{abntheadings}{\textwidth}{0pt}  % sem filete no cabeçalho
 
 % --- Legendas (p. 85): título acima, centralizado, negrito; fonte abaixo -----
 \captionnamefont{\bfseries\normalsize}
 \captiontitlefont{\bfseries\normalsize}
 \captiondelim{ -- }
-% \fonte{...} do abnTeX2 já posiciona a fonte abaixo, em corpo menor.
+% Fonte abaixo da ilustração: alinhada à esquerda, corpo menor, sem negrito,
+% espaço simples (p. 85). Substitui o \fonte do abnTeX2, que herdava o negrito.
+\renewcommand{\fonte}[2][\fontename]{%
+  \par\vspace{2pt}{\SingleSpacing\raggedright\footnotesize #1: #2\par}}
+
+% --- Títulos sem indicativo numérico em maiúsculas (p. 79) -------------------
+\addto\captionsbrazil{%
+  \renewcommand{\resumoname}{RESUMO}%
+  \renewcommand{\abstractname}{ABSTRACT}%
+  \renewcommand{\listfigurename}{LISTA DE FIGURAS}%
+  \renewcommand{\listtablename}{LISTA DE TABELAS}%
+  \renewcommand{\listadesiglasname}{LISTA DE ABREVIATURAS E SIGLAS}%
+  \renewcommand{\contentsname}{SUMÁRIO}%
+  \renewcommand{\bibname}{REFERÊNCIAS}%
+  \renewcommand{\refname}{REFERÊNCIAS}%
+}
 
 % --- Quadros (dados descritivos, fechados; p. 50) ---------------------------
-\newcommand{\listofquadrosname}{Lista de quadros}
+\newcommand{\listofquadrosname}{LISTA DE QUADROS}
 \newcommand{\quadroname}{Quadro}
-\newfloat[chapter]{quadro}{loq}{\quadroname}
+\newfloat{quadro}{loq}{\quadroname}
 \newlistof{listofquadros}{loq}{\listofquadrosname}
 \newlistentry{quadro}{loq}{0}
 \renewcommand{\cftquadroname}{\quadroname\space}
@@ -85,6 +104,7 @@
 }
 \providecommand{\quadroautorefname}{Quadro}
 \renewcommand{\lstlistingname}{Código}
+\AtBeginDocument{\counterwithout{lstlisting}{chapter}}  % numeração sequencial
 
 % --- Código ------------------------------------------------------------------
 \lstset{

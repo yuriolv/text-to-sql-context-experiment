@@ -1,0 +1,5 @@
+iteration,run,model,n,technical_correct,semantic_correct,technical_only,semantic_only,p_mcnemar
+inicial,30bfd1ed,openai/gpt-oss-120b,40,26,24,3,1,0.625
+pós-D-005,7f82b1f5,openai/gpt-oss-120b,40,29,34,2,7,0.1796875
+pós-D-006,243a0e26,openai/gpt-oss-120b,40,26,35,0,9,0.00390625
+réplica (D-007),06a0ccb0,qwen/qwen3.8-27b,40,22,34,0,12,0.00048828125

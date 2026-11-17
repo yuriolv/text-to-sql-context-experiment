@@ -65,7 +65,7 @@ Resumo das 7 decisões (texto integral em `docs/decisions.md`):
 
 | iteração | semantic | technical | Δ | McNemar p |
 |---|---|---|---|---|
-| inicial (contexto genérico, evaluator estrito) | 60.0% | 65.0% | −5.0 pp | 1.0 |
+| inicial (contexto genérico, evaluator estrito) | 60.0% | 65.0% | −5.0 pp | 0.625 |
 | pós-D-005 | 85.0% | 72.5% | +12.5 pp | 0.18 |
 | pós-D-006 | **87.5%** | 65.0% | **+22.5 pp** | **0.0039** |
 

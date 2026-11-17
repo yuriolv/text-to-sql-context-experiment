@@ -18,7 +18,7 @@ Em 14/11/2026, a carga inicial de `commercial` falhou em `subgroups` com `group_
 
 ## D-005 — Revisão do contexto semântico e do avaliador após o primeiro final
 
-A primeira execução final (14/11/2026) produziu 24/40 correct na condição semântica contra 26/40 na técnica (McNemar p=1.0). A auditoria dos 17 erros revelou três problemas distintos e tratáveis antes da coleta definitiva:
+A primeira execução final (14/11/2026) produziu 24/40 correct na condição semântica contra 26/40 na técnica (McNemar p=0.625; 3:1 pares discordantes — valor corrigido em 16/11/2026, ver `artifacts/processed/history_iterations.csv`). A auditoria dos 17 erros revelou três problemas distintos e tratáveis antes da coleta definitiva:
 
 1. **Contexto semântico com glossário genérico.** A entrada `valor_pedido: orders.total_amount` levou o modelo a usar `total_amount` quando a pergunta era sobre `gross_amount` (Q008). Hints de relacionamento convidavam o modelo a acrescentar colunas descritivas (nome do representante, nome do cliente) em respostas que pediam só contagem/agregação (Q013, Q018, Q020, Q037, Q039). O contexto não mencionava a existência de referências órfãs documentada em D-004.
    
