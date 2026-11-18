@@ -436,8 +436,8 @@ $10^{-6}$ e a ordem das linhas não é considerada.
     \arq{questions_pilot.jsonl}.}
 \end{table}
 
-\pendente{confirmar autoria e critério de elaboração das perguntas e das consultas de referência}
-
+As perguntas e as consultas de referência foram elaboradas pelo autor, a
+partir das regras de negócio registradas em \arq{business_rules.yaml}.
 As perguntas e as consultas de referência são geradas por
 \arq{scripts/question_bank.py} e congeladas por \textit{hash} antes de cada
 coleta (\autoref{sec:controles}). A única alteração posterior à primeira
@@ -638,4 +638,7 @@ deles por \textit{script}. Dessa forma, todos os números apresentados na
 brutos. Os arquivos XLSX de origem e os registros brutos não são
 publicados, pois contêm ou derivam de dados da base.
 
-\pendente{informar se o repositório será público e, se for, a URL a citar}
+O código, os três contextos, o banco de perguntas com as consultas de
+referência, os relatórios e as tabelas agregadas estão disponíveis em
+repositório público, em
+\url{https://github.com/yuriolv/text-to-sql-context-experiment}.
