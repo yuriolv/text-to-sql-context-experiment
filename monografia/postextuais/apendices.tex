@@ -1,24 +1,97 @@
-% Apêndices — material elaborado pelo autor (Guia UECE: pós-textuais opcionais).
-% Numeração de páginas contínua.
+% Apêndices — material elaborado pelo autor (Guia UECE: pós-textuais
+% opcionais). Numeração de páginas contínua.
+% Preenchidos em 18/11/2026 a partir dos arquivos versionados:
+%   A: data/datasets/commercial/questions_final.jsonl (tabela gerada por
+%      script; conferido que nenhuma consulta de referência contém valor de
+%      linha da base, só nomes de coluna e o literal 'month' — D-003);
+%   B: technical_context.sql, catalog_context.sql e semantic_context.yaml,
+%      lidos diretamente do repositório (só metadados, sem valores de linha).
+% O antigo Apêndice C (decisões D-001 a D-008) foi retirado: repetiria o
+% quadro qua:decisoes da Seção 4 e nenhum ponto do texto o citava.
 
 \chapter{Banco de perguntas da coleta final}
 \label{ap:perguntas}
-\begin{esboco}
-  40 perguntas com id, categoria e enunciado (questions_final.jsonl).
-  PENDENTE: decidir se o gold SQL entra; conferir antes se algum gold tem
-  literal com valor de linha da base (D-003).
-\end{esboco}
+
+As 40 perguntas da coleta final, com a consulta de referência usada pelo
+avaliador, agrupadas pelas quatro categorias da \autoref{tab:perguntas}.
+Em todas, a tolerância numérica é $10^{-6}$ e a ordem das linhas não é
+considerada (\autoref{sec:perguntas}). As consultas de Q013, Q014 e Q016
+estão na forma padronizada pela decisão D-006.
+
+{\footnotesize\SingleSpacing
+\begin{longtable}{|>{\raggedright\arraybackslash}p{1cm}|>{\raggedright\arraybackslash}p{5.2cm}|>{\raggedright\arraybackslash}p{8.4cm}|}
+  \hline
+  \textbf{ID} & \textbf{Pergunta} & \textbf{Consulta de referência} \\ \hline
+  \endfirsthead
+  \multicolumn{3}{r}{(continuação)} \\ \hline
+  \textbf{ID} & \textbf{Pergunta} & \textbf{Consulta de referência} \\ \hline
+  \endhead
+  \multicolumn{3}{r}{(continua)} \\
+  \endfoot
+  \endlastfoot
+    \multicolumn{3}{|l|}{\textbf{Filtros e agregações}} \\ \hline
+    Q001 & Quantos clientes há na base? & \arq{SELECT COUNT(*) FROM customers} \\ \hline
+    Q002 & Quantos produtos há na base? & \arq{SELECT COUNT(*) FROM products} \\ \hline
+    Q003 & Qual é a soma de descontos dos pedidos? & \arq{SELECT SUM(discount_amount) FROM orders} \\ \hline
+    Q004 & Qual é o maior valor total de um pedido? & \arq{SELECT MAX(total_amount) FROM orders} \\ \hline
+    Q005 & Qual é a média de quantidade de itens informada nos pedidos? & \arq{SELECT AVG(item_count) FROM orders} \\ \hline
+    Q006 & Quantos pedidos têm entrega prevista? & \arq{SELECT COUNT(*) FROM orders WHERE expected_delivery_date IS NOT NULL} \\ \hline
+    Q007 & Quantos produtos estão ativos? & \arq{SELECT COUNT(*) FROM products WHERE NOT inactive} \\ \hline
+    Q008 & Qual é a soma dos valores brutos dos pedidos? & \arq{SELECT SUM(gross_amount) FROM orders} \\ \hline
+    Q009 & Quantas coleções têm data final preenchida? & \arq{SELECT COUNT(*) FROM collections WHERE end_date IS NOT NULL} \\ \hline
+    Q010 & Qual é o valor médio de preço de lista dos produtos? & \arq{SELECT AVG(list_price) FROM products} \\ \hline
+    \multicolumn{3}{|l|}{\textbf{Relacionamentos}} \\ \hline
+    Q011 & Quantos pedidos têm cliente associado? & \arq{SELECT COUNT(*) FROM orders o JOIN customers c ON c.customer_id=o.customer_id} \\ \hline
+    Q012 & Quantos itens de pedido têm produto associado? & \arq{SELECT COUNT(*) FROM order_items i JOIN products p ON p.product_id=i.product_id} \\ \hline
+    Q013 & Quantos clientes estão associados a um representante? & \arq{SELECT COUNT(*) FROM customers c JOIN representatives r ON r.representative_id=c.representative_id} \\ \hline
+    Q014 & Quantos produtos têm subgrupo associado? & \arq{SELECT COUNT(*) FROM products p JOIN subgroups s ON s.subgroup_id=p.subgroup_id} \\ \hline
+    Q015 & Quantos subgrupos estão associados a grupos? & \arq{SELECT COUNT(*) FROM subgroups s JOIN groups g ON g.group_id=s.group_id} \\ \hline
+    Q016 & Quantos pedidos possuem representante associado? & \arq{SELECT COUNT(*) FROM orders o JOIN representatives r ON r.representative_id=o.representative_id} \\ \hline
+    Q017 & Quantas metas têm um representante associado? & \arq{SELECT COUNT(*) FROM targets t JOIN representatives r ON r.representative_id=t.representative_id} \\ \hline
+    Q018 & Qual é a quantidade de pedidos por representante? & \arq{SELECT representative_id, COUNT(*) FROM orders GROUP BY representative_id} \\ \hline
+    Q019 & Qual é a quantidade de itens por grupo de produto? & \arq{SELECT p.group_id, COUNT(*) FROM order_items i JOIN products p ON p.product_id=i.product_id GROUP BY p.group_id} \\ \hline
+    Q020 & Qual é a quantidade de pedidos por cliente? & \arq{SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id} \\ \hline
+    \multicolumn{3}{|l|}{\textbf{Temporal}} \\ \hline
+    Q021 & Quantos pedidos foram emitidos em cada ano? & \arq{SELECT EXTRACT(YEAR FROM issued_at)::int, COUNT(*) FROM orders GROUP BY 1} \\ \hline
+    Q022 & Quantos pedidos foram emitidos em cada mês? & \arq{SELECT DATE_TRUNC('month', issued_at)::date, COUNT(*) FROM orders GROUP BY 1} \\ \hline
+    Q023 & Qual a quantidade de clientes cadastrados por ano? & \arq{SELECT EXTRACT(YEAR FROM registered_at)::int, COUNT(*) FROM customers GROUP BY 1} \\ \hline
+    Q024 & Qual a primeira e a última data de meta? & \arq{SELECT MIN(target_date), MAX(target_date) FROM targets} \\ \hline
+    Q025 & Quantas metas existem por ano? & \arq{SELECT year_number, COUNT(*) FROM targets GROUP BY year_number} \\ \hline
+    Q026 & Quantos pedidos têm entrega prevista depois da emissão? & \arq{SELECT COUNT(*) FROM orders WHERE expected_delivery_date > issued_at} \\ \hline
+    Q027 & Qual é a duração média em dias entre emissão e entrega prevista? & \arq{SELECT AVG(expected_delivery_date - issued_at) FROM orders WHERE expected_delivery_date IS NOT NULL} \\ \hline
+    Q028 & Quantas coleções têm início e fim informados? & \arq{SELECT COUNT(*) FROM collections WHERE start_date IS NOT NULL AND end_date IS NOT NULL} \\ \hline
+    Q029 & Qual é a quantidade de pedidos por data de emissão? & \arq{SELECT issued_at, COUNT(*) FROM orders GROUP BY issued_at} \\ \hline
+    Q030 & Qual é a quantidade de metas por data? & \arq{SELECT target_date, COUNT(*) FROM targets GROUP BY target_date} \\ \hline
+    \multicolumn{3}{|l|}{\textbf{Regras de negócio}} \\ \hline
+    Q031 & Qual é o faturamento total no grão de pedido? & \arq{SELECT SUM(total_amount) FROM orders} \\ \hline
+    Q032 & Qual é o faturamento total no grão de item? & \arq{SELECT SUM(total_amount) FROM order_items} \\ \hline
+    Q033 & Qual é o ticket médio dos pedidos? & \arq{SELECT AVG(total_amount) FROM orders} \\ \hline
+    Q034 & Qual é o desconto médio por pedido? & \arq{SELECT AVG(discount_amount) FROM orders} \\ \hline
+    Q035 & Qual é o percentual de desconto sobre o valor bruto total? & \arq{SELECT SUM(discount_amount) / NULLIF(SUM(gross_amount),0) FROM orders} \\ \hline
+    Q036 & Qual é o valor total de pedidos por mês de emissão? & \arq{SELECT DATE_TRUNC('month', issued_at)::date, SUM(total_amount) FROM orders GROUP BY 1} \\ \hline
+    Q037 & Qual é o valor total de itens por produto? & \arq{SELECT product_id, SUM(total_amount) FROM order_items GROUP BY product_id} \\ \hline
+    Q038 & Qual é o valor total de pedidos por representante? & \arq{SELECT representative_id, SUM(total_amount) FROM orders GROUP BY representative_id} \\ \hline
+    Q039 & Qual é a média de valor realizado nas metas por representante? & \arq{SELECT representative_id, AVG(achieved_amount) FROM targets GROUP BY representative_id} \\ \hline
+    Q040 & Qual é a diferença entre valor bruto e desconto, somada por pedido? & \arq{SELECT SUM(gross_amount - discount_amount) FROM orders} \\ \hline
+\end{longtable}
+\par}
+\fonte{Elaborado pelo autor a partir de
+  \arq{data/datasets/commercial/questions_final.jsonl}.}
 
 \chapter{Contextos fornecidos ao modelo}
 \label{ap:contextos}
-\begin{esboco}
-  Texto integral de technical_context.sql, catalog_context.sql e
-  semantic_context.yaml (lstlisting). São metadados, sem valores de linha.
-\end{esboco}
 
-\chapter{Registro de decisões metodológicas}
-\label{ap:decisoes}
-\begin{esboco}
-  D-001 a D-008 resumidas (docs/decisions.md), com data e arquivo bruto
-  correspondente.
-\end{esboco}
+Texto integral dos três arquivos de contexto, tal como enviados ao modelo
+(\autoref{sec:condicoes}). A condição técnica recebe o primeiro; a de
+catálogo, o segundo; a semântica, o segundo seguido do bloco
+``SEMÂNTICA:'' e do terceiro. Os arquivos contêm apenas metadados do
+esquema e regras, sem valores de linha da base (decisão D-003).
+
+\lstinputlisting[caption={Contexto técnico (\arq{technical_context.sql})},label={lst:ctx-tecnico},language={},columns=flexible,keepspaces=true]{../data/datasets/commercial/technical_context.sql}
+\fonte{\arq{data/datasets/commercial/technical_context.sql}.}
+
+\lstinputlisting[caption={Contexto de catálogo (\arq{catalog_context.sql})},label={lst:ctx-catalogo},language={},columns=flexible,keepspaces=true]{../data/datasets/commercial/catalog_context.sql}
+\fonte{\arq{data/datasets/commercial/catalog_context.sql}.}
+
+\lstinputlisting[caption={Contexto semântico (\arq{semantic_context.yaml})},label={lst:ctx-semantico},language={},columns=flexible,keepspaces=true]{../data/datasets/commercial/semantic_context.yaml}
+\fonte{\arq{data/datasets/commercial/semantic_context.yaml}.}
