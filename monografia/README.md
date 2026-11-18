@@ -19,7 +19,8 @@ Ou no Overleaf, enviando a pasta `monografia/` com o compilador pdfLaTeX.
 - `config/preambulo.tex`: formatação conforme o guia (margens, fonte, títulos, paginação, legendas).
 - `config/dados.tex`: identificação do trabalho, orientador e banca.
 - `pretextuais/`, `textuais/`, `postextuais/`: uma seção primária por arquivo.
-- `referencias.bib`: referências. Toda entrada precisa ser conferida na fonte.
+- `referencias.bib`: referências. Toda entrada precisa ser conferida na fonte. Autores institucionais vão no campo `organization`.
+- `abntex2-alf.bst`: cópia local do estilo do abnTeX2 com um ajuste para a NBR 10520:2023 (citação entre parênteses em maiúsculas e minúsculas, inclusive instituições). Precisa ficar ao lado de `main.tex`, também no Overleaf.
 
 ## Convenções
 

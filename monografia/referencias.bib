@@ -5,6 +5,14 @@
 % Documentos eletrônicos (guia p. 149): url + urlaccessdate.
 % Pontos não confirmados na fonte estão anotados em comentário acima da
 % entrada.
+% Autores institucionais usam o campo organization: a referência sai em
+% maiúsculas (OPENAI) e a citação em maiúsculas e minúsculas (OpenAI).
+
+% Opção de estilo: citação (Autor, ANO) da NBR 10520:2023 (ver preambulo.tex).
+@ABNT-options{uece-cite-style,
+  abnt-cite-style = "(Author, YEAR)",
+  key = "aaaa"
+}
 
 % =============================================================================
 % Benchmarks e avaliação de text-to-SQL
@@ -305,7 +313,7 @@
 }
 
 @book{dama2017dmbok,
-  author    = {{DAMA INTERNATIONAL}},
+  organization = {DAMA International},
   title     = {{DAMA-DMBOK}: data management body of knowledge},
   edition   = {2},
   address   = {Basking Ridge},
@@ -315,7 +323,7 @@
 }
 
 @misc{dbt_semanticlayer,
-  author    = {{DBT LABS}},
+  organization = {dbt Labs},
   title     = {dbt {Semantic} {Layer}},
   howpublished = {{dbt} Developer Hub},
   year      = {2026},
@@ -324,7 +332,7 @@
 }
 
 @misc{dbt_slarchitecture,
-  author    = {{DBT LABS}},
+  organization = {dbt Labs},
   title     = {dbt {Semantic} {Layer} architecture},
   howpublished = {{dbt} Developer Hub},
   year      = {2026},
@@ -333,7 +341,7 @@
 }
 
 @misc{dbt_metricflow,
-  author    = {{DBT LABS}},
+  organization = {dbt Labs},
   title     = {About {MetricFlow}},
   howpublished = {{dbt} Developer Hub},
   year      = {2026},
@@ -342,7 +350,7 @@
 }
 
 @misc{databricks_comment,
-  author    = {{DATABRICKS}},
+  organization = {Databricks},
   title     = {{COMMENT ON}},
   howpublished = {Databricks Documentation},
   year      = {2026},
@@ -351,7 +359,7 @@
 }
 
 @misc{databricks_metricviews,
-  author    = {{DATABRICKS}},
+  organization = {Databricks},
   title     = {Unity {Catalog} metric views},
   howpublished = {Databricks Documentation},
   year      = {2026},
@@ -360,7 +368,7 @@
 }
 
 @misc{looker_lookml,
-  author    = {{GOOGLE CLOUD}},
+  organization = {Google Cloud},
   title     = {Introduction to {LookML}},
   howpublished = {Looker Documentation},
   year      = {2026},
@@ -369,7 +377,7 @@
 }
 
 @misc{cube_datamodel,
-  author    = {{CUBE DEV}},
+  organization = {Cube Dev},
   title     = {Data modeling: getting started},
   howpublished = {Cube Documentation},
   year      = {2026},
@@ -392,7 +400,7 @@
 }
 
 @misc{owasp2025llm,
-  author    = {{OWASP GEN AI SECURITY PROJECT}},
+  organization = {OWASP Gen AI Security Project},
   title     = {2025 top 10 risk \& mitigations for {LLMs} and gen {AI} apps},
   howpublished = {OWASP Foundation},
   year      = {2024},
@@ -468,7 +476,7 @@
 }
 
 @misc{openai2025gptoss,
-  author    = {{OPENAI}},
+  organization = {OpenAI},
   title     = {gpt-oss-120b \& gpt-oss-20b model card},
   howpublished = {{arXiv}:2508.10925},
   year      = {2025},
@@ -477,7 +485,7 @@
 }
 
 @misc{qwen2026qwen38,
-  author    = {{QWEN TEAM}},
+  organization = {Qwen Team},
   title     = {{Qwen3.8-27B}: model card},
   howpublished = {Hugging Face},
   year      = {2026},
@@ -486,7 +494,7 @@
 }
 
 @misc{groq_models,
-  author    = {{GROQ}},
+  organization = {Groq},
   title     = {Supported models},
   howpublished = {GroqDocs},
   year      = {2026},
@@ -495,7 +503,7 @@
 }
 
 @misc{groq_openai,
-  author    = {{GROQ}},
+  organization = {Groq},
   title     = {{OpenAI} compatibility},
   howpublished = {GroqDocs},
   year      = {2026},
@@ -504,7 +512,7 @@
 }
 
 @misc{groq_ratelimits,
-  author    = {{GROQ}},
+  organization = {Groq},
   title     = {Rate limits},
   howpublished = {GroqDocs},
   year      = {2026},
@@ -593,7 +601,7 @@
 % Software
 % =============================================================================
 @misc{postgresql16,
-  author    = {{THE POSTGRESQL GLOBAL DEVELOPMENT GROUP}},
+  organization = {The PostgreSQL Global Development Group},
   title     = {{PostgreSQL} 16 documentation},
   year      = {2026},
   url       = {https://www.postgresql.org/docs/16/index.html},
@@ -601,7 +609,7 @@
 }
 
 @misc{postgres_comment,
-  author    = {{THE POSTGRESQL GLOBAL DEVELOPMENT GROUP}},
+  organization = {The PostgreSQL Global Development Group},
   title     = {{COMMENT}},
   howpublished = {PostgreSQL 16 Documentation},
   year      = {2026},
