@@ -1,76 +1,127 @@
 % =============================================================================
-% 1 INTRODUÇÃO — escrita por ÚLTIMO entre os textuais (passo 5 da ordem).
+% 1 INTRODUÇÃO — primeira versão (18/11/2026), escrita com a skill
+% estruturacao-introducao-logica: abre com a conclusão principal; problema,
+% razão para esperar o efeito, lacuna e justificativa num argumento
+% contínuo que leva ao objetivo; objetivos e organização como subseções.
 % Guia UECE p. 64: seção numerada, alinhada à esquerda.
-% Blocos esboco = roteiro do conteúdo; não aparecem no PDF.
+% Fontes: docs/briefing.md §1, §6; docs/decisions.md (D-001, D-004, D-008);
+% artifacts/reports/results_final_*-tiers.md (números da abertura);
+% docs/qualitative_examples.md (Q011: 10.931 x 10.375).
 % =============================================================================
 \chapter{Introdução}
 \label{cap:introducao}
 
-\section{Contextualização}
-\label{sec:contextualizacao}
-\begin{esboco}
-  Agentes baseados em LLM consultando bancos relacionais em linguagem natural.
-  O problema prático: o modelo vê o esquema físico (DDL), mas a pergunta usa
-  vocabulário de negócio. Camadas semânticas industriais (dbt, Unity Catalog,
-  LookML, Cube) existem para essa ponte em BI; a questão é se ajudam agentes.
-  Fontes: docs/briefing.md §1; docs/semantic_layer_mapping.md (só conceito).
-  Referências externas: PENDENTE levantar literatura (ver Seções 2 e 3).
-\end{esboco}
+Este trabalho mostra que, em um agente que traduz perguntas em português
+para consultas SQL, acrescentar ao esquema do banco regras semânticas
+explícitas aumenta a proporção de consultas corretas, enquanto descrições
+de coluna, sozinhas, não produzem diferença significativa. No modelo
+\arq{qwen3.8-27b}, a acurácia passou de 60,0\% com as descrições de
+catálogo para 87,5\% com a camada semântica, diferença significativa após
+o ajuste para comparações múltiplas. No \arq{gpt-oss-120b}, passou de
+70,0\% para 82,5\%, na mesma direção, sem atingir significância. O ganho
+concentra-se em erros que dependem de regras sobre como consultar a base,
+e não do significado das colunas.
 
-\section{Problema de pesquisa}
-\label{sec:problema}
-\begin{esboco}
-  Pergunta (briefing §1): enriquecer o contexto técnico com uma camada
-  semântica melhora a correção das consultas geradas? Refinada por D-008 em
-  dois saltos: DDL -> catálogo e catálogo -> camada semântica.
-\end{esboco}
+Agentes baseados em modelos de linguagem de grande escala
+(\textit{large language models}, LLMs) passaram a ser usados para
+responder perguntas de negócio diretamente sobre bancos de dados
+relacionais \pendente{citação}. Nessa tarefa, chamada de tradução de
+linguagem natural para SQL (\textit{text-to-SQL}), o modelo recebe a
+pergunta e uma descrição do esquema, isto é, das tabelas, colunas e chaves
+do banco, e gera a consulta que a responde \pendente{citação}. O problema
+é que a pergunta usa o vocabulário do negócio, enquanto o esquema descreve
+a estrutura física dos dados, e a passagem de um para o outro raramente é
+única.
 
-\section{Hipóteses}
-\label{sec:hipoteses}
-\begin{esboco}
-  H0: não há diferença de acurácia entre as condições.
-  H1 bilateral (briefing §1). Formulação para os três pares de condições.
-\end{esboco}
+Uma mesma pergunta admite, em geral, várias consultas que executam sem
+erro e devolvem números diferentes. Na base usada neste trabalho, a
+pergunta ``Quantos pedidos têm cliente associado?'' pode ser respondida
+contando os pedidos com o identificador do cliente preenchido, o que dá
+10.931, ou contando os pedidos ligados a um cliente que existe no
+cadastro, o que dá 10.375, porque parte das referências aponta para
+clientes inexistentes. As duas consultas são válidas, e só uma
+corresponde ao que a organização entende por ``cliente associado''. O erro
+é silencioso: a consulta executa, e o usuário recebe um número plausível e
+errado.
+
+A informação que decide entre essas alternativas não está no esquema
+físico. Ela é uma convenção do negócio: qual é o grão de cada tabela, qual
+coluna de data define uma métrica, como tratar referências órfãs, quais
+colunas devolver. Se o modelo recebe essas convenções explicitamente, é de
+se esperar que escolha a consulta correta com mais frequência. Na
+indústria de inteligência de negócios, essas convenções são mantidas em
+camadas semânticas, ferramentas como dbt Semantic Layer, Databricks Unity
+Catalog, LookML e Cube, que definem métricas, dimensões e relacionamentos
+sobre o banco físico \pendente{citação}. Um passo intermediário, mais
+simples e mais comum, são os catálogos de dados, que guardam apenas uma
+descrição textual de cada tabela e coluna.
+
+Essas duas formas de contexto carregam informações de natureza diferente.
+Uma descrição de coluna diz o que a coluna significa; uma regra semântica
+diz como a base deve ser consultada. Um relato da comunidade Databricks
+comparou os três níveis, apenas as tabelas, as tabelas com descrições de
+catálogo e as tabelas com métricas e instruções, e encontrou um ganho
+pequeno com as descrições e um ganho grande com a camada semântica
+\pendente{citação}. Esse resultado, porém, foi obtido em uma plataforma
+proprietária, com agente próprio, e não permite saber se o efeito vem do
+conteúdo do contexto ou da plataforma. Os \textit{benchmarks} acadêmicos de
+\textit{text-to-SQL}, por sua vez, usam em geral esquemas preparados para
+avaliação \pendente{citação}, sem as imperfeições de uma base comercial
+real, como as referências órfãs do exemplo acima.
+
+Permanece em aberto, portanto, se o efeito da camada semântica se mantém
+quando o contexto é apenas texto enviado ao modelo, com modelos de pesos
+abertos e uma base comercial real, e qual parte do contexto o produz. A
+resposta tem relevância prática: uma organização que já mantém um catálogo
+de dados precisa saber se as descrições de coluna bastam para um agente
+ou se é preciso escrever regras. Tem também relevância metodológica, porque
+a comparação pode ser feita sem plataforma paga. Neste trabalho, o
+experimento inteiro usa ferramentas abertas e modelos servidos
+gratuitamente, de modo que qualquer pesquisador pode reproduzi-lo, e a
+base é um recorte real e descaracterizado de dados comerciais, autorizado
+para uso acadêmico (\autoref{sec:fonte-dados}).
+
+A pergunta de pesquisa é, então: em um agente de tradução de linguagem
+natural para SQL, enriquecer a descrição técnica do esquema com
+descrições de catálogo e, em seguida, com uma camada semântica altera a
+proporção de consultas corretas? Para cada par de condições, a hipótese
+nula é a de que não há diferença de acurácia; a hipótese alternativa é
+bilateral, de modo que o estudo pode detectar tanto melhora quanto piora.
 
 \section{Objetivos}
 \label{sec:objetivos}
 
 \subsection{Objetivo geral}
-\begin{esboco}
-  Medir o efeito da representação do esquema (técnica, catálogo, semântica)
-  na correção do SQL gerado e executado por um agente LLM.
-\end{esboco}
+
+Avaliar o efeito do nível de representação semântica do esquema (técnico,
+catálogo e camada semântica) na correção das consultas SQL geradas e
+executadas por agentes baseados em modelos de linguagem.
 
 \subsection{Objetivos específicos}
-\begin{esboco}
-  a) construir protocolo experimental pareado e reprodutível;
-  b) comparar três condições aditivas de contexto em dois modelos;
-  c) classificar os erros e identificar qual nível de contexto resolve cada classe;
-  d) medir o custo em latência;
-  e) posicionar o resultado frente a camadas semânticas industriais e ao benchmark Databricks.
-\end{esboco}
 
-\section{Justificativa}
-\label{sec:justificativa}
-\begin{esboco}
-  Destaques obrigatórios:
-  - base real descaracterizada, não sintética (briefing §6 item 5);
-  - tooling aberto e custo zero: Python, PostgreSQL em Docker, modelos
-    open-weights via Groq gratuito (briefing §6 item 6).
-\end{esboco}
-
-\section{Contribuições}
-\label{sec:contribuicoes}
-\begin{esboco}
-  - Ablação em três níveis replicada em dois modelos;
-  - taxonomia de erros ligando cada classe ao nível que a resolve;
-  - evidência de que o projeto do contexto e do gold determina se o efeito
-    aparece (iterações D-005/D-006);
-  - artefato e protocolo abertos para replicação.
-\end{esboco}
+\begin{alineas}
+  \item construir um protocolo experimental pareado, contrabalanceado e
+        reprodutível sobre uma base comercial real descaracterizada, com
+        ferramentas abertas e sem custo financeiro;
+  \item comparar a acurácia do agente nas três condições de contexto, em
+        dois modelos de pesos abertos de famílias distintas, com testes
+        pareados e ajuste para comparações múltiplas;
+  \item classificar os erros das consultas geradas e identificar qual
+        nível de contexto resolve cada classe de erro;
+  \item medir o custo do contexto adicional em latência;
+  \item relacionar o contexto semântico usado às camadas semânticas
+        industriais e ao resultado relatado pela comunidade Databricks.
+\end{alineas}
 
 \section{Organização do trabalho}
 \label{sec:organizacao}
-\begin{esboco}
-  Um parágrafo descrevendo as Seções 2 a 7.
-\end{esboco}
+
+A \autoref{cap:fundamentacao} apresenta os conceitos de modelos de
+linguagem, tradução de linguagem natural para SQL, representação do
+esquema, camada semântica e avaliação estatística pareada. A
+\autoref{cap:trabalhos-relacionados} discute os trabalhos relacionados. A
+\autoref{cap:metodologia} descreve a base de dados, as condições de
+contexto, o agente, os modelos, o banco de perguntas, o critério de
+correção e a análise estatística. A \autoref{cap:resultados} apresenta os
+resultados, e a \autoref{cap:discussao} os interpreta. A
+\autoref{cap:conclusao} resume as conclusões e indica trabalhos futuros.

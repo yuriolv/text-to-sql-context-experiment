@@ -25,6 +25,9 @@ data/raw/
 *.xlsx
 *.xls
 
+# Saída da compilação local da monografia
+monografia/build/
+
 # Editores e sistema operacional
 .vscode/
 .idea/

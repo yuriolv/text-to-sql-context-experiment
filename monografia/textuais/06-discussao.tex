@@ -1,77 +1,375 @@
 % =============================================================================
-% 6 DISCUSSÃO — passo 4 da ordem.
-% Fontes: docs/semantic_layer_mapping.md, docs/architecture.md (seção sobre
-% garantia), docs/briefing.md §6-7, docs/error_taxonomy.md.
+% 6 DISCUSSÃO — segunda versão (18/11/2026), revisada com a skill
+% estruturacao-discussao-logica: conclusões na abertura, primeira frase de
+% cada parágrafo com a ideia principal, sem especulação, limitações
+% integradas ao argumento (não há mais seção isolada de ameaças).
+% Fontes: docs/semantic_layer_mapping.md, docs/architecture.md,
+% docs/briefing.md §6-7, docs/decisions.md (D-008), docs/error_taxonomy.md,
+% artifacts/reports/results_final_*-tiers.md, artifacts/processed/*-tiers.csv,
+% artifacts/raw/*_22e3f8ce.jsonl (Q014, Q027), *_30bfd1ed.jsonl (Q008),
+% data/datasets/commercial/semantic_context.yaml,
+% git log de data/datasets/commercial/ (contexto e perguntas inalterados
+% após D-006: commits 592e35e, 6ecfec1, 1d9404e).
 % =============================================================================
 \chapter{Discussão}
 \label{cap:discussao}
 
+Os resultados sustentam quatro conclusões. Primeiro, acrescentar ao
+esquema regras semânticas explícitas aumenta a acurácia do agente: o
+efeito é significativo no \arq{qwen3.8-27b} e tem a mesma direção no
+\arq{gpt-oss-120b}, onde não atinge significância após o ajuste para
+comparações múltiplas. Segundo, descrições de coluna no estilo de um
+catálogo de dados não produzem, sozinhas, diferença significativa em
+nenhum dos dois modelos. Terceiro, o ganho da camada semântica vem de
+classes de erro específicas, que dependem de regras sobre como consultar a
+base e não do significado das colunas. Quarto, o padrão relatado pela
+indústria com plataformas proprietárias reaparece com modelos de pesos
+abertos e um contexto mantido em um arquivo de texto, sem custo
+financeiro. As seções seguintes demonstram cada uma dessas conclusões e
+os limites dentro dos quais elas valem.
+
+% -----------------------------------------------------------------------------
+\section{Validade do método e dos dados}
+\label{sec:validade}
+
+O delineamento usa procedimentos estabelecidos para comparar condições
+sobre os mesmos itens. A correção é uma variável binária observada nas
+mesmas 40 perguntas em todas as condições, situação para a qual o teste de
+McNemar exato é o procedimento usual \pendente{citação}; o ajuste de Holm
+controla o erro por família nas três comparações de cada modelo
+\pendente{citação}. A ordem das condições foi contrabalanceada, cada
+chamada é independente, e os controles de congelamento e de vazamento
+(\autoref{sec:controles}) garantem que as três condições diferem apenas
+no contexto.
+
+A coleta é confiável no sentido de que mede o que o agente respondeu, e
+não falhas do fluxo. O estudo piloto validou o fluxo de ponta a ponta
+(\autoref{sec:piloto}), quase todas as chamadas da coleta final foram
+primeiras tentativas, e apenas uma pergunta em cada modelo terminou sem
+consulta executável (\autoref{sec:acuracia}). As respostas incorretas são,
+em sua quase totalidade, consultas que executam e devolvem outro resultado,
+o que permite analisá-las pelo SQL gerado.
+
+A principal ameaça à validade interna é que o contexto semântico foi
+reescrito depois de observar erros (decisões D-005 e D-006). Dois fatos
+limitam esse risco. As duas decisões seguiram critérios estruturais, e não
+o desempenho de perguntas individuais (\autoref{sec:trajetoria}). Além
+disso, depois da D-006, nem o contexto semântico nem o banco de perguntas
+foram alterados: as três coletas completas seguintes, incluindo a réplica no
+\arq{qwen3.8-27b} e as duas coletas com três condições, usaram os mesmos
+arquivos, e o efeito se repetiu em todas. O contexto de catálogo, criado
+na D-008, também foi escrito depois dessas observações, o que, se tiver
+algum efeito, favorece o catálogo e não a camada semântica. O risco
+remanescente é que o mesmo autor escreveu as perguntas, as consultas de
+referência e os contextos \pendente{confirmar a autoria das perguntas e
+das consultas de referência}, o que pode aproximar o vocabulário das
+regras ao das perguntas; um banco de perguntas escrito por terceiros
+depois do congelamento do contexto afastaria essa possibilidade.
+
+A geração com temperatura zero, sem semente fixa, não é estritamente
+determinística, e a coleta final usou uma repetição por condição. Essa
+variabilidade afeta perguntas individuais, mas não explica um padrão como
+o do \arq{qwen3.8-27b}, em que todos os 11 pares discordantes entre
+catálogo e semântica favorecem a mesma condição.
+
+% -----------------------------------------------------------------------------
 \section{Catálogo e camada semântica resolvem erros diferentes}
 \label{sec:catalogo-vs-semantica}
-\begin{esboco}
-  Descrições de coluna resolvem escolha de coluna (classe A, G);
-  só regras resolvem FK órfã (B) e colunas extras (C).
-  Liga a taxonomia aos saltos medidos no Capítulo 5.
-\end{esboco}
 
+As duas camadas de contexto adicionadas sobre o esquema técnico atuam
+sobre tipos diferentes de erro. O catálogo descreve o que cada coluna
+significa e resolve os erros de escolha de coluna ou grão (classe A). Na
+pergunta Q005 (\autoref{qua:ex-q005}), basta a descrição de
+\arq{orders.item_count} como ``quantidade de itens informada no cabeçalho
+do pedido'' para que o modelo deixe de somar as quantidades dos itens.
+Essa é a informação que catálogos de dados corporativos já mantêm, sob a
+forma de comentários de tabela e coluna.
+
+As classes B e C dependem de regras sobre como consultar a base, e só a
+camada semântica as resolve. A classe B depende de saber que a base tem
+referências órfãs e qual das duas formulações a pergunta pede; a classe C
+depende de uma convenção sobre o formato da resposta. Das oito perguntas
+distintas dessas classes com erro no \arq{gpt-oss-120b}, o catálogo
+acertou uma e a condição semântica, seis; no \arq{qwen3.8-27b}, o
+catálogo não acertou nenhuma e a condição semântica acertou sete
+(\autoref{tab:classes}). Nenhuma dessas informações cabe na descrição de
+uma coluna.
+
+Essa distinção explica a forma dos resultados. O ganho do catálogo é
+pequeno porque a classe A tem poucas perguntas no banco, e o ganho da
+camada semântica é maior porque B e C são as duas classes mais numerosas
+nos dois modelos. A acurácia por categoria confirma a localização do
+efeito: o ganho da condição semântica está nas categorias de
+relacionamentos e de regras de negócio (\autoref{tab:categorias}). A
+proporção entre os dois saltos depende, portanto, da composição do banco
+de perguntas, e o que o estudo estabelece é a natureza distinta das duas
+camadas, e não o tamanho geral de cada salto.
+
+A conclusão não depende do critério de correção conservador. É verdade
+que o avaliador conta como erro as consultas com colunas a mais
+(\autoref{sec:avaliacao}), e que isso pesa sobre a classe C, cometida
+sobretudo nas condições técnica e de catálogo. Os erros da classe B,
+porém, são valores errados, e não diferenças de formato: na Q011, a
+condição técnica conta 10.931 pedidos onde a resposta correta é 10.375
+(\autoref{qua:ex-q011}). Um avaliador tolerante a colunas extras reduziria
+a diferença entre as condições, mas não eliminaria a contribuição da regra
+referencial. A classificação dos erros foi feita por uma única pessoa;
+as classes A, B e C, que sustentam esta seção, são identificáveis
+diretamente no SQL gerado, como mostram os exemplos da
+\autoref{sec:exemplos}.
+
+% -----------------------------------------------------------------------------
 \section{Comparação com o benchmark da Databricks}
 \label{sec:databricks}
-\begin{esboco}
-  40% -> 47% -> 97% (Databricks) vs 62,5 -> 70 -> 82,5 (gpt-oss) e
-  57,5 -> 60 -> 87,5 (qwen). Mesmo formato: maior salto no último nível.
-  Diferenças: base, perguntas, modelos, plataforma; não é réplica direta.
-  PENDENTE: referência primária do benchmark.
-  Tabela prevista: Tabela -- Comparação com o benchmark Databricks.
-\end{esboco}
 
+O padrão de três níveis observado neste trabalho é o mesmo relatado pelo
+benchmark da comunidade Databricks ``Which context improves Genie accuracy
+most?'' \pendente{referência primária do benchmark: autor, URL e data de
+acesso}, que inspirou o desenho (decisão D-008). Esse benchmark comparou
+níveis de contexto equivalentes para o assistente de consultas da
+plataforma: apenas as tabelas; as tabelas com as descrições do catálogo
+(Unity Catalog); e as tabelas com descrições, \textit{metric views} e
+instruções. Nos três conjuntos de resultados, a acurácia cresce a cada
+nível, o catálogo acrescenta pouco e o maior salto ocorre na passagem para
+a camada semântica (\autoref{tab:databricks}).
+
+\begin{table}[htb]
+  \centering
+  \caption{Acurácia por nível de contexto: este trabalho e o benchmark da Databricks}
+  \label{tab:databricks}
+  \begin{tabular}{lccc}
+    \toprule
+    Nível de contexto & gpt-oss-120b & qwen3.8-27b & Benchmark Databricks \\
+    \midrule
+    Técnica (só tabelas)           & 62,5\% & 57,5\% & 40\% \\
+    Catálogo (com descrições)      & 70,0\% & 60,0\% & 47\% \\
+    Semântica (com regras/métricas) & 82,5\% & 87,5\% & 97\% \\
+    \midrule
+    Ganho do catálogo              & +7,5 pp & +2,5 pp & +7 pp \\
+    Ganho da camada semântica      & +12,5 pp & +27,5 pp & +50 pp \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor a partir da \autoref{tab:acuracia} e de
+    \arq{docs/decisions.md} (D-008), que registra os valores do benchmark
+    \pendente{citação}.}
+\end{table}
+
+A comparação é de forma, e não de valores absolutos. Os dois estudos
+diferem na base de dados, nas perguntas, nos modelos, no agente e no
+critério de correção. O benchmark avalia um produto comercial com agente
+próprio, e seu nível mais alto inclui \textit{metric views}, definições
+de métricas executadas pela plataforma, além de instruções em texto. Neste
+trabalho, todo o contexto é texto enviado ao modelo, e o agente gera o SQL
+sem camada de compilação. \pendente{confirmar na fonte primária o número
+de perguntas, a base e o modelo usados no benchmark, e ajustar este
+parágrafo}
+
+O teto mais baixo deste trabalho está associado a erros que nenhum nível
+de contexto resolve. As classes D a G reúnem convenções de tipo temporal e
+perguntas cujo enunciado admite mais de uma leitura: a Q035
+(``percentual'') e a Q019 (``quantidade de itens'') foram erradas em todas
+as condições nos dois modelos, e a Q040 só foi acertada na condição
+semântica do \arq{qwen3.8-27b}. Essas perguntas medem a especificação do
+banco, e não o contexto, e limitam a acurácia máxima observável com o
+banco atual. O ponto de partida diferente entre os estudos não pode ser
+explicado com os dados disponíveis.
+
+A novidade, em relação ao benchmark, é mostrar que o padrão não depende da
+plataforma: ele reaparece com dois modelos de pesos abertos, uma base real
+descaracterizada, testes pareados com correção para comparações
+múltiplas e um contexto semântico mantido em um arquivo de texto, sem
+custo financeiro.
+
+% -----------------------------------------------------------------------------
 \section{Posicionamento frente às camadas semânticas industriais}
 \label{sec:industriais}
-\begin{esboco}
-  Mapeamento seção do YAML -> dbt / Unity Catalog / LookML / Cube.
-  response_style sem análogo (compilador resolve lá); referential_rules
-  mais explícito aqui. Ponto: o metadado chega como texto no prompt em
-  todas elas. "Piso" da camada semântica, sem ferramenta paga.
-  Quadro previsto: Quadro -- Equivalência entre o contexto semântico e
-  ferramentas industriais.
-\end{esboco}
 
-\section{Efeito maior no modelo menor}
+O contexto semântico usado aqui é um recorte mínimo das camadas semânticas
+industriais, e não um formato criado para o experimento. Cada um de seus
+blocos tem correspondente em dbt Semantic Layer, Databricks Unity Catalog,
+LookML (Looker) e Cube (\autoref{qua:industriais}).
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Equivalência entre os blocos do contexto semântico e ferramentas industriais}
+  \label{qua:industriais}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.9cm}|*{4}{>{\raggedright\arraybackslash}X|}}
+    \hline
+    \textbf{Bloco} & \textbf{dbt Semantic Layer} & \textbf{Unity Catalog}
+      & \textbf{LookML} & \textbf{Cube} \\ \hline
+    Cabeçalho de domínio & descrição do modelo semântico & comentário do
+      esquema e etiquetas & rótulo e descrição do modelo & título e
+      descrição do \textit{cube} \\ \hline
+    \arq{money_fields}, \arq{count_fields} & \textit{measures} & comentário
+      de coluna e \textit{metric views} & \textit{measure} & \textit{measures}
+      \\ \hline
+    \arq{grain_rules} & \textit{entities} e chave primária & \textit{metric
+      views} por tabela & \textit{view} com chave primária & um \textit{cube}
+      por grão \\ \hline
+    \arq{temporal_rules} & dimensões de tipo tempo & dimensão temporal em
+      \textit{metric views} & \textit{dimension group} de tempo & dimensões
+      de tipo tempo \\ \hline
+    \arq{referential_rules} & \textit{entities} estrangeiras e junções &
+      restrições de chave e linhagem & \textit{join} com relacionamento &
+      \textit{joins} com relacionamento \\ \hline
+    \arq{synonyms} & rótulos (parcial) & etiquetas e glossário & rótulos e
+      descrições por campo & títulos e metadados \\ \hline
+    \arq{response_style} & \multicolumn{4}{c|}{sem correspondente: resolvido
+      pela compilação da consulta} \\ \hline
+  \end{tabularx}
+  \fonte{Elaborado pelo autor a partir de
+    \arq{docs/semantic_layer_mapping.md}.
+    \pendente{citar a documentação oficial de cada ferramenta}}
+\end{quadro}
+
+As duas classes de erro que mais contribuíram para o ganho correspondem às
+duas diferenças entre este contexto e as ferramentas industriais. O bloco
+\arq{response_style} não tem correspondente: nas quatro ferramentas, o
+consumidor pede uma métrica e um agrupamento, e o compilador da camada
+semântica gera uma consulta determinística, sem colunas não pedidas. O
+bloco \arq{referential_rules} é mais explícito aqui: nas ferramentas, o
+relacionamento é declarado e o compilador gera a junção. Neste trabalho,
+quem escreve o SQL é o modelo, e por isso a disciplina de formato e a
+regra de junção precisam ser dadas como instrução. Em um agente que
+consulte a camada semântica por meio do compilador, os erros das classes B
+e C são evitados por construção.
+
+Quando o agente gera SQL a partir das definições dessas ferramentas, elas
+chegam ao modelo como texto no prompt, exatamente como aqui. O que muda
+entre um arquivo de texto, um catálogo e um repositório de modelos
+semânticos é onde o metadado é mantido e quem o mantém, e não a forma como
+o modelo o recebe. Os blocos comuns às ferramentas e a este contexto
+definem o que uma camada semântica para esse tipo de agente precisa
+carregar: definições por campo em linguagem de negócio, o grão de cada
+tabela, a coluna de data de cada métrica, os relacionamentos com o
+tratamento de integridade referencial imperfeita e sinônimos que liguem o
+vocabulário do usuário ao esquema. Este trabalho mede o efeito do piso
+dessa camada: a forma mais barata de fornecê-la já produz o padrão
+observado com plataformas proprietárias.
+
+O alcance dessa conclusão é o de esquemas pequenos e de um agente simples.
+O esquema tem 11 tabelas, e o contexto inteiro cabe no prompt; em esquemas
+maiores, é preciso selecionar as tabelas relevantes antes de gerar a
+consulta, etapa que este estudo não avalia. O agente faz uma chamada por
+tentativa, sem ferramentas, exemplos ou recuperação de contexto, e a base
+pertence a um único domínio comercial, com perguntas em português.
+
+% -----------------------------------------------------------------------------
+\section{O efeito nos dois modelos}
 \label{sec:modelo-menor}
-\begin{esboco}
-  qwen (27B): técnico 57,5% e semântico 87,5%; gpt-oss (120B): 62,5% e 82,5%.
-  Salto técnico -> semântico maior no qwen (+30,0 pp vs +20,0 pp).
-  Interpretação cautelosa (briefing §6.3): contexto compensa capacidade,
-  com só dois modelos.
-\end{esboco}
 
+O efeito da camada semântica não depende do modelo maior: ele aparece nos
+dois modelos e é mais forte no menor. Da condição técnica para a
+semântica, a acurácia subiu 30,0 pontos percentuais no
+\arq{qwen3.8-27b} e 20,0 pontos no \arq{gpt-oss-120b}; do catálogo para a
+semântica, 27,5 e 12,5 pontos. No \arq{qwen3.8-27b}, todos os pares
+discordantes envolvendo a condição semântica a favorecem, e as duas
+comparações permanecem significativas após o ajuste de Holm
+(\autoref{tab:mcnemar}). Com a camada semântica, o modelo menor acertou
+duas perguntas a mais que o maior, depois de acertar menos nas condições
+técnica e de catálogo.
+
+No \arq{gpt-oss-120b}, os dados não permitem rejeitar a igualdade entre as
+condições ao nível de 5\% com o ajuste. A comparação entre as condições
+técnica e semântica tem dez pares discordantes, nove deles favoráveis à
+condição semântica, e $p$ ajustado de 0,064. A direção coincide com a do
+\arq{qwen3.8-27b}, mas, com 40 perguntas e poucos pares discordantes, o
+teste não confirma o efeito nesse modelo. Parte da diferença entre os
+modelos vem de duas perguntas que o \arq{gpt-oss-120b} acertou no catálogo
+e errou na condição semântica, Q014 e Q027, discutidas na
+\autoref{sec:garantia}.
+
+O estudo não permite atribuir a diferença entre os modelos ao tamanho. Os
+dois modelos diferem em família, dados de treinamento e arquitetura, além
+do número de parâmetros, e a diferença de duas perguntas na condição
+semântica está dentro da variabilidade esperada com 40 perguntas. O que se
+estabelece é que o efeito se repete em dois modelos abertos de famílias
+diferentes; modelos proprietários e modelos muito menores não foram
+testados.
+
+% -----------------------------------------------------------------------------
 \section{O que garante o uso do contexto}
 \label{sec:garantia}
-\begin{esboco}
-  architecture.md: nada estrutural; o YAML entra como texto e compete por
-  atenção. Contexto semântico = engenharia de prompt sobre metadado, não
-  camada de dados. Instruções ambíguas vazam (Q008 antes de D-005). Ganho
-  estatístico, não garantia caso a caso.
-\end{esboco}
 
+Nada no agente obriga o modelo a usar o contexto semântico. O arquivo
+\arq{semantic_context.yaml} não é interpretado nem consultado pelo
+programa: é lido como texto e concatenado ao prompt
+(\autoref{sec:agente}). As regras não são acionadas por nenhum mecanismo e
+competem pela atenção do modelo com o restante do prompt. O contexto
+semântico, nesta forma, é engenharia de prompt sobre metadados, e não uma
+camada de dados.
+
+Uma instrução genérica pode piorar o resultado. Na primeira execução final,
+o contexto semântico original tinha um sinônimo único para ``valor do
+pedido'' apontando para \arq{orders.total_amount}. Na pergunta Q008, que
+pede a soma do valor bruto, o modelo seguiu o sinônimo e somou
+\arq{total_amount} na condição semântica, enquanto na condição técnica
+somou corretamente \arq{gross_amount} (rodada \arq{30bfd1ed}). A reescrita
+do contexto na D-005, que passou a listar cada campo monetário pelo nome,
+eliminou esse erro.
+
+Uma regra correta e presente também não é sempre aplicada. Na pergunta
+Q014, ``Quantos produtos têm subgrupo associado?'', o
+\arq{gpt-oss-120b} usou \arq{IS NOT NULL} na condição semântica, apesar da
+regra referencial, e usou \arq{JOIN} no catálogo, que não tem a regra
+(rodada \arq{22e3f8ce}). A redação da pergunta mistura as duas formas
+previstas na regra, ``têm Y informado'', associada a \arq{IS NOT NULL}, e
+``associados a Y existente'', associada a \arq{JOIN}. O efeito de uma regra
+depende, portanto, da correspondência entre a sua redação e a da pergunta.
+
+O ganho medido é estatístico, e não uma garantia caso a caso: a camada
+semântica textual aumenta a proporção de acertos, mas não impede que o
+modelo ignore uma regra. Uma garantia por construção exige que o SQL seja
+gerado por um compilador de métricas, como nas ferramentas da
+\autoref{sec:industriais}, ou verificado contra as regras antes da
+execução.
+
+% -----------------------------------------------------------------------------
 \section{Custo em latência}
 \label{sec:custo-latencia}
-\begin{esboco}
-  Semântico ~5,6x mais lento no gpt-oss e ~5,1x no qwen (medianas dos
-  relatórios de três níveis). Custo real em produção.
-\end{esboco}
 
-\section{O projeto do experimento importa}
+O ganho de acurácia tem custo em latência. A mediana da condição semântica
+foi cerca de 5,6 vezes a da condição técnica no \arq{gpt-oss-120b} e cerca
+de 5,1 vezes no \arq{qwen3.8-27b} (\autoref{tab:latencia}), com um prompt
+cerca de quatro vezes maior em tokens de entrada
+(\autoref{tab:tamanho-contexto}).
+
+Esse aumento mede o custo do prompt maior sob o limite de tokens por
+minuto da camada gratuita do provedor, e não o tempo de inferência. A
+latência medida inclui as esperas impostas por esse limite
+(\autoref{sec:analise}), e a concentração das latências do
+\arq{qwen3.8-27b} na condição semântica indica que essas esperas dominam a
+medida (\autoref{sec:latencia}). Por isso, as comparações de latência,
+embora significativas, não são tratadas como diferença de tempo de
+inferência entre condições.
+
+Independentemente da forma de medir, o contexto semântico aumenta o
+número de tokens de entrada de cada chamada e, com ele, o custo por
+consulta em serviços cobrados por token. Como o contexto é o mesmo para
+todas as perguntas de uma base, esse acréscimo é aproximadamente fixo por
+consulta e deve ser comparado, em uma aplicação, ao custo das respostas
+erradas que ele evita.
+
+% -----------------------------------------------------------------------------
+\section{A qualidade do contexto determina o efeito}
 \label{sec:design-importa}
-\begin{esboco}
-  Contexto genérico e gold inconsistente escondem (ou invertem) o efeito:
-  -5,0 pp na rodada inicial. Lição metodológica (briefing §6.1).
-\end{esboco}
 
-\section{Ameaças à validade}
-\label{sec:ameacas}
-\begin{esboco}
-  briefing §7: n = 40; dois modelos; snapshot único; iteração sobre dados
-  vistos (D-005, D-006); avaliador conservador; perguntas ambíguas
-  (Q019, Q035, Q040). Organizar em validade interna, externa, de construto
-  e de conclusão.
-\end{esboco}
+O efeito de uma camada semântica depende da qualidade com que ela é
+especificada e da consistência das consultas de referência. Com o mesmo
+modelo, a mesma base e as mesmas perguntas, a diferença entre as condições
+técnica e semântica foi de duas perguntas contra a semântica na primeira
+execução, cinco a favor após a D-005 e nove a favor, sem nenhuma perda,
+após a D-006 (\autoref{sec:historico}).
+
+Dois fatores produziram essa mudança. O primeiro é o conteúdo do contexto:
+um sinônimo genérico, como o da Q008, induz erros que o esquema sozinho
+não induz. O segundo é a consistência do banco de perguntas: enquanto
+perguntas com a mesma forma linguística tinham consultas de referência
+construídas de formas diferentes, nenhuma regra poderia acertar todas.
+
+Um resultado nulo ou negativo em uma comparação de contextos não indica,
+portanto, que o contexto mais rico é inútil: pode indicar um contexto mal
+especificado ou um critério de correção inconsistente. Avaliar uma camada
+semântica exige especificar seu conteúdo campo a campo e auditar as
+consultas de referência antes de interpretar a diferença entre condições.

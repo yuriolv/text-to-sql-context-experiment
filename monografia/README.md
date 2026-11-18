@@ -4,9 +4,13 @@ Texto do TCC, em abnTeX2 ajustado ao Guia de Normalização da UECE 2026.
 
 ## Compilar
 
+Localmente, com MiKTeX (pdflatex + bibtex; pacotes faltantes são baixados na primeira vez):
+
 ```
-latexmk -pdf main.tex
+powershell -ExecutionPolicy Bypass -File monografia/build.ps1
 ```
+
+Gera `monografia/build/main.pdf` (pasta ignorada pelo git) e imprime páginas, avisos e referências indefinidas.
 
 Ou no Overleaf, enviando a pasta `monografia/` com o compilador pdfLaTeX.
 
