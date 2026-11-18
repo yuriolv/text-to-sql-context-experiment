@@ -1,24 +1,87 @@
 % =============================================================================
-% 7 CONCLUSÃO — passo 6 da ordem. Guia UECE p. 66: seção numerada.
+% 7 CONCLUSÃO — primeira versão (18/11/2026), escrita com a skill
+% revisao-conclusoes-cientificas: só conclusões já demonstradas na
+% Discussão, no presente, sem "tendências" (gpt-oss-120b: sem diferença
+% significativa após Holm), sem especulação.
+% Guia UECE p. 66: seção numerada.
+% Fontes: monografia/textuais/06-discussao.tex; docs/briefing.md §7;
+% docs/error_taxonomy.md (implicações).
 % =============================================================================
 \chapter{Conclusão}
 \label{cap:conclusao}
 
-\section{Síntese dos resultados}
-\label{sec:sintese}
-\begin{esboco}
-  Resposta direta à pergunta de pesquisa e às hipóteses; retomar objetivos
-  específicos um a um.
-\end{esboco}
+Em agentes que geram SQL livremente a partir de uma descrição textual do
+banco, o que aumenta a correção das consultas são as regras sobre como a
+base deve ser consultada, e não as descrições do que cada coluna
+significa. Descrições de catálogo resolvem a escolha entre colunas
+parecidas, mas não alteram de forma significativa a acurácia do agente.
+Regras de relacionamento e de formato da resposta resolvem os
+erros mais frequentes, que produzem consultas válidas e respostas
+erradas, e elevam a acurácia de forma significativa no
+\arq{qwen3.8-27b}. No \arq{gpt-oss-120b}, as três condições não diferem
+estatisticamente com o banco de 40 perguntas.
 
+As regras que mais contam são as que tratam das imperfeições dos dados e
+da forma da resposta: o tratamento de referências órfãs e a restrição às
+colunas pedidas. Essas informações não pertencem a nenhuma coluna
+específica e, por isso, não cabem em um catálogo de dados. Nas camadas
+semânticas industriais, elas são garantidas pelo compilador que gera o
+SQL; em um agente que escreve o SQL, precisam ser dadas como instrução.
+
+A forma mais simples de camada semântica, um arquivo de texto anexado ao
+prompt, basta para reproduzir o padrão relatado pela indústria com
+plataformas proprietárias: o catálogo acrescenta pouco, e o maior ganho
+vem da camada semântica. Avaliar e adotar esse tipo de contexto não exige
+licença paga, catálogo proprietário nem modelo fechado: o estudo inteiro
+roda com ferramentas abertas e modelos de pesos abertos servidos
+gratuitamente, sobre uma base comercial real.
+
+O contexto semântico atua como instrução, e não como garantia. Ele
+aumenta a proporção de acertos, mas o modelo pode deixar de aplicar uma
+regra presente, e um contexto mal especificado, como um sinônimo
+genérico, pode piorar o resultado em vez de melhorá-lo. O efeito de uma camada
+semântica depende, portanto, da precisão com que ela é escrita e da
+consistência das consultas usadas para avaliá-la. Seu custo é um prompt
+maior em cada chamada, que aumenta a latência e o consumo de tokens.
+
+Os objetivos específicos foram atingidos: o protocolo pareado e
+reprodutível foi construído sobre uma base real descaracterizada; as três
+condições foram comparadas em dois modelos de famílias distintas, com
+testes pareados e ajuste para comparações múltiplas; os erros foram
+classificados e associados ao nível de contexto que os resolve; o custo
+em latência foi medido; e o contexto semântico foi relacionado às
+ferramentas industriais e ao benchmark da comunidade Databricks.
+
+% -----------------------------------------------------------------------------
 \section{Trabalhos futuros}
 \label{sec:trabalhos-futuros}
-\begin{esboco}
-  - mais perguntas (poder estatístico) e mais modelos (frontier e < 10B);
-  - regras de convenção de tipo no YAML (classe D da taxonomia);
-  - reescrever perguntas ambíguas (Q019, Q035, Q040);
-  - avaliador que aceite colunas extras corretas;
-  - comparar com camada semântica compilada (dbt/Cube via API);
-  - recuperação seletiva do contexto em vez do YAML inteiro (latência).
-  Fontes: briefing §7; error_taxonomy.md (implicações).
-\end{esboco}
+
+Os resultados apontam quatro passos que decorrem diretamente das
+limitações e dos achados deste estudo.
+
+O primeiro é repetir o experimento com um banco de perguntas maior,
+escrito por outras pessoas depois do congelamento do contexto. Um banco
+maior aumenta o poder dos testes pareados, necessário para decidir se o
+efeito existe no \arq{gpt-oss-120b}, e um banco escrito por terceiros
+afasta a possibilidade de o vocabulário das regras ter sido ajustado ao
+das perguntas. A mesma revisão deve tratar as perguntas cujo enunciado
+admite mais de uma leitura (Q019, Q035 e Q040) e as convenções de tipo
+temporal da classe D, que hoje limitam a acurácia máxima observável.
+
+O segundo é comparar o contexto semântico textual com uma camada
+semântica consultada por meio de um compilador, como as do dbt ou do
+Cube. Os erros de referência órfã e de colunas extras, que mais
+contribuem para o ganho, são evitados por construção nesse tipo de
+arquitetura; a comparação mostraria quanto do ganho depende de o modelo
+escrever o SQL.
+
+O terceiro é estender o estudo a esquemas maiores, em que o contexto
+inteiro não cabe no prompt. Nesse cenário, é preciso selecionar as
+tabelas e as regras relevantes para cada pergunta, e a seleção passa a
+ser parte do que se avalia, com efeito também sobre o custo em tokens e
+a latência.
+
+O quarto é incluir modelos de outros tamanhos e famílias, inclusive
+modelos proprietários e modelos com menos de 10 bilhões de parâmetros,
+para separar o efeito do tamanho do efeito da família, o que os dois
+modelos avaliados aqui não permitem.

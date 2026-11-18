@@ -20,7 +20,7 @@ Run pdflatex $latex
 Run pdflatex $latex
 
 $log = Get-Content build/main.log -Raw
-$pages = [regex]::Match($log, 'Output written on .*?\((\d+) pages').Groups[1].Value
+$pages = [regex]::Match($log, 'Output written on[\s\S]{0,300}?\((\d+) pages').Groups[1].Value
 $undef = [regex]::Matches($log, "(Reference|Citation) `[^']+' on page \d+ undefined").Count
 $warn  = [regex]::Matches($log, '(?m)^(LaTeX|Package \w+) Warning').Count
 "PDF: build/main.pdf | paginas: $pages | avisos: $warn | referencias indefinidas: $undef"
