@@ -1,48 +1,220 @@
 % =============================================================================
-% 3 TRABALHOS RELACIONADOS — passo 7 da ordem. Só esqueleto: as referências
-% reais precisam ser levantadas pelo autor (biblioteca/bases da UECE).
+% 3 TRABALHOS RELACIONADOS — esqueleto (18/11/2026), passo 7 da ordem.
+% O repositório não tem literatura (docs/briefing.md §9): o texto visível
+% só afirma o que está em docs/ ou já foi dito nos capítulos 1, 4 e 6; o
+% que depende de leitura fica como \pendente. Cada esboço traz:
+%   (a) o papel da seção no argumento do trabalho;
+%   (b) o que extrair de cada trabalho lido;
+%   (c) candidatos a buscar — NÃO conferidos; só entram em referencias.bib
+%       depois de lidos na fonte (chaves sugeridas entre colchetes).
+% Organização por tema, e não por autor (skill estruturacao-introducao-
+% logica: o capítulo serve ao argumento, não à erudição). Cada seção fecha
+% dizendo o que o tema deixa em aberto; a Seção 3.5 junta as lacunas.
 % =============================================================================
 \chapter{Trabalhos relacionados}
 \label{cap:trabalhos-relacionados}
 
-\section{Benchmarks de text-to-SQL}
+Este capítulo situa o trabalho em quatro linhas: os \textit{benchmarks}
+acadêmicos de \textit{text-to-SQL}, os estudos sobre o contexto fornecido
+ao modelo, as camadas semânticas usadas pela indústria e a governança de
+agentes que consultam bancos de dados. Cada seção termina com o que a
+linha deixa em aberto, e a \autoref{sec:lacuna} reúne essas lacunas na
+questão de pesquisa do trabalho.
+
+% -----------------------------------------------------------------------------
+\section{Benchmarks de \textit{text-to-SQL}}
 \label{sec:benchmarks}
+
+\pendente{descrever os \textit{benchmarks} de referência da área, com
+o tipo de base, a origem das perguntas e a métrica de avaliação de cada
+um}
+
 \begin{esboco}
-  Spider, BIRD e sucessores: esquemas majoritariamente sintéticos/balanceados
-  vs base comercial real deste trabalho (briefing §6 item 5).
-  Temas a buscar: Spider; BIRD; benchmarks com dados "sujos" ou corporativos.
+  (a) Papel: mostrar como a área mede acurácia e por que o resultado de um
+  benchmark não se transfere direto para uma base comercial. Contraste com
+  este trabalho (briefing §6 item 5; Metodologia, sec:fonte-dados):
+  referências órfãs reais, datas por extenso em pt-BR, nomes de coluna
+  misturando português e inglês, medidas monetárias em grãos diferentes.
+  ATENÇÃO ao contraste: o briefing diz "schemas sintéticos balanceados",
+  mas o BIRD declara bases de domínio real com valores sujos. Conferir na
+  fonte antes de escrever; se BIRD não for "sintético", o contraste é de
+  outra ordem (base pública e preparada para avaliação vs base de uma
+  empresa, sem curadoria; idioma; perguntas escritas sobre uma operação
+  real). A Introdução e a Metodologia (sec:fonte-dados) usam a forma
+  neutra "esquema(s) preparado(s) para avaliação"; manter até a leitura.
+  (b) Extrair de cada um: tipo e origem das bases; idioma; origem das
+  perguntas; métrica (exact match vs execution accuracy — este trabalho
+  usa igualdade de resultado, sec:avaliacao); se há conhecimento externo
+  por pergunta.
+  (c) Candidatos: Spider [yu2018spider]; BIRD [li2023bird]; Spider 2.0
+  (bases corporativas) [lei2025spider2]; benchmarks em português, se
+  houver; avaliações de LLMs em text-to-SQL [rajkumar2022evaluating].
 \end{esboco}
 
-\section{Contexto e conhecimento externo em text-to-SQL}
+% -----------------------------------------------------------------------------
+\section{Engenharia de prompt e contexto em \textit{text-to-SQL}}
 \label{sec:contexto-externo}
+
+Com modelos de linguagem, a tradução de perguntas em SQL passou a ser
+feita por meio do prompt: o esquema do banco, instruções e, em algumas
+abordagens, exemplos e conhecimento de domínio são enviados ao modelo
+junto com a pergunta \pendente{citação}. Este trabalho mantém fixos o
+modelo, as instruções e o formato da resposta, e varia apenas o conteúdo
+do contexto, em três níveis aditivos (\autoref{sec:condicoes}).
+
+\pendente{descrever os trabalhos que avaliam a forma de representar o
+esquema, a inclusão de descrições de colunas e a inclusão de conhecimento
+externo, com o ganho relatado por cada um}
+
 \begin{esboco}
-  Trabalhos que adicionam descrições de colunas, "evidence"/conhecimento de
-  domínio ou documentação ao prompt e medem o ganho.
-  Temas a buscar: BIRD external knowledge; column descriptions; schema documentation.
+  (a) Papel: mostrar que já se sabe que o contexto importa, mas que os
+  estudos variam a FORMA (DDL, exemplos, decomposição, schema linking) ou
+  acrescentam conhecimento POR PERGUNTA (evidence do BIRD), e não isolam
+  regras de consulta da base inteira (grão, relacionamento, formato da
+  resposta) das descrições de coluna. É a distinção central do trabalho:
+  "uma descrição de coluna diz o que a coluna significa; uma regra
+  semântica diz como a base deve ser consultada" (Introdução).
+  Este trabalho NÃO usa few-shot, retrieval, schema linking nem
+  decomposição: uma chamada por tentativa, prompt único (architecture.md).
+  Deixar isso explícito como escolha de desenho, não como lacuna dos outros.
+  (b) Extrair: o que vai no prompt; se há ablação por tipo de contexto;
+  modelos (proprietários/abertos); ganho relatado (só citar números lidos
+  na fonte).
+  (c) Candidatos: surveys de text-to-SQL com LLM [hong2024survey;
+  shi2024survey]; DIN-SQL [pourreza2023din]; DAIL-SQL [gao2024dail];
+  avaliação zero-shot do ChatGPT [liu2023chatgpt]; CHESS (schema linking e
+  contexto em bases grandes) [talaei2024chess]; trabalhos sobre descrições
+  de colunas / documentação de esquema no prompt; o "external knowledge"
+  do BIRD [li2023bird].
 \end{esboco}
 
+% -----------------------------------------------------------------------------
 \section{Camadas semânticas para agentes na indústria}
 \label{sec:industria}
+
+Ferramentas de engenharia e de análise de dados mantêm uma camada
+semântica: um conjunto de definições de métricas, grãos, dimensões
+temporais e relacionamentos, mantido fora das tabelas e usado para gerar
+as consultas. São exemplos o dbt Semantic Layer, as \textit{metric views}
+do Databricks Unity Catalog, o LookML do Looker e o Cube
+\pendente{citar a documentação oficial de cada ferramenta}. Nessas
+ferramentas, o consumidor pede uma métrica e um agrupamento, e um
+compilador gera o SQL; quando o consumidor é um agente de linguagem, as
+definições chegam a ele como texto, e o compilador continua responsável
+pela consulta (\arq{docs/semantic_layer_mapping.md}). A correspondência
+entre essas ferramentas e o contexto semântico deste trabalho está no
+\autoref{qua:industriais}.
+
+A comparação mais próxima do desenho deste trabalho é um relato da
+comunidade Databricks que mediu a acurácia de um agente da plataforma com
+três níveis de contexto: apenas as tabelas, as tabelas com descrições do
+catálogo e as tabelas com \textit{metric views} e instruções
+\pendente{referência primária do benchmark: autor, URL e data de acesso}.
+O ganho foi pequeno com as descrições e grande com a camada semântica
+(\autoref{tab:databricks}). O relato avalia um produto comercial com
+agente próprio e, no nível mais alto, definições de métricas executadas
+pela plataforma; ele não permite separar o efeito do conteúdo do contexto
+do efeito da plataforma.
+
 \begin{esboco}
-  Benchmark da comunidade Databricks "Which context improves Genie accuracy
-  most?" (2025): 40% -> 47% -> 97% (decisions.md D-008).
-  PENDENTE: URL, autor e data do benchmark Databricks.
-  Materiais de dbt Labs, Looker, Cube sobre LLMs consumindo a camada semântica.
+  (a) Papel: estabelecer que a camada semântica é prática de mercado e que
+  o único resultado com ablação de níveis vem de uma plataforma
+  proprietária. Não repetir aqui o quadro e a tabela da Discussão
+  (qua:industriais, tab:databricks): só apresentar e apontar.
+  (b) Extrair: da documentação de cada ferramenta, a definição de
+  métrica/entidade/junção e o que ela diz sobre consumo por LLM; do
+  benchmark Databricks: autor, data, URL, nº de perguntas, base, modelo,
+  critério de correção (pendente também em 06-discussao, sec:databricks).
+  (c) Candidatos: dbt Semantic Layer / MetricFlow (docs); Unity Catalog
+  COMMENT e metric views (docs); LookML (docs); Cube (docs); post
+  "Which context improves Genie accuracy most?" (comunidade Databricks,
+  2025, decisions.md D-008); materiais de dbt Labs/Cube sobre LLMs
+  consumindo a camada semântica; trabalhos acadêmicos que usem uma camada
+  semântica ou ontologia como intermediário entre LLM e SQL, se houver.
+  Software e documentação entram como documento eletrônico (guia UECE
+  p. 149), com data de acesso.
 \end{esboco}
 
+% -----------------------------------------------------------------------------
 \section{Governança de dados para agentes}
 \label{sec:governanca}
+
+Um agente que gera e executa SQL sobre dados de uma organização levanta
+duas questões além da acurácia: o que é enviado ao provedor do modelo e o
+que a consulta gerada pode fazer no banco. Este trabalho adota as duas
+salvaguardas mais simples: nenhum valor de linha é enviado ao provedor
+(\autoref{sec:privacidade}), e a consulta gerada passa por um validador
+que só aceita leitura antes de ser executada por um usuário sem permissão
+de escrita (\autoref{sec:agente}).
+\pendente{situar essas salvaguardas na literatura e nas recomendações de
+governança para agentes baseados em modelos de linguagem}
+
 \begin{esboco}
-  Privacidade (nenhum dado de linha enviado ao provedor: D-003), execução
-  somente leitura, validação de SQL.
-  Temas a buscar: data governance for LLM agents; guardrails para SQL gerado.
+  (a) Papel: mostrar que o desenho é aplicável em produção sem expor dados
+  ao provedor, e que a camada semântica também é um instrumento de
+  governança (define o que é "valor de pedido", qual junção usar). Seção
+  curta; não é o foco do trabalho.
+  (b) Extrair: riscos citados (injeção via prompt, consultas destrutivas,
+  vazamento de dados), salvaguardas propostas.
+  (c) Candidatos: injeção de prompt levando a injeção de SQL em agentes
+  [pedro2025prompt]; OWASP Top 10 para aplicações com LLM (documento
+  eletrônico); recomendações de governança de dados para IA generativa
+  (DAMA-DMBOK ou equivalente).
 \end{esboco}
 
+% -----------------------------------------------------------------------------
 \section{Síntese e lacuna}
 \label{sec:lacuna}
+
+O \autoref{qua:relacionados} resume as linhas anteriores segundo quatro
+critérios do desenho deste trabalho: o tipo de base, a variação de
+contexto, os modelos e a dependência de plataforma proprietária.
+
+\begin{quadro}[htb]
+  \centering
+  \caption{Comparação com trabalhos relacionados}
+  \label{qua:relacionados}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.9cm}|*{4}{>{\raggedright\arraybackslash}X|}}
+    \hline
+    \textbf{Trabalho} & \textbf{Base de dados} & \textbf{Variação de
+      contexto} & \textbf{Modelos} & \textbf{Plataforma} \\ \hline
+    \textit{Benchmarks} acadêmicos & \pendente{preencher} &
+      \pendente{preencher} & \pendente{preencher} & \pendente{preencher}
+      \\ \hline
+    Estudos de prompt e contexto & \pendente{preencher} &
+      \pendente{preencher} & \pendente{preencher} & \pendente{preencher}
+      \\ \hline
+    Benchmark da comunidade Databricks & \pendente{confirmar na fonte} &
+      três níveis aditivos: tabelas, descrições de catálogo,
+      \textit{metric views} e instruções & \pendente{confirmar na fonte} &
+      proprietária (agente da própria plataforma) \\ \hline
+    Este trabalho & base comercial real descaracterizada, 11 tabelas, com
+      referências órfãs & três níveis aditivos: técnico, catálogo,
+      semântico & dois modelos de pesos abertos de famílias distintas &
+      nenhuma: arquivos de texto, PostgreSQL e API gratuita \\ \hline
+  \end{tabularx}
+  \fonte{Elaborado pelo autor. Linha deste trabalho:
+    \arq{docs/briefing.md} e \arq{docs/decisions.md} (D-001, D-004, D-008).}
+\end{quadro}
+
+Nenhuma das linhas responde, ao mesmo tempo, se o efeito da camada
+semântica aparece quando ela é apenas texto enviado ao modelo, sobre uma
+base comercial real, com modelos de pesos abertos, e qual parte do
+contexto o produz. Os \textit{benchmarks} acadêmicos medem modelos sobre
+bases preparadas para avaliação; os estudos de contexto variam a forma do
+prompt sem separar descrições de coluna de regras de consulta; e o
+único relato com ablação de níveis vem de uma plataforma proprietária, em
+que o conteúdo do contexto e a plataforma não se separam. Este trabalho
+ocupa essa interseção (\autoref{sec:objetivos}).
+\pendente{revisar este parágrafo depois de preencher o
+\autoref{qua:relacionados}: cada afirmação sobre as outras linhas precisa
+de citação}
+
 \begin{esboco}
-  Quadro comparativo: trabalho x base (sintética/real) x níveis de contexto
-  x modelos (proprietários/abertos) x custo. Lacuna: ablação de níveis de
-  contexto com base real e tooling aberto, sem plataforma proprietária.
-  Quadro previsto: Quadro -- Comparação com trabalhos relacionados.
+  (a) A lacuna é a mesma da Introdução (sec:objetivos, H0/H1) e precisa
+  bater com ela; se a leitura mostrar um trabalho que já ocupa a
+  interseção, reescrever a lacuna E a Introdução.
+  (b) Preencher o quadro com uma linha por trabalho, se forem poucos, ou
+  uma linha por grupo (como está), se forem muitos.
 \end{esboco}

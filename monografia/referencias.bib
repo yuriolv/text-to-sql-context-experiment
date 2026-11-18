@@ -2,20 +2,58 @@
 % ordem alfabética (abntex2cite cuida da formatação).
 % O repositório não tem literatura: entradas a levantar pelo autor.
 % NÃO inventar entradas: cada uma precisa ser conferida na fonte.
+% Software, documentação e posts entram como documento eletrônico, com URL
+% e data de acesso (guia p. 149).
 %
-% Temas a buscar (ver esboços das Seções 2 e 3):
-%   - Transformer / atenção
-%   - surveys de text-to-SQL com LLM
-%   - Spider; BIRD (inclui "external knowledge")
-%   - schema linking; descrição de colunas no prompt
-%   - prompt engineering para text-to-SQL
-%   - camada semântica: dbt Semantic Layer/MetricFlow, Unity Catalog
-%     (comentários, metric views), LookML, Cube (documentação oficial)
-%   - benchmark Databricks "Which context improves Genie accuracy most?" (2025)
-%   - governança de dados / guardrails para agentes LLM
-%   - teste de McNemar; teste de Wilcoxon
-%   - model cards: gpt-oss-120b; Qwen
-%   - Groq API; PostgreSQL; sqlglot (software, como documento eletrônico — guia p. 149)
+% Checklist por tema. [chave] = chave sugerida para \cite; o candidato NÃO
+% foi conferido. Ao adicionar uma entrada, trocar o \pendente{citação}
+% correspondente por \cite{chave} e remover \nocite{placeholder} de main.tex
+% assim que houver a primeira citação real.
+%
+% Benchmarks de text-to-SQL (cap. 3, sec:benchmarks; Introdução; Metodologia)
+%   [ ] Spider .................................. [yu2018spider]
+%   [ ] BIRD (inclui "external knowledge") ...... [li2023bird]
+%   [ ] Spider 2.0 (bases corporativas) ......... [lei2025spider2]
+%   [ ] avaliação de LLMs em text-to-SQL ........ [rajkumar2022evaluating]
+%
+% Engenharia de prompt e contexto (cap. 2 sec:representacao-esquema; cap. 3
+% sec:contexto-externo; Introdução)
+%   [ ] survey de text-to-SQL com LLM ........... [hong2024survey] / [shi2024survey]
+%   [ ] DIN-SQL ................................. [pourreza2023din]
+%   [ ] DAIL-SQL ................................ [gao2024dail]
+%   [ ] ChatGPT zero-shot text-to-SQL ........... [liu2023chatgpt]
+%   [ ] CHESS (schema linking, contexto) ........ [talaei2024chess]
+%   [ ] descrição de colunas / documentação do esquema no prompt
+%
+% Camada semântica (cap. 2 sec:camada-semantica; cap. 3 sec:industria;
+% Discussão qua:industriais)
+%   [ ] dbt Semantic Layer / MetricFlow (documentação)
+%   [ ] Unity Catalog: COMMENT e metric views (documentação)
+%   [ ] LookML (documentação)
+%   [ ] Cube (documentação)
+%   [ ] "Which context improves Genie accuracy most?" — comunidade
+%       Databricks, 2025 (D-008): autor, URL, data de acesso; nº de
+%       perguntas, base e modelo (pendente também em sec:databricks)
+%
+% Governança de dados para agentes (cap. 3 sec:governanca)
+%   [ ] injeção de prompt -> injeção de SQL ...... [pedro2025prompt]
+%   [ ] OWASP Top 10 para aplicações com LLM (documento eletrônico)
+%   [ ] governança de dados para IA (DAMA-DMBOK ou equivalente)
+%
+% Modelos de linguagem (cap. 2 sec:llm; Introdução; Metodologia sec:modelos)
+%   [ ] Transformer / atenção ................... [vaswani2017attention]
+%   [ ] agentes baseados em LLM (definição usada na Introdução)
+%   [ ] model card gpt-oss-120b
+%   [ ] model card Qwen (versão usada: qwen3.8-27b)
+%
+% Estatística (cap. 2 sec:estatistica; Metodologia sec:analise; Discussão)
+%   [ ] teste de McNemar ........................ [mcnemar1947note]
+%   [ ] teste de Wilcoxon ....................... [wilcoxon1945individual]
+%   [ ] procedimento de Holm .................... [holm1979simple]
+%   [ ] intervalo de confiança da proporção
+%
+% Software (Metodologia sec:reprodutibilidade)
+%   [ ] Groq API; PostgreSQL; sqlglot; Python; pandas
 
 @misc{placeholder,
   author = {PENDENTE},
