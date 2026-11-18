@@ -1,23 +1,28 @@
 % =============================================================================
-% 2 FUNDAMENTAÇÃO TEÓRICA — primeira versão (18/11/2026).
-% Define só os conceitos que os capítulos 4 a 6 usam, sem histórico
-% exaustivo (skill estruturacao-introducao-logica: foco, não erudição).
-% Citações conferidas na fonte primária em 18/11/2026 (ver referencias.bib);
-% nada aqui traz número de outro trabalho.
+% 2 FUNDAMENTAÇÃO TEÓRICA — segunda versão (18/11/2026), encorpada.
+% Define os conceitos que as seções 4 a 6 usam, sem histórico exaustivo
+% (skill estruturacao-introducao-logica: foco, não erudição). Acréscimos
+% desta versão: agentes, integridade referencial e grão (base das classes
+% de erro A e B), formas de representar o esquema, detalhes das camadas
+% semânticas e o número mínimo de pares discordantes para significância.
+% Citações conferidas na fonte primária em 18/11/2026 (ver referencias.bib).
 % Fontes internas: docs/architecture.md (atenção, "garantia"),
 % docs/semantic_layer_mapping.md (cinco categorias), 04-metodologia
-% (sec:avaliacao, sec:analise). Fórmulas de McNemar e Holm conferidas
-% contra artifacts/reports/results_final_*-tiers.md (0:12 -> 0,00049;
-% x3 -> 0,0015; 1:9 -> 0,021; x3 -> 0,064).
+% (sec:avaliacao, sec:analise). Exemplo de Q031: SQL da rodada 07a25f55
+% (artifacts/raw/). Fórmulas de McNemar e Holm conferidas contra
+% artifacts/reports/results_final_*-tiers.md (0:12 -> 0,00049; x3 ->
+% 0,0015; 1:9 -> 0,021; x3 -> 0,064). Mínimos de pares discordantes:
+% 2(1/2)^5 = 0,0625; 2(1/2)^6 = 0,031; 2(1/2)^7 = 0,0156 (x3 = 0,047).
 % =============================================================================
 \chapter{Fundamentação teórica}
 \label{cap:fundamentacao}
 
 Esta seção define os conceitos usados no restante do trabalho: os
-modelos de linguagem e o modo como usam o contexto, a tarefa de tradução
-de linguagem natural para SQL e sua avaliação, as formas de representar o
-esquema no \textit{prompt}, a camada semântica e os testes estatísticos
-pareados usados na análise.
+modelos de linguagem e o modo como usam o contexto, os agentes construídos
+sobre eles, a tarefa de tradução de linguagem natural para SQL e sua
+avaliação, as formas de representar o esquema no \textit{prompt}, as
+noções de integridade referencial e de grão, a camada semântica e os
+testes estatísticos pareados usados na análise.
 
 % -----------------------------------------------------------------------------
 \section{Modelos de linguagem de grande escala}
@@ -25,21 +30,42 @@ pareados usados na análise.
 
 Um modelo de linguagem de grande escala é uma rede neural treinada para
 prever o próximo \textit{token} de um texto a partir dos anteriores
-\cite{zhao2023survey}. Os modelos atuais usam a arquitetura
-\textit{Transformer}, cujo componente central é o mecanismo de atenção: a
-cada \textit{token} gerado, o modelo calcula pesos sobre todos os
-\textit{tokens} da entrada e combina suas representações de acordo com
-esses pesos \cite{vaswani2017attention}. A resposta é produzida um \textit{token}
-por vez, e cada \textit{token} gerado passa a fazer parte da entrada do
-passo seguinte.
+\cite{zhao2023survey}. O treinamento tem, em geral, duas etapas: um
+pré-treinamento sobre grandes volumes de texto, em que o modelo aprende a
+continuar textos, e uma adaptação posterior, em que é ajustado para seguir
+instruções e responder de forma útil \cite{zhao2023survey}. É essa segunda
+etapa que permite usar o modelo para uma tarefa nova apenas descrevendo a
+tarefa no \textit{prompt}, sem novo treinamento. Quando o \textit{prompt}
+traz só a instrução, fala-se em uso \textit{zero-shot}; quando traz também
+exemplos resolvidos, em uso \textit{few-shot}, ou aprendizado em contexto
+\cite{zhao2023survey}. Este trabalho usa o modelo em modo
+\textit{zero-shot}.
+
+Os modelos atuais usam a arquitetura \textit{Transformer}, cujo
+componente central é o mecanismo de atenção: a cada \textit{token}
+gerado, o modelo calcula pesos sobre todos os \textit{tokens} da entrada e
+combina suas representações de acordo com esses pesos
+\cite{vaswani2017attention}. A resposta é produzida um \textit{token} por
+vez, e cada \textit{token} gerado passa a fazer parte da entrada do passo
+seguinte. Nos modelos densos, todos os parâmetros participam do cálculo de
+cada \textit{token}. Nos modelos de mistura de especialistas, cada camada
+tem vários blocos alternativos, e apenas alguns são ativados para cada
+\textit{token}, o que permite um número total de parâmetros grande com um
+custo de cálculo menor. O \arq{gpt-oss-120b} é um modelo desse tipo, com
+128 especialistas por camada \cite{openai2025gptoss}; o
+\arq{qwen3.8-27b} é denso \cite{qwen2026qwen38}.
 
 Tudo o que o modelo recebe em uma chamada, instruções, descrição do banco e
 pergunta, forma uma única sequência de \textit{tokens}, limitada pela
-janela de contexto do modelo. Não há, nessa sequência, distinção
-estrutural entre uma regra e um dado: uma instrução presente no contexto
-influencia a resposta na medida em que recebe peso da atenção, e não por
-ser executada. Essa propriedade é a base da distinção, usada na
-\autoref{sec:garantia}, entre instrução e garantia.
+janela de contexto do modelo. As interfaces de programação desses modelos
+organizam a entrada em mensagens com papéis, como uma mensagem de sistema,
+com instruções gerais, e mensagens de usuário, com o pedido
+\cite{groq_openai}; para o modelo, porém, todas são concatenadas na mesma
+sequência. Não há, nessa sequência, distinção estrutural entre uma regra e
+um dado: uma instrução presente no contexto influencia a resposta na
+medida em que recebe peso da atenção, e não por ser executada. Essa
+propriedade é a base da distinção, usada na \autoref{sec:garantia}, entre
+instrução e garantia.
 
 A temperatura controla o grau de aleatoriedade na escolha de cada
 \textit{token}: as pontuações do modelo são divididas pela temperatura
@@ -61,6 +87,25 @@ própria ou de um provedor de inferência \cite{openai2025gptoss}. Neste
 trabalho, os dois modelos avaliados são de pesos abertos e foram acessados
 por um provedor de inferência gratuito (\autoref{sec:modelos}).
 
+% -----------------------------------------------------------------------------
+\section{Agentes baseados em modelos de linguagem}
+\label{sec:agentes}
+
+Um agente baseado em modelo de linguagem é um sistema que usa o modelo
+para decidir e executar ações em um ambiente, e não apenas para produzir
+texto. Uma revisão da área organiza a construção desses agentes em quatro
+módulos: perfil, que define o papel do agente; memória, que guarda
+informações de interações anteriores; planejamento, que decompõe a tarefa
+em passos; e ação, que transforma as decisões do modelo em operações sobre
+o ambiente, como chamar ferramentas ou consultar bases de dados
+\cite{wang2024agents}.
+
+O agente deste trabalho usa o mínimo dessa estrutura, de propósito. O
+perfil é a mensagem de sistema fixa; não há memória entre perguntas nem
+planejamento; e a única ação é executar no banco a consulta gerada, com
+até duas novas tentativas quando a consulta falha, informando ao modelo a
+mensagem de erro (\autoref{sec:agente}). Com isso, o contexto fornecido no
+\textit{prompt} é a única fonte de variação entre as condições.
 
 % -----------------------------------------------------------------------------
 \section{Tradução de linguagem natural para SQL}
@@ -69,50 +114,145 @@ por um provedor de inferência gratuito (\autoref{sec:modelos}).
 A tradução de linguagem natural para SQL (\textit{text-to-SQL}) é a tarefa
 de, dada uma pergunta em linguagem natural e o esquema de um banco de dados
 relacional, produzir uma consulta SQL cujo resultado responde à pergunta
-\cite{hong2024survey}. As abordagens evoluíram de sistemas baseados em regras
-e gramáticas para modelos neurais treinados na tarefa e, mais recentemente,
-para modelos de linguagem de uso geral orientados por \textit{prompt}
-\cite{hong2024survey,shi2024survey,liu2025survey}. Neste último caso, o
-modelo não é treinado sobre o
-banco: tudo o que ele sabe do banco é o que está no \textit{prompt}.
+\cite{hong2024survey}. As revisões da área descrevem quatro gerações de
+abordagens \cite{hong2024survey,shi2024survey,liu2025survey}: sistemas
+baseados em regras e modelos de consulta escritos à mão; redes neurais do
+tipo sequência para sequência, treinadas em pares de pergunta e consulta;
+modelos de linguagem pré-treinados, ajustados para a tarefa; e, por fim,
+modelos de linguagem de grande escala orientados por \textit{prompt}. Nesta
+última geração, o modelo não é treinado sobre o banco: tudo o que ele sabe
+do banco é o que está no \textit{prompt}.
 
-Um sistema de \textit{text-to-SQL} pode ser avaliado de duas formas
-principais \cite{yu2018spider,shi2024survey}. A correspondência exata compara o texto da
-consulta gerada com o de uma consulta de referência, e penaliza consultas
-escritas de outra forma que produzem o mesmo resultado. A acurácia de
-execução executa as duas consultas na mesma base e compara os resultados.
-Este trabalho usa a segunda forma, com as normalizações descritas na
+A dificuldade central da tarefa está em ligar os termos da pergunta aos
+elementos do esquema, como tabelas, colunas e valores, etapa chamada de
+\textit{schema linking} \cite{hong2024survey}. A ligação raramente é
+direta: a pergunta usa o vocabulário do negócio, e um mesmo termo pode
+corresponder a mais de uma coluna ou a uma combinação de tabelas.
+
+Um sistema de \textit{text-to-SQL} pode ser avaliado de várias formas
+\cite{yu2018spider,li2023bird,shi2024survey}. A correspondência exata
+compara a consulta gerada com uma consulta de referência, componente a
+componente, e penaliza consultas escritas de outra forma que produzem o
+mesmo resultado. A acurácia de execução executa as duas consultas na
+mesma base e compara os resultados. Variações dessas métricas avaliam a
+consulta em vários bancos com o mesmo esquema, para reduzir acertos por
+coincidência, ou ponderam o acerto pela eficiência da consulta
+\cite{li2023bird,shi2024survey}. Uma revisão observa que a
+correspondência exata tende a subestimar a acurácia real, e a acurácia de
+execução, a superestimá-la \cite{shi2024survey}.
+
+As duas tendências aparecem neste trabalho. Na pergunta Q031, as
+consultas \arq{SELECT SUM(total_amount) FROM orders} e
+\arq{SELECT SUM(orders.total_amount) FROM orders}, geradas pelo
+\arq{qwen3.8-27b} nas condições de catálogo e semântica, são textos
+diferentes com o mesmo resultado, e ambas estão corretas. Já na Q011, a
+consulta que conta os pedidos com cliente informado e a que conta os
+pedidos ligados a um cliente existente são ambas válidas e devolvem
+resultados diferentes (\autoref{sec:catalogo-vs-semantica}). Este trabalho
+usa a acurácia de execução, com as normalizações descritas na
 \autoref{sec:avaliacao}: uma consulta é correta quando seu resultado é
 igual ao da consulta de referência.
-
-Neste trabalho, o agente é o programa que recebe a pergunta, monta o
-\textit{prompt}, chama o modelo, valida a consulta devolvida e a executa
-no banco (\autoref{sec:agente}). O termo é usado em sentido estrito: o
-agente não planeja, não usa ferramentas e não encadeia chamadas.
-
 
 % -----------------------------------------------------------------------------
 \section{Representação do esquema no \textit{prompt}}
 \label{sec:representacao-esquema}
 
 Como o modelo só conhece o banco pelo \textit{prompt}, a forma de
-descrever o esquema é parte do sistema. As formas mais usadas são o texto
-de definição das tabelas, com nomes de colunas, tipos e chaves; descrições
-em linguagem natural de tabelas e colunas; exemplos de pares de pergunta e
-consulta (\textit{few-shot}); e amostras de linhas das tabelas
-\cite{rajkumar2022evaluating,gao2024dail}. Em bancos grandes, uma etapa anterior seleciona as
-tabelas e colunas relevantes para a pergunta (\textit{schema linking}),
-para que o esquema caiba no \textit{prompt}
-\cite{pourreza2023din,talaei2024chess}.
+descrever o esquema é parte do sistema. O \autoref{qua:representacoes}
+resume as formas estudadas na literatura. Elas diferem no tipo de
+informação: as primeiras descrevem a estrutura física; as descrições de
+colunas acrescentam significado; os exemplos e o conhecimento por
+pergunta acrescentam informação específica de cada consulta.
 
-Cada acréscimo aumenta o número de \textit{tokens} de entrada e, com ele, o
-custo e o tempo de cada chamada. Este trabalho não usa exemplos, amostras
-de linhas nem seleção de esquema, e varia apenas o texto que descreve o
-banco, em três níveis (\autoref{sec:condicoes}). Os dois primeiros níveis
-seguem as formas acima: a definição das tabelas e a definição acrescida de
-descrições de colunas. O terceiro acrescenta um tipo de conteúdo diferente,
-apresentado na seção seguinte.
+\begin{quadro}[htb]
+  \centering
+  \caption{Formas de representar o banco no \textit{prompt}}
+  \label{qua:representacoes}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
+    \hline
+    \textbf{Forma} & \textbf{Conteúdo} & \textbf{Estudos} \\ \hline
+    Definição das tabelas & texto de criação das tabelas
+      (\arq{CREATE TABLE}), com colunas, tipos e chaves &
+      \citeonline{rajkumar2022evaluating}; \citeonline{gao2024dail} \\ \hline
+    Lista de tabelas e colunas & nomes de tabelas e colunas em texto
+      corrido, sem tipos & \citeonline{gao2024dail} \\ \hline
+    Linhas de exemplo & algumas linhas de cada tabela, junto com a
+      definição & \citeonline{rajkumar2022evaluating} \\ \hline
+    Descrições de colunas & significado de tabelas e colunas em
+      linguagem natural, como em um catálogo &
+      \citeonline{li2023bird}; \citeonline{wretblad2024synthetic};
+      \citeonline{bouattour2026prompting} \\ \hline
+    Exemplos resolvidos & pares de pergunta e consulta
+      (\textit{few-shot}) & \citeonline{gao2024dail};
+      \citeonline{bouattour2026prompting} \\ \hline
+    Conhecimento por pergunta & dica escrita para cada pergunta, com
+      fórmulas, sinônimos ou valores & \citeonline{li2023bird};
+      \citeonline{chung2025longcontext} \\ \hline
+    Regras da base & convenções válidas para toda a base: grão, datas,
+      relacionamentos, formato da resposta & \citeonline{rumiantsau2026semantic};
+      este trabalho \\ \hline
+  \end{tabularx}
+  \fonte{Elaborado pelo autor a partir dos estudos citados.}
+\end{quadro}
 
+Em bancos grandes, uma etapa anterior seleciona as tabelas e colunas
+relevantes para a pergunta, para que o esquema caiba no \textit{prompt}
+\cite{pourreza2023din,talaei2024chess}. Cada acréscimo aumenta o número de
+\textit{tokens} de entrada e, com ele, o custo e o tempo de cada chamada.
+
+Este trabalho não usa linhas de exemplo, exemplos resolvidos, conhecimento
+por pergunta nem seleção de esquema, e varia apenas o texto que descreve o
+banco, em três níveis (\autoref{sec:condicoes}). O primeiro corresponde à
+definição das tabelas; o segundo, às descrições de colunas; o terceiro, às
+regras da base. As regras são o tipo de informação menos estudado no
+\autoref{qua:representacoes} e dependem de dois conceitos apresentados a
+seguir: a integridade referencial e o grão.
+
+% -----------------------------------------------------------------------------
+\section{Integridade referencial e grão}
+\label{sec:integridade-grao}
+
+No modelo relacional, os dados são organizados em relações, ou tabelas,
+e as ligações entre tabelas são feitas por valores: uma coluna de uma
+tabela guarda a chave de uma linha de outra \cite{codd1970relational}. Essa
+coluna é chamada de chave estrangeira. A integridade referencial é a
+garantia de que todo valor de uma chave estrangeira corresponde a uma
+linha existente na tabela referenciada; em sistemas como o PostgreSQL, ela
+é assegurada quando a restrição de chave estrangeira é declarada
+\cite{postgresql16}.
+
+Bases comerciais nem sempre têm essa garantia. Dados importados de
+planilhas ou de sistemas legados podem conter referências órfãs: valores
+de chave estrangeira que não correspondem a nenhuma linha da tabela
+referenciada. Na base deste trabalho, a restrição não foi declarada para
+preservar os dados como foram autorizados (decisão D-004), e há
+referências órfãs (\autoref{sec:transformacao}). Nessa situação, duas
+perguntas que parecem iguais têm respostas diferentes. ``Quantos pedidos
+têm um cliente informado?'' conta as linhas em que a coluna está
+preenchida (\arq{WHERE customer_id IS NOT NULL}); ``quantos pedidos estão
+ligados a um cliente cadastrado?'' exige a junção com a tabela de
+clientes (\arq{JOIN}), que descarta as referências órfãs. Qual das duas
+uma organização chama de ``pedido com cliente associado'' é uma convenção
+do negócio, e não uma propriedade do esquema. Esse é o tipo de erro
+reunido na classe B (\autoref{sec:taxonomia}).
+
+O grão de uma tabela é o que cada uma de suas linhas representa: um
+pedido, um item de pedido, uma meta mensal. Na modelagem dimensional,
+declarar o grão é o passo central do projeto de uma tabela de fatos, e
+misturar grãos diferentes na mesma tabela ou na mesma consulta é um erro
+clássico \cite{kimball2013techniques}. O erro aparece em consultas que
+juntam tabelas de grãos diferentes. Se o valor total do pedido está na
+tabela de pedidos e a consulta a junta com a tabela de itens, cada pedido
+passa a aparecer uma vez por item, e a soma do valor total fica
+multiplicada pelo número de itens. A consulta executa sem erro e devolve
+um número plausível. Erros desse tipo, junto com a escolha entre colunas
+de nome parecido, formam a classe A (\autoref{sec:taxonomia}).
+
+As duas noções explicam por que o esquema físico não basta. Os nomes das
+colunas e as chaves dizem como as tabelas se ligam, mas não dizem se a
+ligação é completa nem em que grão cada medida deve ser somada. Essa
+informação precisa vir de fora do esquema.
 
 % -----------------------------------------------------------------------------
 \section{Catálogo de dados e camada semântica}
@@ -123,14 +263,16 @@ organização, entre eles a descrição de cada tabela e coluna
 \cite{ehrlinger2021catalogs,dama2017dmbok}. Em bancos relacionais, essas
 descrições costumam ser mantidas como comentários associados aos objetos
 (\arq{COMMENT ON TABLE}, \arq{COMMENT ON COLUMN})
-\cite{postgres_comment,databricks_comment}. Uma descrição de
-catálogo diz o que um objeto significa, e está presa a ele.
+\cite{postgres_comment,databricks_comment}. Uma descrição de catálogo diz
+o que um objeto significa, e está presa a ele: ela pode dizer que uma
+coluna guarda o valor bruto do pedido, mas não em que grão esse valor deve
+ser somado nem como tratar um pedido cujo cliente não existe.
 
 Uma camada semântica é um conjunto de definições mantido entre as tabelas
 físicas e quem consulta os dados, que descreve a base em termos de negócio
-e determina como ela deve ser consultada \cite{jones2024semanticlayer}. As ferramentas
-industriais diferem na sintaxe, mas carregam as mesmas cinco categorias de
-informação (\arq{docs/semantic_layer_mapping.md}):
+e determina como ela deve ser consultada \cite{jones2024semanticlayer}. As
+ferramentas industriais diferem na sintaxe, mas carregam as mesmas cinco
+categorias de informação (\arq{docs/semantic_layer_mapping.md}):
 \begin{alineas}
   \item definições por campo: o que cada medida e dimensão significa em
         linguagem de negócio;
@@ -148,15 +290,29 @@ pertencem a nenhuma coluna isolada: são regras sobre a base como um todo.
 Essa é a diferença que o desenho do experimento isola, entre o nível de
 catálogo e o nível semântico.
 
-Nas ferramentas industriais, a camada semântica é consultada por meio de
-um compilador: o consumidor pede uma medida e um agrupamento, e o
-compilador gera o SQL a partir das definições
-\cite{dbt_slarchitecture,dbt_metricflow,looker_lookml,cube_datamodel}. Neste
-trabalho, a camada semântica é apenas texto anexado ao \textit{prompt}, e o
-SQL é escrito pelo modelo. Por isso, o contexto semântico inclui também
-regras sobre a forma da resposta, que nas ferramentas industriais são
-asseguradas pelo compilador (\autoref{sec:industriais}).
+Cada ferramenta organiza essas categorias de um modo. No dbt, o
+MetricFlow define modelos semânticos com entidades, que são as chaves de
+junção entre modelos, dimensões, pelas quais se agrupa, e métricas
+\cite{dbt_metricflow}. No Looker, a linguagem LookML organiza o modelo em
+\textit{views} com dimensões e medidas, e as junções declaram o tipo de
+relacionamento entre as tabelas, como muitos para um, informação que a
+ferramenta usa para calcular as medidas corretamente; grupos de dimensões
+de tempo são criados de uma vez a partir de uma coluna de data
+\cite{looker_lookml,looker_relationship,looker_dimgroup}. No Cube, cada \textit{cube} reúne medidas,
+dimensões e junções \cite{cube_datamodel}. No Databricks, as
+\textit{metric views} separam medidas de dimensões, podem ser consultadas
+pelo agente da plataforma e aceitam sinônimos e nomes de exibição para
+melhorar a acurácia do agente \cite{databricks_metricviews}.
 
+Nessas ferramentas, a camada semântica é consultada por meio de um
+compilador: o consumidor pede uma medida e um agrupamento, e o compilador
+gera o SQL a partir das definições, inclusive as junções
+\cite{dbt_slarchitecture,dbt_metricflow,looker_lookml,cube_datamodel}.
+Neste trabalho, a camada semântica é apenas texto anexado ao
+\textit{prompt}, e o SQL é escrito pelo modelo. Por isso, o contexto
+semântico inclui também regras sobre a forma da resposta, que nas
+ferramentas industriais são asseguradas pelo compilador
+(\autoref{sec:industriais}).
 
 % -----------------------------------------------------------------------------
 \section{Avaliação estatística pareada}
@@ -164,25 +320,49 @@ asseguradas pelo compilador (\autoref{sec:industriais}).
 
 Quando as mesmas unidades são observadas em duas condições, a comparação
 deve usar testes pareados, que consideram a diferença dentro de cada
-unidade \cite{agresti2013categorical}. Neste trabalho, as unidades são as perguntas,
-e cada uma é respondida nas três condições.
+unidade \cite{agresti2013categorical}. Neste trabalho, as unidades são as
+perguntas, e cada uma é respondida nas três condições.
 
-Para um desfecho binário, como acerto ou erro, o teste de McNemar compara
-duas condições usando apenas os pares discordantes
-\cite{mcnemar1947note}.
-Sejam $b$ o número de perguntas acertadas na primeira condição e erradas na
-segunda, e $c$ o número de perguntas na situação inversa, com $n = b + c$.
-Sob a hipótese nula de que as duas condições têm a mesma probabilidade de
-acerto, $b$ segue uma distribuição binomial com $n$ ensaios e probabilidade
-$1/2$. A versão exata do teste usa essa distribuição diretamente
-\cite{fagerland2013mcnemar}; o valor-p bilateral é
+Para um desfecho binário, como acerto ou erro, os resultados de duas
+condições sobre as mesmas perguntas formam a tabela de contingência da
+\autoref{tab:contingencia}. O teste de McNemar compara as duas condições
+usando apenas os pares discordantes, $b$ e $c$ \cite{mcnemar1947note}.
+As perguntas acertadas ou erradas nas duas condições ($a$ e $d$) não
+entram no cálculo, porque não informam sobre a diferença entre elas.
+
+\begin{table}[htb]
+  \centering
+  \caption{Tabela de contingência de duas condições pareadas}
+  \label{tab:contingencia}
+  \begin{tabular}{lcc}
+    \toprule
+    & Condição 2: acerto & Condição 2: erro \\
+    \midrule
+    Condição 1: acerto & $a$ & $b$ \\
+    Condição 1: erro   & $c$ & $d$ \\
+    \bottomrule
+  \end{tabular}
+  \fonte{Elaborado pelo autor, com base em \citeonline{agresti2013categorical}.}
+\end{table}
+
+Com $n = b + c$, sob a hipótese nula de que as duas condições têm a mesma
+probabilidade de acerto, $b$ segue uma distribuição binomial com $n$
+ensaios e probabilidade $1/2$. A versão exata do teste usa essa
+distribuição diretamente \cite{fagerland2013mcnemar}; o valor-p bilateral
+é
 \begin{equation}
   p = \min\left(1,\; 2 \sum_{k=0}^{\min(b,c)} \binom{n}{k}
       \left(\frac{1}{2}\right)^{n}\right).
   \label{eq:mcnemar}
 \end{equation}
-As perguntas acertadas ou erradas nas duas condições não entram no cálculo,
-porque não informam sobre a diferença entre elas.
+
+Uma consequência da \autoref{eq:mcnemar} é que o número de pares
+discordantes limita a significância possível. No caso mais favorável, em
+que todos os $n$ pares discordantes favorecem a mesma condição, o valor-p
+é $2\,(1/2)^{n}$. Com 5 pares, ele vale 0,0625 e não atinge 5\%; com 6,
+vale 0,031. Assim, uma diferença só pode ser significativa a 5\% se houver
+ao menos seis perguntas com resultados discordantes, e, se alguma delas
+favorecer a outra condição, são necessárias mais.
 
 Para uma medida contínua pareada, como a latência, o teste de postos
 sinalizados de Wilcoxon ordena os valores absolutos das diferenças dentro
@@ -202,7 +382,10 @@ e cada hipótese é rejeitada quando seu valor-p ajustado é menor que o
 nível de significância. O procedimento é uniformemente mais poderoso que
 o ajuste de Bonferroni, que multiplica todos os valores-p por $m$
 \cite{shaffer1986modified}. Neste trabalho, $m = 3$ para cada modelo: os três
-pares de condições (\autoref{sec:analise}).
+pares de condições (\autoref{sec:analise}). Com o ajuste, o menor valor-p
+da família é multiplicado por 3, e o mínimo de pares discordantes sobe:
+com 6 pares todos na mesma direção, o valor ajustado é 0,094; com 7, é
+0,047.
 
 A acurácia de cada condição é acompanhada de um intervalo de confiança
 de 95\% pela aproximação normal da proporção,
@@ -211,4 +394,3 @@ proporção de acertos e $N$ o número de perguntas
 \cite{agresti1998approximate}. Com amostras pequenas, esse intervalo tem
 cobertura abaixo da nominal, o que reforça a leitura conjunta com os
 testes pareados.
-
