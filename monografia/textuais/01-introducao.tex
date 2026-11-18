@@ -25,10 +25,11 @@ e não do significado das colunas.
 Agentes baseados em modelos de linguagem de grande escala
 (\textit{large language models}, LLMs) passaram a ser usados para
 responder perguntas de negócio diretamente sobre bancos de dados
-relacionais \pendente{citação}. Nessa tarefa, chamada de tradução de
-linguagem natural para SQL (\textit{text-to-SQL}), o modelo recebe a
-pergunta e uma descrição do esquema, isto é, das tabelas, colunas e chaves
-do banco, e gera a consulta que a responde \pendente{citação}. O problema
+relacionais \cite{wang2024agents,hong2024survey}. Nessa tarefa, chamada de
+tradução de linguagem natural para SQL (\textit{text-to-SQL}), o modelo
+recebe a pergunta e uma descrição do esquema, isto é, das tabelas, colunas
+e chaves do banco, e gera a consulta que a responde
+\cite{shi2024survey,liu2025survey}. O problema
 é que a pergunta usa o vocabulário do negócio, enquanto o esquema descreve
 a estrutura física dos dados, e a passagem de um para o outro raramente é
 única.
@@ -52,22 +53,29 @@ se esperar que escolha a consulta correta com mais frequência. Na
 indústria de inteligência de negócios, essas convenções são mantidas em
 camadas semânticas, ferramentas como dbt Semantic Layer, Databricks Unity
 Catalog, LookML e Cube, que definem métricas, dimensões e relacionamentos
-sobre o banco físico \pendente{citação}. Um passo intermediário, mais
-simples e mais comum, são os catálogos de dados, que guardam apenas uma
-descrição textual de cada tabela e coluna.
+sobre o banco físico
+\cite{dbt_semanticlayer,databricks_metricviews,looker_lookml,cube_datamodel}.
+Um passo intermediário, mais simples e mais comum, são os catálogos de
+dados, que guardam apenas uma descrição textual de cada tabela e coluna
+\cite{ehrlinger2021catalogs}.
 
 Essas duas formas de contexto carregam informações de natureza diferente.
 Uma descrição de coluna diz o que a coluna significa; uma regra semântica
 diz como a base deve ser consultada. Um relato da comunidade Databricks
-comparou os três níveis, apenas as tabelas, as tabelas com descrições de
-catálogo e as tabelas com métricas e instruções, e encontrou um ganho
-pequeno com as descrições e um ganho grande com a camada semântica
-\pendente{citação}. Esse resultado, porém, foi obtido em uma plataforma
-proprietária, com agente próprio, e não permite saber se o efeito vem do
-conteúdo do contexto ou da plataforma. Os \textit{benchmarks} acadêmicos de
-\textit{text-to-SQL}, por sua vez, usam em geral esquemas preparados para
-avaliação \pendente{citação}, sem as imperfeições de uma base comercial
-real, como as referências órfãs do exemplo acima.
+acrescentou camadas de contexto a um agente da plataforma, começando por
+apenas as tabelas, depois as descrições do catálogo e depois as
+\textit{metric views}, definições de métricas da camada semântica, e
+encontrou um ganho pequeno com as descrições e um ganho grande com as
+métricas \cite{databricks2026genie}. Esse resultado, porém, foi obtido em
+uma plataforma proprietária, com agente próprio, e não permite saber se o
+efeito vem do conteúdo do contexto ou da plataforma. Estudos acadêmicos
+recentes mediram, com modelos proprietários, o ganho de descrições do
+esquema \cite{bouattour2026prompting} ou de um documento semântico único
+\cite{rumiantsau2026semantic}, sem separar as descrições das regras de
+consulta. E os \textit{benchmarks} acadêmicos de \textit{text-to-SQL} usam
+bases públicas, em inglês, organizadas para avaliação
+\cite{yu2018spider,li2023bird}, e não a base operacional de uma empresa,
+com convenções próprias e referências órfãs como as do exemplo acima.
 
 Permanece em aberto, portanto, se o efeito da camada semântica se mantém
 quando o contexto é apenas texto enviado ao modelo, com modelos de pesos

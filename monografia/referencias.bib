@@ -1,62 +1,628 @@
 % Referências — Guia UECE p. 117, 167: alinhadas à esquerda, espaço simples,
-% ordem alfabética (abntex2cite cuida da formatação).
-% O repositório não tem literatura: entradas a levantar pelo autor.
-% NÃO inventar entradas: cada uma precisa ser conferida na fonte.
-% Software, documentação e posts entram como documento eletrônico, com URL
-% e data de acesso (guia p. 149).
-%
-% Checklist por tema. [chave] = chave sugerida para \cite; o candidato NÃO
-% foi conferido. Ao adicionar uma entrada, trocar o \pendente{citação}
-% correspondente por \cite{chave} e remover \nocite{placeholder} de main.tex
-% assim que houver a primeira citação real.
-%
-% Benchmarks de text-to-SQL (cap. 3, sec:benchmarks; Introdução; Metodologia)
-%   [ ] Spider .................................. [yu2018spider]
-%   [ ] BIRD (inclui "external knowledge") ...... [li2023bird]
-%   [ ] Spider 2.0 (bases corporativas) ......... [lei2025spider2]
-%   [ ] avaliação de LLMs em text-to-SQL ........ [rajkumar2022evaluating]
-%
-% Engenharia de prompt e contexto (cap. 2 sec:representacao-esquema; cap. 3
-% sec:contexto-externo; Introdução)
-%   [ ] survey de text-to-SQL com LLM ........... [hong2024survey] / [shi2024survey]
-%   [ ] DIN-SQL ................................. [pourreza2023din]
-%   [ ] DAIL-SQL ................................ [gao2024dail]
-%   [ ] ChatGPT zero-shot text-to-SQL ........... [liu2023chatgpt]
-%   [ ] CHESS (schema linking, contexto) ........ [talaei2024chess]
-%   [ ] descrição de colunas / documentação do esquema no prompt
-%
-% Camada semântica (cap. 2 sec:camada-semantica; cap. 3 sec:industria;
-% Discussão qua:industriais)
-%   [ ] dbt Semantic Layer / MetricFlow (documentação)
-%   [ ] Unity Catalog: COMMENT e metric views (documentação)
-%   [ ] LookML (documentação)
-%   [ ] Cube (documentação)
-%   [ ] "Which context improves Genie accuracy most?" — comunidade
-%       Databricks, 2025 (D-008): autor, URL, data de acesso; nº de
-%       perguntas, base e modelo (pendente também em sec:databricks)
-%
-% Governança de dados para agentes (cap. 3 sec:governanca)
-%   [ ] injeção de prompt -> injeção de SQL ...... [pedro2025prompt]
-%   [ ] OWASP Top 10 para aplicações com LLM (documento eletrônico)
-%   [ ] governança de dados para IA (DAMA-DMBOK ou equivalente)
-%
-% Modelos de linguagem (cap. 2 sec:llm; Introdução; Metodologia sec:modelos)
-%   [ ] Transformer / atenção ................... [vaswani2017attention]
-%   [ ] agentes baseados em LLM (definição usada na Introdução)
-%   [ ] model card gpt-oss-120b
-%   [ ] model card Qwen (versão usada: qwen3.8-27b)
-%
-% Estatística (cap. 2 sec:estatistica; Metodologia sec:analise; Discussão)
-%   [ ] teste de McNemar ........................ [mcnemar1947note]
-%   [ ] teste de Wilcoxon ....................... [wilcoxon1945individual]
-%   [ ] procedimento de Holm .................... [holm1979simple]
-%   [ ] intervalo de confiança da proporção
-%
-% Software (Metodologia sec:reprodutibilidade)
-%   [ ] Groq API; PostgreSQL; sqlglot; Python; pandas
+% ordem alfabética (abntex2cite, estilo alf, cuida da formatação).
+% Levantadas e conferidas na fonte primária em 18/11/2026 (arXiv, ACL
+% Anthology, NeurIPS, Crossref, PVLDB, SOL/SBC, documentação oficial).
+% Documentos eletrônicos (guia p. 149): url + urlaccessdate.
+% Pontos não confirmados na fonte estão anotados em comentário acima da
+% entrada.
 
-@misc{placeholder,
-  author = {PENDENTE},
-  title  = {Referência a levantar},
-  year   = {2026}
+% =============================================================================
+% Benchmarks e avaliação de text-to-SQL
+% =============================================================================
+@inproceedings{yu2018spider,
+  author    = {Yu, Tao and Zhang, Rui and Yang, Kai and Yasunaga, Michihiro and Wang, Dongxu and Li, Zifan and Ma, James and Li, Irene and Yao, Qingning and Roman, Shanelle and Zhang, Zilin and Radev, Dragomir},
+  title     = {Spider: a large-scale human-labeled dataset for complex and cross-domain semantic parsing and text-to-{SQL} task},
+  booktitle = {Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {3911--3921},
+  year      = {2018},
+  address   = {Brussels},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/D18-1425}
+}
+
+@inproceedings{li2023bird,
+  author    = {Li, Jinyang and Hui, Binyuan and Qu, Ge and Yang, Jiaxi and Li, Binhua and Li, Bowen and Wang, Bailin and Qin, Bowen and Geng, Ruiying and Huo, Nan and Zhou, Xuanhe and Ma, Chenhao and Li, Guoliang and Chang, Kevin and Huang, Fei and Cheng, Reynold and Li, Yongbin},
+  title     = {Can {LLM} already serve as a database interface? {A} big bench for large-scale database grounded text-to-{SQLs}},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {36},
+  pages     = {42330--42357},
+  year      = {2023},
+  doi       = {10.52202/075280-1835}
+}
+
+@inproceedings{lei2025spider2,
+  author    = {Lei, Fangyu and Chen, Jixuan and Ye, Yuxiao and Cao, Ruisheng and Shin, Dongchan and Su, Hongjin and Suo, Zhaoqing and Gao, Hongcheng and Hu, Wenjing and Yin, Pengcheng and Zhong, Victor and Xiong, Caiming and Sun, Ruoxi and Liu, Qian and Wang, Sida and Yu, Tao},
+  title     = {Spider 2.0: evaluating language models on real-world enterprise text-to-{SQL} workflows},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025},
+  url       = {https://openreview.net/forum?id=XmProj9cPs},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{lee2021kaggledbqa,
+  author    = {Lee, Chia-Hsuan and Polozov, Oleksandr and Richardson, Matthew},
+  title     = {{KaggleDBQA}: realistic evaluation of text-to-{SQL} parsers},
+  booktitle = {Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing},
+  pages     = {2261--2273},
+  year      = {2021},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2021.acl-long.176}
+}
+
+@misc{chen2024beaver,
+  author    = {Chen, Peter Baile and Yang, Devin and Li, Weiyue and Wenz, Fabian and Zhang, Yi and Tatbul, Nesime and Cafarella, Michael and Demiralp, {\c{C}}a{\u{g}}atay and Stonebraker, Michael},
+  title     = {{BEAVER}: an enterprise benchmark for text-to-{SQL}},
+  howpublished = {{arXiv}:2409.02038},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2409.02038},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{jose2021mrat,
+  author    = {Jos{\'e}, Marcelo Archanjo and Cozman, Fabio Gagliardi},
+  title     = {{mRAT-SQL+GAP}: a {Portuguese} text-to-{SQL} transformer},
+  booktitle = {Intelligent Systems: BRACIS 2021},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {13074},
+  pages     = {511--525},
+  year      = {2021},
+  address   = {Cham},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-030-91699-2_35}
+}
+
+@inproceedings{carvalho2025benchmarking,
+  author    = {Carvalho, Lu{\'i}s Felippe C. de and J{\'u}nior, Paulo S{\'e}rgio dos S. and Oliveira, Hil{\'a}rio Tomaz Alves de},
+  title     = {Benchmarking large language models for text-to-{SQL} in {Brazilian} {Portuguese} and {English}},
+  booktitle = {Anais do XVI Simp{\'o}sio Brasileiro de Tecnologia da Informa{\c{c}}{\~a}o e da Linguagem Humana (STIL)},
+  pages     = {101--112},
+  year      = {2025},
+  address   = {Porto Alegre},
+  publisher = {SBC},
+  doi       = {10.5753/stil.2025.37817}
+}
+
+@inproceedings{fonseca2026avaliacao,
+  author    = {Fonseca, Guilherme and Reis, Julio C. S. and Botelho, Matheus and Calais, Pedro and Simoes, Emerson A. and Silva, Lucas R. and Camara, Eduardo and Zardin, Jaide and Gon{\c{c}}alves, Rodrigo and Ribeiro, Gustavo and Lobato, Yago and Sene, Allan and Silva, Altigran S. and Gon{\c{c}}alves, Marcos A.},
+  title     = {Avalia{\c{c}}{\~a}o sistem{\'a}tica de text-to-{SQL} em portugu{\^e}s: um benchmark unificado multi-dom{\'i}nio},
+  booktitle = {Anais do XLI Simp{\'o}sio Brasileiro de Banco de Dados (SBBD)},
+  pages     = {495--508},
+  year      = {2026},
+  address   = {Porto Alegre},
+  publisher = {SBC},
+  doi       = {10.5753/sbbd.2026.249246}
+}
+
+@inproceedings{botelho2026jabuti,
+  author    = {Botelho, Matheus and Fonseca, Guilherme and Silva, Lucas R. and Gon{\c{c}}alves, Rodrigo M. and Lobato, Yago and Ribeiro, Gustavo A. and Camara, Eduardo C. de and Zardin, Jaide F. C. and Calais, Pedro and Simoes, Emerson A. and Sene, Allan and Reis, Julio C. S. and Silva, Altigran da and Gon{\c{c}}alves, Marcos Andr{\'e}},
+  title     = {{JABUTI-SQL}: um benchmark em portugu{\^e}s para avalia{\c{c}}{\~a}o de abordagens text-to-{SQL} em cen{\'a}rios reais},
+  booktitle = {Anais do VIII Dataset Showcase Workshop (DSW)},
+  pages     = {126--137},
+  year      = {2026},
+  address   = {Porto Alegre},
+  publisher = {SBC},
+  doi       = {10.5753/dsw.2026.249611}
+}
+
+% =============================================================================
+% Surveys, prompt e contexto em text-to-SQL
+% =============================================================================
+@article{hong2024survey,
+  author    = {Hong, Zijin and Yuan, Zheng and Zhang, Qinggang and Chen, Hao and Dong, Junnan and Huang, Feiran and Huang, Xiao},
+  title     = {Next-generation database interfaces: a survey of {LLM}-based text-to-{SQL}},
+  journal   = {IEEE Transactions on Knowledge and Data Engineering},
+  volume    = {37},
+  number    = {12},
+  pages     = {7328--7345},
+  year      = {2025},
+  doi       = {10.1109/TKDE.2025.3609486}
+}
+
+@article{shi2024survey,
+  author    = {Shi, Liang and Tang, Zhengju and Zhang, Nan and Zhang, Xiaotong and Yang, Zhi},
+  title     = {A survey on employing large language models for text-to-{SQL} tasks},
+  journal   = {ACM Computing Surveys},
+  volume    = {58},
+  number    = {2},
+  pages     = {1--37},
+  year      = {2026},
+  doi       = {10.1145/3737873}
+}
+
+@article{liu2025survey,
+  author    = {Liu, Xinyu and Shen, Shuyu and Li, Boyan and Ma, Peixian and Jiang, Runzhi and Zhang, Yuxin and Fan, Ju and Li, Guoliang and Tang, Nan and Luo, Yuyu},
+  title     = {A survey of text-to-{SQL} in the era of {LLMs}: where are we, and where are we going?},
+  journal   = {IEEE Transactions on Knowledge and Data Engineering},
+  volume    = {37},
+  number    = {10},
+  pages     = {5735--5754},
+  year      = {2025},
+  doi       = {10.1109/TKDE.2025.3592032}
+}
+
+% Sem venue revisado confirmado.
+@misc{rajkumar2022evaluating,
+  author    = {Rajkumar, Nitarshan and Li, Raymond and Bahdanau, Dzmitry},
+  title     = {Evaluating the text-to-{SQL} capabilities of large language models},
+  howpublished = {{arXiv}:2204.00498},
+  year      = {2022},
+  url       = {https://arxiv.org/abs/2204.00498},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{liu2023chatgpt,
+  author    = {Liu, Aiwei and Hu, Xuming and Wen, Lijie and Yu, Philip S.},
+  title     = {A comprehensive evaluation of {ChatGPT}'s zero-shot text-to-{SQL} capability},
+  howpublished = {{arXiv}:2303.13547},
+  year      = {2023},
+  url       = {https://arxiv.org/abs/2303.13547},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{pourreza2023din,
+  author    = {Pourreza, Mohammadreza and Rafiei, Davood},
+  title     = {{DIN-SQL}: decomposed in-context learning of text-to-{SQL} with self-correction},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {36},
+  pages     = {36339--36348},
+  year      = {2023},
+  doi       = {10.52202/075280-1577}
+}
+
+@article{gao2024dail,
+  author    = {Gao, Dawei and Wang, Haibin and Li, Yaliang and Sun, Xiuyu and Qian, Yichen and Ding, Bolin and Zhou, Jingren},
+  title     = {Text-to-{SQL} empowered by large language models: a benchmark evaluation},
+  journal   = {Proceedings of the VLDB Endowment},
+  volume    = {17},
+  number    = {5},
+  pages     = {1132--1145},
+  year      = {2024},
+  doi       = {10.14778/3641204.3641221}
+}
+
+% Sem venue revisado confirmado.
+@misc{talaei2024chess,
+  author    = {Talaei, Shayan and Pourreza, Mohammadreza and Chang, Yu-Chen and Mirhoseini, Azalia and Saberi, Amin},
+  title     = {{CHESS}: contextual harnessing for efficient {SQL} synthesis},
+  howpublished = {{arXiv}:2405.16755},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2405.16755},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@article{chung2025longcontext,
+  author    = {Chung, Yeounoh and Kakkar, Gaurav T. and Gan, Yu and Milne, Brenton and {\"O}zcan, Fatma},
+  title     = {Is long context all you need? {L}everaging {LLM}'s extended context for {NL2SQL}},
+  journal   = {Proceedings of the VLDB Endowment},
+  volume    = {18},
+  number    = {8},
+  pages     = {2735--2747},
+  year      = {2025},
+  doi       = {10.14778/3742728.3742761}
+}
+
+% Sem venue revisado confirmado.
+@misc{wretblad2024synthetic,
+  author    = {Wretblad, Niklas and Holmstr{\"o}m, Oskar and Larsson, Erik and Wiks{\"a}ter, Axel and S{\"o}derlund, Oscar and {\"O}hman, Hjalmar and Pont{\'e}n, Ture and Forsberg, Martin and S{\"o}rme, Martin and Heintz, Fredrik},
+  title     = {Synthetic {SQL} column descriptions and their impact on text-to-{SQL} performance},
+  howpublished = {{arXiv}:2408.04691},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2408.04691},
+  urlaccessdate = {18 nov. 2026}
+}
+
+% Conferido no PDF (18/11/2026); páginas nos anais não confirmadas.
+@inproceedings{bouattour2026prompting,
+  author    = {Bouattour, Omar and Weiner, Joyce and Tatbul, Nesime and Wenz, Fabian and Chen, Peter Baile and Mills, Layne and He, Yong and Arbab, Bijan and Demiralp, {\c{C}}a{\u{g}}atay and Stonebraker, Michael},
+  title     = {Prompting strategies for enterprise text-to-{SQL}: an ablation study},
+  booktitle = {VLDB 2026 Workshop: Novel Optimizations for Visionary AI Systems (NOVAS)},
+  year      = {2026},
+  url       = {https://www.vldb.org/2026/Workshops/VLDB-Workshops-2026/NOVAS/NOVAS26_16.pdf},
+  urlaccessdate = {18 nov. 2026}
+}
+
+% =============================================================================
+% Camada semântica, catálogo e representações de negócio para LLMs
+% =============================================================================
+@misc{databricks2026genie,
+  author    = {Ghodke, Suraj},
+  title     = {Which context improves {Genie} accuracy most? {I} benchmarked 4 layers},
+  howpublished = {Databricks Community, f{\'o}rum Genie Hub},
+  year      = {2026},
+  note      = {Publicado em 24 out. 2026},
+  url       = {https://community.databricks.com/t5/genie-hub/which-context-improves-genie-accuracy-most-i-benchmarked-4/td-p/174513},
+  urlaccessdate = {18 nov. 2026}
+}
+
+% Só a v1 no arXiv; venue revisado não confirmado.
+@misc{sequeda2023benchmark,
+  author    = {Sequeda, Juan and Allemang, Dean and Jacob, Bryon},
+  title     = {A benchmark to understand the role of knowledge graphs on large language model's accuracy for question answering on enterprise {SQL} databases},
+  howpublished = {{arXiv}:2311.07509},
+  year      = {2023},
+  url       = {https://arxiv.org/abs/2311.07509},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{rumiantsau2026semantic,
+  author    = {Rumiantsau, Michael and Fokeev, Ivan},
+  title     = {Semantic layers for reliable {LLM}-powered data analytics: a paired benchmark of accuracy and hallucination across three frontier models},
+  howpublished = {{arXiv}:2604.25149},
+  year      = {2026},
+  url       = {https://arxiv.org/abs/2604.25149},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{pillai2026ground,
+  author    = {Pillai, Aravind Sasidharan},
+  title     = {{GROUND}: reducing hallucinations in {LLM}-based enterprise analytics through governed semantic definitions},
+  howpublished = {{arXiv}:2608.26157},
+  year      = {2026},
+  url       = {https://arxiv.org/abs/2608.26157},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{ganz2023semanticlayer,
+  author    = {Ganz, Jason},
+  title     = {Semantic layer as the data interface for {LLMs}},
+  howpublished = {The Analytics Engineering Roundup, dbt Labs},
+  year      = {2023},
+  note      = {Publicado em 26 nov. 2023},
+  url       = {https://roundup.getdbt.com/p/semantic-layer-as-the-data-interface},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{ganz2026benchmark,
+  author    = {Ganz, Jason and Perigaud, Benoit},
+  title     = {Semantic layer vs. text-to-{SQL}: 2026 benchmark update},
+  howpublished = {{dbt} Developer Blog},
+  year      = {2026},
+  note      = {Publicado em 7 abr. 2026},
+  url       = {https://docs.getdbt.com/blog/semantic-layer-vs-text-to-sql-2026},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{jones2024semanticlayer,
+  author    = {Jones, Alexis},
+  title     = {Semantic layer: what it is and when to adopt it},
+  howpublished = {dbt Labs Blog},
+  year      = {2024},
+  note      = {Publicado em 16 jul. 2024},
+  url       = {https://www.getdbt.com/blog/semantic-layer-introduction},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{ehrlinger2021catalogs,
+  author    = {Ehrlinger, Lisa and Schrott, Johannes and Melichar, Martin and Kirchmayr, Nicolas and W{\"o}{\ss}, Wolfram},
+  title     = {Data catalogs: a systematic literature review and guidelines to implementation},
+  booktitle = {Database and Expert Systems Applications: DEXA 2021 Workshops},
+  series    = {Communications in Computer and Information Science},
+  pages     = {148--158},
+  year      = {2021},
+  address   = {Cham},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-030-87101-7_15}
+}
+
+@book{dama2017dmbok,
+  author    = {{DAMA INTERNATIONAL}},
+  title     = {{DAMA-DMBOK}: data management body of knowledge},
+  edition   = {2},
+  address   = {Basking Ridge},
+  publisher = {Technics Publications},
+  year      = {2017},
+  isbn      = {9781634622349}
+}
+
+@misc{dbt_semanticlayer,
+  author    = {{DBT LABS}},
+  title     = {dbt {Semantic} {Layer}},
+  howpublished = {{dbt} Developer Hub},
+  year      = {2026},
+  url       = {https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{dbt_slarchitecture,
+  author    = {{DBT LABS}},
+  title     = {dbt {Semantic} {Layer} architecture},
+  howpublished = {{dbt} Developer Hub},
+  year      = {2026},
+  url       = {https://docs.getdbt.com/docs/use-dbt-semantic-layer/sl-architecture},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{dbt_metricflow,
+  author    = {{DBT LABS}},
+  title     = {About {MetricFlow}},
+  howpublished = {{dbt} Developer Hub},
+  year      = {2026},
+  url       = {https://docs.getdbt.com/docs/build/about-metricflow},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{databricks_comment,
+  author    = {{DATABRICKS}},
+  title     = {{COMMENT ON}},
+  howpublished = {Databricks Documentation},
+  year      = {2026},
+  url       = {https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-comment},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{databricks_metricviews,
+  author    = {{DATABRICKS}},
+  title     = {Unity {Catalog} metric views},
+  howpublished = {Databricks Documentation},
+  year      = {2026},
+  url       = {https://docs.databricks.com/aws/en/metric-views/},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{looker_lookml,
+  author    = {{GOOGLE CLOUD}},
+  title     = {Introduction to {LookML}},
+  howpublished = {Looker Documentation},
+  year      = {2026},
+  url       = {https://docs.cloud.google.com/looker/docs/what-is-lookml},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{cube_datamodel,
+  author    = {{CUBE DEV}},
+  title     = {Data modeling: getting started},
+  howpublished = {Cube Documentation},
+  year      = {2026},
+  url       = {https://docs.cube.dev/docs/data-modeling/overview},
+  urlaccessdate = {18 nov. 2026}
+}
+
+% =============================================================================
+% Governança e segurança de agentes
+% =============================================================================
+@inproceedings{pedro2025prompt,
+  author    = {Pedro, Rodrigo and Coimbra, Miguel E. and Castro, Daniel and Carreira, Paulo and Santos, Nuno},
+  title     = {Prompt-to-{SQL} injections in {LLM}-integrated web applications: risks and defenses},
+  booktitle = {IEEE/ACM 47th International Conference on Software Engineering (ICSE)},
+  pages     = {1768--1780},
+  year      = {2025},
+  address   = {Ottawa},
+  publisher = {IEEE},
+  doi       = {10.1109/ICSE55347.2025.00007}
+}
+
+@misc{owasp2025llm,
+  author    = {{OWASP GEN AI SECURITY PROJECT}},
+  title     = {2025 top 10 risk \& mitigations for {LLMs} and gen {AI} apps},
+  howpublished = {OWASP Foundation},
+  year      = {2024},
+  url       = {https://genai.owasp.org/llm-top-10/},
+  urlaccessdate = {18 nov. 2026}
+}
+
+% =============================================================================
+% Modelos de linguagem e agentes
+% =============================================================================
+% Páginas 5998-6008 segundo metadados do NeurIPS (BibTeX oficial sem páginas).
+@inproceedings{vaswani2017attention,
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  title     = {Attention is all you need},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {30},
+  pages     = {5998--6008},
+  year      = {2017},
+  publisher = {Curran Associates},
+  url       = {https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{zhao2023survey,
+  author    = {Zhao, Wayne Xin and Zhou, Kun and Li, Junyi and Tang, Tianyi and Wang, Xiaolei and Hou, Yupeng and Min, Yingqian and Zhang, Beichen and Zhang, Junjie and Dong, Zican and Du, Yifan and Yang, Chen and Chen, Yushuo and Chen, Zhipeng and Jiang, Jinhao and Ren, Ruiyang and Li, Yifan and Tang, Xinyu and Liu, Zikang and Liu, Peiyu and Nie, Jian-Yun and Wen, Ji-Rong},
+  title     = {A survey of large language models},
+  howpublished = {{arXiv}:2303.18223},
+  year      = {2023},
+  note      = {Vers{\~a}o 19, 18 mar. 2026},
+  url       = {https://arxiv.org/abs/2303.18223},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{holtzman2020curious,
+  author    = {Holtzman, Ari and Buys, Jan and Du, Li and Forbes, Maxwell and Choi, Yejin},
+  title     = {The curious case of neural text degeneration},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2020},
+  url       = {https://arxiv.org/abs/1904.09751},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{he2025nondeterminism,
+  author    = {He, Horace},
+  title     = {Defeating nondeterminism in {LLM} inference},
+  howpublished = {Thinking Machines Lab: Connectionism},
+  year      = {2025},
+  doi       = {10.64434/tml.20250910},
+  url       = {https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{atil2025nondeterminism,
+  author    = {At{\i}l, Berk and Aykent, Sarp and Chittams, Alexa and Fu, Lisheng and Passonneau, Rebecca J. and Radcliffe, Evan and Rajagopal, Guru Rajan and Sloan, Adam and Tudrej, Tomasz and Ture, Ferhan and Wu, Zhe and Xu, Lixinyu and Baldwin, Breck},
+  title     = {Non-determinism of ``deterministic'' {LLM} system settings in hosted environments},
+  booktitle = {Proceedings of the 5th Workshop on Evaluation and Comparison of NLP Systems},
+  pages     = {135--148},
+  year      = {2025},
+  address   = {Mumbai},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2025.eval4nlp-1.12}
+}
+
+@article{wang2024agents,
+  author    = {Wang, Lei and Ma, Chen and Feng, Xueyang and Zhang, Zeyu and Yang, Hao and Zhang, Jingsen and Chen, Zhiyuan and Tang, Jiakai and Chen, Xu and Lin, Yankai and Zhao, Wayne Xin and Wei, Zhewei and Wen, Jirong},
+  title     = {A survey on large language model based autonomous agents},
+  journal   = {Frontiers of Computer Science},
+  volume    = {18},
+  number    = {6},
+  pages     = {186345},
+  year      = {2024},
+  doi       = {10.1007/s11704-024-40231-1}
+}
+
+@misc{openai2025gptoss,
+  author    = {{OPENAI}},
+  title     = {gpt-oss-120b \& gpt-oss-20b model card},
+  howpublished = {{arXiv}:2508.10925},
+  year      = {2025},
+  url       = {https://arxiv.org/abs/2508.10925},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{qwen2026qwen38,
+  author    = {{QWEN TEAM}},
+  title     = {{Qwen3.8-27B}: model card},
+  howpublished = {Hugging Face},
+  year      = {2026},
+  url       = {https://huggingface.co/Qwen/Qwen3.8-27B},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{groq_models,
+  author    = {{GROQ}},
+  title     = {Supported models},
+  howpublished = {GroqDocs},
+  year      = {2026},
+  url       = {https://console.groq.com/docs/models},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{groq_openai,
+  author    = {{GROQ}},
+  title     = {{OpenAI} compatibility},
+  howpublished = {GroqDocs},
+  year      = {2026},
+  url       = {https://console.groq.com/docs/openai},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{groq_ratelimits,
+  author    = {{GROQ}},
+  title     = {Rate limits},
+  howpublished = {GroqDocs},
+  year      = {2026},
+  url       = {https://console.groq.com/docs/rate-limits},
+  urlaccessdate = {18 nov. 2026}
+}
+
+% =============================================================================
+% Estatística
+% =============================================================================
+@article{mcnemar1947note,
+  author    = {McNemar, Quinn},
+  title     = {Note on the sampling error of the difference between correlated proportions or percentages},
+  journal   = {Psychometrika},
+  volume    = {12},
+  number    = {2},
+  pages     = {153--157},
+  year      = {1947},
+  doi       = {10.1007/BF02295996}
+}
+
+@article{wilcoxon1945individual,
+  author    = {Wilcoxon, Frank},
+  title     = {Individual comparisons by ranking methods},
+  journal   = {Biometrics Bulletin},
+  volume    = {1},
+  number    = {6},
+  pages     = {80--83},
+  year      = {1945},
+  doi       = {10.2307/3001968}
+}
+
+@article{holm1979simple,
+  author    = {Holm, Sture},
+  title     = {A simple sequentially rejective multiple test procedure},
+  journal   = {Scandinavian Journal of Statistics},
+  volume    = {6},
+  number    = {2},
+  pages     = {65--70},
+  year      = {1979}
+}
+
+@article{shaffer1986modified,
+  author    = {Shaffer, Juliet Popper},
+  title     = {Modified sequentially rejective multiple test procedures},
+  journal   = {Journal of the American Statistical Association},
+  volume    = {81},
+  number    = {395},
+  pages     = {826--831},
+  year      = {1986},
+  doi       = {10.1080/01621459.1986.10478341}
+}
+
+@article{agresti1998approximate,
+  author    = {Agresti, Alan and Coull, Brent A.},
+  title     = {Approximate is better than ``exact'' for interval estimation of binomial proportions},
+  journal   = {The American Statistician},
+  volume    = {52},
+  number    = {2},
+  pages     = {119--126},
+  year      = {1998},
+  doi       = {10.1080/00031305.1998.10480550}
+}
+
+@book{agresti2013categorical,
+  author    = {Agresti, Alan},
+  title     = {Categorical data analysis},
+  edition   = {3},
+  address   = {Hoboken},
+  publisher = {Wiley},
+  year      = {2013},
+  isbn      = {978-0-470-46363-5}
+}
+
+@article{fagerland2013mcnemar,
+  author    = {Fagerland, Morten W. and Lydersen, Stian and Laake, Petter},
+  title     = {The {McNemar} test for binary matched-pairs data: mid-p and asymptotic are better than exact conditional},
+  journal   = {BMC Medical Research Methodology},
+  volume    = {13},
+  pages     = {91},
+  year      = {2013},
+  doi       = {10.1186/1471-2288-13-91}
+}
+
+% =============================================================================
+% Software
+% =============================================================================
+@misc{postgresql16,
+  author    = {{THE POSTGRESQL GLOBAL DEVELOPMENT GROUP}},
+  title     = {{PostgreSQL} 16 documentation},
+  year      = {2026},
+  url       = {https://www.postgresql.org/docs/16/index.html},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{postgres_comment,
+  author    = {{THE POSTGRESQL GLOBAL DEVELOPMENT GROUP}},
+  title     = {{COMMENT}},
+  howpublished = {PostgreSQL 16 Documentation},
+  year      = {2026},
+  url       = {https://www.postgresql.org/docs/16/sql-comment.html},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@misc{sqlglot,
+  author    = {Mao, Toby},
+  title     = {{SQLGlot}: {Python} {SQL} parser and transpiler},
+  howpublished = {GitHub},
+  year      = {2026},
+  url       = {https://github.com/tobymao/sqlglot},
+  urlaccessdate = {18 nov. 2026}
+}
+
+@inproceedings{pandas2010,
+  author    = {McKinney, Wes},
+  title     = {Data structures for statistical computing in {Python}},
+  booktitle = {Proceedings of the 9th Python in Science Conference},
+  pages     = {56--61},
+  year      = {2010},
+  doi       = {10.25080/Majora-92bf1922-00a}
 }

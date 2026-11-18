@@ -2,8 +2,8 @@
 % 2 FUNDAMENTAÇÃO TEÓRICA — primeira versão (18/11/2026).
 % Define só os conceitos que os capítulos 4 a 6 usam, sem histórico
 % exaustivo (skill estruturacao-introducao-logica: foco, não erudição).
-% O repositório não tem literatura: definições de livro-texto vão escritas
-% com \pendente{citação}; nada aqui traz número de outro trabalho.
+% Citações conferidas na fonte primária em 18/11/2026 (ver referencias.bib);
+% nada aqui traz número de outro trabalho.
 % Fontes internas: docs/architecture.md (atenção, "garantia"),
 % docs/semantic_layer_mapping.md (cinco categorias), 04-metodologia
 % (sec:avaliacao, sec:analise). Fórmulas de McNemar e Holm conferidas
@@ -25,11 +25,11 @@ pareados usados na análise.
 
 Um modelo de linguagem de grande escala é uma rede neural treinada para
 prever o próximo \textit{token} de um texto a partir dos anteriores
-\pendente{citação}. Os modelos atuais usam a arquitetura
+\cite{zhao2023survey}. Os modelos atuais usam a arquitetura
 \textit{Transformer}, cujo componente central é o mecanismo de atenção: a
 cada \textit{token} gerado, o modelo calcula pesos sobre todos os
 \textit{tokens} da entrada e combina suas representações de acordo com
-esses pesos \pendente{citação}. A resposta é produzida um \textit{token}
+esses pesos \cite{vaswani2017attention}. A resposta é produzida um \textit{token}
 por vez, e cada \textit{token} gerado passa a fazer parte da entrada do
 passo seguinte.
 
@@ -42,24 +42,25 @@ ser executada. Essa propriedade é a base da distinção, usada na
 \autoref{sec:garantia}, entre instrução e garantia.
 
 A temperatura controla o grau de aleatoriedade na escolha de cada
-\textit{token}: com temperatura zero, o modelo escolhe sempre o
-\textit{token} mais provável \pendente{citação}. Mesmo assim, servidores de
-inferência não garantem saídas idênticas entre chamadas, por diferenças de
-execução numérica e de agrupamento das requisições
-\pendente{citação}.
+\textit{token}: as pontuações do modelo são divididas pela temperatura
+antes de virarem probabilidades, e valores baixos concentram a
+probabilidade nos \textit{tokens} mais prováveis \cite{holtzman2020curious}.
+No limite, a escolha se aproxima de sempre tomar o \textit{token} mais
+provável. O provedor usado neste trabalho converte a temperatura zero em
+um valor positivo muito pequeno ($10^{-8}$) \cite{groq_openai}. Mesmo com
+temperatura baixa, servidores de inferência não garantem saídas idênticas
+entre chamadas: o resultado numérico de cada passo depende de como as
+requisições são agrupadas no servidor, e a carga muda esse agrupamento
+\cite{he2025nondeterminism}. Em serviços acessados por API, configurações
+ditas determinísticas produziram respostas e acurácias diferentes entre
+execuções repetidas \cite{atil2025nondeterminism}.
 
 Modelos de pesos abertos são aqueles cujos parâmetros treinados são
 publicados e podem ser executados por terceiros, em infraestrutura
-própria ou de um provedor de inferência \pendente{citação}. Neste
+própria ou de um provedor de inferência \cite{openai2025gptoss}. Neste
 trabalho, os dois modelos avaliados são de pesos abertos e foram acessados
 por um provedor de inferência gratuito (\autoref{sec:modelos}).
 
-\begin{esboco}
-  Candidatos: Transformer [vaswani2017attention]; um survey de LLMs;
-  model cards de gpt-oss e Qwen; documentação da Groq sobre
-  determinismo/temperatura, se houver; trabalho sobre não determinismo de
-  inferência com temperatura zero.
-\end{esboco}
 
 % -----------------------------------------------------------------------------
 \section{Tradução de linguagem natural para SQL}
@@ -68,14 +69,15 @@ por um provedor de inferência gratuito (\autoref{sec:modelos}).
 A tradução de linguagem natural para SQL (\textit{text-to-SQL}) é a tarefa
 de, dada uma pergunta em linguagem natural e o esquema de um banco de dados
 relacional, produzir uma consulta SQL cujo resultado responde à pergunta
-\pendente{citação}. As abordagens evoluíram de sistemas baseados em regras
+\cite{hong2024survey}. As abordagens evoluíram de sistemas baseados em regras
 e gramáticas para modelos neurais treinados na tarefa e, mais recentemente,
 para modelos de linguagem de uso geral orientados por \textit{prompt}
-\pendente{citação}. Neste último caso, o modelo não é treinado sobre o
+\cite{hong2024survey,shi2024survey,liu2025survey}. Neste último caso, o
+modelo não é treinado sobre o
 banco: tudo o que ele sabe do banco é o que está no \textit{prompt}.
 
 Um sistema de \textit{text-to-SQL} pode ser avaliado de duas formas
-principais \pendente{citação}. A correspondência exata compara o texto da
+principais \cite{yu2018spider,shi2024survey}. A correspondência exata compara o texto da
 consulta gerada com o de uma consulta de referência, e penaliza consultas
 escritas de outra forma que produzem o mesmo resultado. A acurácia de
 execução executa as duas consultas na mesma base e compara os resultados.
@@ -88,12 +90,6 @@ Neste trabalho, o agente é o programa que recebe a pergunta, monta o
 no banco (\autoref{sec:agente}). O termo é usado em sentido estrito: o
 agente não planeja, não usa ferramentas e não encadeia chamadas.
 
-\begin{esboco}
-  Candidatos: survey de text-to-SQL com LLM [hong2024survey;
-  shi2024survey]; Spider e BIRD para as métricas (exact match, execution
-  accuracy) [yu2018spider; li2023bird]; definição de agente baseado em
-  LLM (a mesma pendente da Introdução).
-\end{esboco}
 
 % -----------------------------------------------------------------------------
 \section{Representação do esquema no \textit{prompt}}
@@ -104,9 +100,10 @@ descrever o esquema é parte do sistema. As formas mais usadas são o texto
 de definição das tabelas, com nomes de colunas, tipos e chaves; descrições
 em linguagem natural de tabelas e colunas; exemplos de pares de pergunta e
 consulta (\textit{few-shot}); e amostras de linhas das tabelas
-\pendente{citação}. Em bancos grandes, uma etapa anterior seleciona as
+\cite{rajkumar2022evaluating,gao2024dail}. Em bancos grandes, uma etapa anterior seleciona as
 tabelas e colunas relevantes para a pergunta (\textit{schema linking}),
-para que o esquema caiba no \textit{prompt} \pendente{citação}.
+para que o esquema caiba no \textit{prompt}
+\cite{pourreza2023din,talaei2024chess}.
 
 Cada acréscimo aumenta o número de \textit{tokens} de entrada e, com ele, o
 custo e o tempo de cada chamada. Este trabalho não usa exemplos, amostras
@@ -116,11 +113,6 @@ seguem as formas acima: a definição das tabelas e a definição acrescida de
 descrições de colunas. O terceiro acrescenta um tipo de conteúdo diferente,
 apresentado na seção seguinte.
 
-\begin{esboco}
-  Candidatos: DAIL-SQL (comparação de representações do esquema)
-  [gao2024dail]; avaliação zero-shot do ChatGPT [liu2023chatgpt];
-  DIN-SQL [pourreza2023din]; CHESS [talaei2024chess].
-\end{esboco}
 
 % -----------------------------------------------------------------------------
 \section{Catálogo de dados e camada semântica}
@@ -128,14 +120,15 @@ apresentado na seção seguinte.
 
 Um catálogo de dados registra metadados sobre as tabelas de uma
 organização, entre eles a descrição de cada tabela e coluna
-\pendente{citação}. Em bancos relacionais, essas descrições costumam ser
-mantidas como comentários associados aos objetos
-(\arq{COMMENT ON TABLE}, \arq{COMMENT ON COLUMN}). Uma descrição de
+\cite{ehrlinger2021catalogs,dama2017dmbok}. Em bancos relacionais, essas
+descrições costumam ser mantidas como comentários associados aos objetos
+(\arq{COMMENT ON TABLE}, \arq{COMMENT ON COLUMN})
+\cite{postgres_comment,databricks_comment}. Uma descrição de
 catálogo diz o que um objeto significa, e está presa a ele.
 
 Uma camada semântica é um conjunto de definições mantido entre as tabelas
 físicas e quem consulta os dados, que descreve a base em termos de negócio
-e determina como ela deve ser consultada \pendente{citação}. As ferramentas
+e determina como ela deve ser consultada \cite{jones2024semanticlayer}. As ferramentas
 industriais diferem na sintaxe, mas carregam as mesmas cinco categorias de
 informação (\arq{docs/semantic_layer_mapping.md}):
 \begin{alineas}
@@ -157,18 +150,13 @@ catálogo e o nível semântico.
 
 Nas ferramentas industriais, a camada semântica é consultada por meio de
 um compilador: o consumidor pede uma medida e um agrupamento, e o
-compilador gera o SQL a partir das definições \pendente{citação}. Neste
+compilador gera o SQL a partir das definições
+\cite{dbt_slarchitecture,dbt_metricflow,looker_lookml,cube_datamodel}. Neste
 trabalho, a camada semântica é apenas texto anexado ao \textit{prompt}, e o
 SQL é escrito pelo modelo. Por isso, o contexto semântico inclui também
 regras sobre a forma da resposta, que nas ferramentas industriais são
 asseguradas pelo compilador (\autoref{sec:industriais}).
 
-\begin{esboco}
-  Candidatos: documentação oficial do dbt Semantic Layer/MetricFlow, Unity
-  Catalog (COMMENT, metric views), LookML, Cube; referência de catálogo de
-  dados/metadados (DAMA-DMBOK ou equivalente); documentação do PostgreSQL
-  para COMMENT.
-\end{esboco}
 
 % -----------------------------------------------------------------------------
 \section{Avaliação estatística pareada}
@@ -176,17 +164,18 @@ asseguradas pelo compilador (\autoref{sec:industriais}).
 
 Quando as mesmas unidades são observadas em duas condições, a comparação
 deve usar testes pareados, que consideram a diferença dentro de cada
-unidade \pendente{citação}. Neste trabalho, as unidades são as perguntas,
+unidade \cite{agresti2013categorical}. Neste trabalho, as unidades são as perguntas,
 e cada uma é respondida nas três condições.
 
 Para um desfecho binário, como acerto ou erro, o teste de McNemar compara
-duas condições usando apenas os pares discordantes \pendente{citação}.
+duas condições usando apenas os pares discordantes
+\cite{mcnemar1947note}.
 Sejam $b$ o número de perguntas acertadas na primeira condição e erradas na
 segunda, e $c$ o número de perguntas na situação inversa, com $n = b + c$.
 Sob a hipótese nula de que as duas condições têm a mesma probabilidade de
 acerto, $b$ segue uma distribuição binomial com $n$ ensaios e probabilidade
-$1/2$. A versão exata do teste usa essa distribuição diretamente; o valor-p
-bilateral é
+$1/2$. A versão exata do teste usa essa distribuição diretamente
+\cite{fagerland2013mcnemar}; o valor-p bilateral é
 \begin{equation}
   p = \min\left(1,\; 2 \sum_{k=0}^{\min(b,c)} \binom{n}{k}
       \left(\frac{1}{2}\right)^{n}\right).
@@ -198,12 +187,12 @@ porque não informam sobre a diferença entre elas.
 Para uma medida contínua pareada, como a latência, o teste de postos
 sinalizados de Wilcoxon ordena os valores absolutos das diferenças dentro
 de cada par e compara a soma dos postos das diferenças positivas com a das
-negativas, sem supor distribuição normal \pendente{citação}.
+negativas, sem supor distribuição normal \cite{wilcoxon1945individual}.
 
 Quando uma mesma família de dados é submetida a vários testes, a
 probabilidade de ao menos um falso positivo cresce com o número de testes.
 O procedimento de Holm controla essa probabilidade para a família
-\pendente{citação}. Ordenados os $m$ valores-p brutos em ordem crescente,
+\cite{holm1979simple}. Ordenados os $m$ valores-p brutos em ordem crescente,
 $p_{(1)} \le \dots \le p_{(m)}$, o valor-p ajustado do $i$-ésimo é
 \begin{equation}
   \tilde{p}_{(i)} = \max_{j \le i}\; \min\bigl(1,\; (m - j + 1)\, p_{(j)}\bigr),
@@ -212,17 +201,14 @@ $p_{(1)} \le \dots \le p_{(m)}$, o valor-p ajustado do $i$-ésimo é
 e cada hipótese é rejeitada quando seu valor-p ajustado é menor que o
 nível de significância. O procedimento é uniformemente mais poderoso que
 o ajuste de Bonferroni, que multiplica todos os valores-p por $m$
-\pendente{citação}. Neste trabalho, $m = 3$ para cada modelo: os três
+\cite{shaffer1986modified}. Neste trabalho, $m = 3$ para cada modelo: os três
 pares de condições (\autoref{sec:analise}).
 
 A acurácia de cada condição é acompanhada de um intervalo de confiança
 de 95\% pela aproximação normal da proporção,
 $\hat{p} \pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/N}$, em que $\hat{p}$ é a
-proporção de acertos e $N$ o número de perguntas \pendente{citação}.
+proporção de acertos e $N$ o número de perguntas
+\cite{agresti1998approximate}. Com amostras pequenas, esse intervalo tem
+cobertura abaixo da nominal, o que reforça a leitura conjunta com os
+testes pareados.
 
-\begin{esboco}
-  Candidatos: McNemar [mcnemar1947note]; Wilcoxon
-  [wilcoxon1945individual]; Holm [holm1979simple]; um livro-texto de
-  estatística não paramétrica ou de bioestatística para testes pareados e
-  para o intervalo de confiança da proporção.
-\end{esboco}

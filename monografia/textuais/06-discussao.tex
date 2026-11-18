@@ -35,9 +35,10 @@ os limites dentro dos quais elas valem.
 O delineamento usa procedimentos estabelecidos para comparar condições
 sobre os mesmos itens. A correção é uma variável binária observada nas
 mesmas 40 perguntas em todas as condições, situação para a qual o teste de
-McNemar exato é o procedimento usual \pendente{citação}; o ajuste de Holm
-controla o erro por família nas três comparações de cada modelo
-\pendente{citação}. A ordem das condições foi contrabalanceada, cada
+McNemar exato é o procedimento usual
+\cite{mcnemar1947note,fagerland2013mcnemar}; o ajuste de Holm controla o
+erro por família nas três comparações de cada modelo
+\cite{holm1979simple}. A ordem das condições foi contrabalanceada, cada
 chamada é independente, e os controles de congelamento e de vazamento
 (\autoref{sec:controles}) garantem que as três condições diferem apenas
 no contexto.
@@ -66,7 +67,8 @@ regras ao das perguntas; um banco de perguntas escrito por terceiros
 depois do congelamento do contexto afastaria essa possibilidade.
 
 A geração com temperatura zero, sem semente fixa, não é estritamente
-determinística, e a coleta final usou uma repetição por condição. Essa
+determinística em serviços de inferência \cite{atil2025nondeterminism},
+e a coleta final usou uma repetição por condição. Essa
 variabilidade afeta perguntas individuais, mas não explica um padrão como
 o do \arq{qwen3.8-27b}, em que todos os 11 pares discordantes entre
 catálogo e semântica favorecem a mesma condição.
@@ -104,6 +106,23 @@ proporção entre os dois saltos depende, portanto, da composição do banco
 de perguntas, e o que o estudo estabelece é a natureza distinta das duas
 camadas, e não o tamanho geral de cada salto.
 
+Essa leitura é compatível com estudos em que as descrições de colunas
+trouxeram ganhos maiores. Em um banco de telemetria da Intel, com 30
+perguntas e o modelo proprietário GPT-4.1, acrescentar descrições de
+tabelas e colunas foi a maior melhora isolada, de 43,3\% para 56,7\%, e os
+autores associam o efeito aos nomes abreviados e à terminologia
+específica daquele esquema \cite{bouattour2026prompting}. No BIRD,
+descrições de colunas geradas automaticamente também elevaram a acurácia
+de vários modelos \cite{wretblad2024synthetic}. Nesses casos, uma parte
+maior das perguntas depende de interpretar o que as colunas significam,
+que é justamente o erro que o catálogo resolve. Na base deste trabalho, os
+nomes de coluna são em grande parte legíveis, e a maior parte dos erros
+está nas classes que dependem de regras. Já o ganho de um documento
+semântico escrito à mão, sem separação entre descrições e regras, foi
+medido com três modelos proprietários, de 17 a 23 pontos percentuais
+\cite{rumiantsau2026semantic}, na mesma direção do ganho total da
+condição semântica observado aqui.
+
 A conclusão não depende do critério de correção conservador. É verdade
 que o avaliador conta como erro as consultas com colunas a mais
 (\autoref{sec:avaliacao}), e que isso pesa sobre a classe C, cometida
@@ -121,16 +140,18 @@ diretamente no SQL gerado, como mostram os exemplos da
 \section{Comparação com o benchmark da Databricks}
 \label{sec:databricks}
 
-O padrão de três níveis observado neste trabalho é o mesmo relatado pelo
-benchmark da comunidade Databricks ``Which context improves Genie accuracy
-most?'' \pendente{referência primária do benchmark: autor, URL e data de
-acesso}, que inspirou o desenho (decisão D-008). Esse benchmark comparou
-níveis de contexto equivalentes para o assistente de consultas da
-plataforma: apenas as tabelas; as tabelas com as descrições do catálogo
-(Unity Catalog); e as tabelas com descrições, \textit{metric views} e
-instruções. Nos três conjuntos de resultados, a acurácia cresce a cada
-nível, o catálogo acrescenta pouco e o maior salto ocorre na passagem para
-a camada semântica (\autoref{tab:databricks}).
+O padrão de três níveis observado neste trabalho é o mesmo relatado no
+\textit{benchmark} publicado na comunidade Databricks
+\cite{databricks2026genie}, que inspirou o desenho (decisão D-008). Esse
+relato acrescentou camadas cumulativas de contexto ao agente de consultas
+da plataforma (Genie): apenas as tabelas; as descrições do catálogo (Unity
+Catalog); as \textit{metric views}; exemplos de SQL; e instruções em
+texto. As três primeiras correspondem às três condições deste trabalho.
+Nos três conjuntos de resultados, a acurácia cresce a cada nível, o
+catálogo acrescenta pouco e o maior salto ocorre na passagem para a camada
+semântica (\autoref{tab:databricks}). No relato, as duas camadas seguintes
+quase não alteraram o resultado: os exemplos de SQL levaram a 100\%, e as
+instruções em texto, a 97\%.
 
 \begin{table}[htb]
   \centering
@@ -142,26 +163,28 @@ a camada semântica (\autoref{tab:databricks}).
     \midrule
     Técnica (só tabelas)           & 62,5\% & 57,5\% & 40\% \\
     Catálogo (com descrições)      & 70,0\% & 60,0\% & 47\% \\
-    Semântica (com regras/métricas) & 82,5\% & 87,5\% & 97\% \\
+    Semântica (regras / \textit{metric views}) & 82,5\% & 87,5\% & 97\% \\
     \midrule
     Ganho do catálogo              & +7,5 pp & +2,5 pp & +7 pp \\
     Ganho da camada semântica      & +12,5 pp & +27,5 pp & +50 pp \\
     \bottomrule
   \end{tabular}
   \fonte{Elaborado pelo autor a partir da \autoref{tab:acuracia} e de
-    \arq{docs/decisions.md} (D-008), que registra os valores do benchmark
-    \pendente{citação}.}
+    \citeonline{databricks2026genie} (três primeiras camadas).}
 \end{table}
 
 A comparação é de forma, e não de valores absolutos. Os dois estudos
 diferem na base de dados, nas perguntas, nos modelos, no agente e no
-critério de correção. O benchmark avalia um produto comercial com agente
-próprio, e seu nível mais alto inclui \textit{metric views}, definições
-de métricas executadas pela plataforma, além de instruções em texto. Neste
-trabalho, todo o contexto é texto enviado ao modelo, e o agente gera o SQL
-sem camada de compilação. \pendente{confirmar na fonte primária o número
-de perguntas, a base e o modelo usados no benchmark, e ajustar este
-parágrafo}
+critério de correção. O relato usa a base de exemplo
+\arq{samples.wanderbricks}, com 30 perguntas (15 cenários, cada um em
+duas formulações) e duas execuções por camada, e não informa o modelo
+usado pelo agente nem o critério de correção além da existência de uma
+consulta de referência por pergunta \cite{databricks2026genie}. Não há
+teste estatístico. O agente é um produto comercial, e a camada que produz
+o salto são \textit{metric views}, definições de métricas executadas pela
+plataforma \cite{databricks_metricviews}. Neste trabalho, todo o contexto
+é texto enviado ao modelo, e o agente gera o SQL sem camada de
+compilação.
 
 O teto mais baixo deste trabalho está associado a erros que nenhum nível
 de contexto resolve. As classes D a G reúnem convenções de tipo temporal e
@@ -200,7 +223,7 @@ LookML (Looker) e Cube (\autoref{qua:industriais}).
     Cabeçalho de domínio & descrição do modelo semântico & comentário do
       esquema e etiquetas & rótulo e descrição do modelo & título e
       descrição do \textit{cube} \\ \hline
-    \arq{money_fields}, \arq{count_fields} & \textit{measures} & comentário
+    \arq{money_fields}, \arq{count_fields} & métricas simples & comentário
       de coluna e \textit{metric views} & \textit{measure} & \textit{measures}
       \\ \hline
     \arq{grain_rules} & \textit{entities} e chave primária & \textit{metric
@@ -212,27 +235,33 @@ LookML (Looker) e Cube (\autoref{qua:industriais}).
     \arq{referential_rules} & \textit{entities} estrangeiras e junções &
       restrições de chave e linhagem & \textit{join} com relacionamento &
       \textit{joins} com relacionamento \\ \hline
-    \arq{synonyms} & rótulos (parcial) & etiquetas e glossário & rótulos e
+    \arq{synonyms} & rótulos (parcial) & sinônimos em \textit{metric views} & rótulos e
       descrições por campo & títulos e metadados \\ \hline
     \arq{response_style} & \multicolumn{4}{c|}{sem correspondente: resolvido
       pela compilação da consulta} \\ \hline
   \end{tabularx}
   \fonte{Elaborado pelo autor a partir de
-    \arq{docs/semantic_layer_mapping.md}.
-    \pendente{citar a documentação oficial de cada ferramenta}}
+    \arq{docs/semantic_layer_mapping.md} e da documentação de cada
+    ferramenta: \citeonline{dbt_metricflow}, \citeonline{databricks_comment},
+    \citeonline{databricks_metricviews}, \citeonline{looker_lookml} e
+    \citeonline{cube_datamodel}.}
 \end{quadro}
 
 As duas classes de erro que mais contribuíram para o ganho correspondem às
 duas diferenças entre este contexto e as ferramentas industriais. O bloco
 \arq{response_style} não tem correspondente: nas quatro ferramentas, o
 consumidor pede uma métrica e um agrupamento, e o compilador da camada
-semântica gera uma consulta determinística, sem colunas não pedidas. O
+semântica gera uma consulta determinística, sem colunas não pedidas
+\cite{dbt_slarchitecture,looker_lookml,cube_datamodel}. O
 bloco \arq{referential_rules} é mais explícito aqui: nas ferramentas, o
 relacionamento é declarado e o compilador gera a junção. Neste trabalho,
 quem escreve o SQL é o modelo, e por isso a disciplina de formato e a
 regra de junção precisam ser dadas como instrução. Em um agente que
 consulte a camada semântica por meio do compilador, os erros das classes B
-e C são evitados por construção.
+e C são evitados por construção. Comparações publicadas entre o modelo
+escrevendo SQL diretamente e o modelo consultando uma camada semântica ou
+um grafo de conhecimento sobre a mesma base relataram acurácia maior no
+segundo caso \cite{sequeda2023benchmark,ganz2026benchmark}.
 
 Quando o agente gera SQL a partir das definições dessas ferramentas, elas
 chegam ao modelo como texto no prompt, exatamente como aqui. O que muda
@@ -250,7 +279,8 @@ observado com plataformas proprietárias.
 O alcance dessa conclusão é o de esquemas pequenos e de um agente simples.
 O esquema tem 11 tabelas, e o contexto inteiro cabe no prompt; em esquemas
 maiores, é preciso selecionar as tabelas relevantes antes de gerar a
-consulta, etapa que este estudo não avalia. O agente faz uma chamada por
+consulta \cite{talaei2024chess,lei2025spider2}, etapa que este estudo não
+avalia. O agente faz uma chamada por
 tentativa, sem ferramentas, exemplos ou recuperação de contexto, e a base
 pertence a um único domínio comercial, com perguntas em português.
 

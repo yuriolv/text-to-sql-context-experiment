@@ -120,7 +120,7 @@ apenas para os testes automatizados do código e não participa do
 experimento.
 
 A opção por uma base real descaracterizada, em vez de um \textit{benchmark}
-acadêmico com esquema preparado para avaliação, é deliberada. A base carrega
+acadêmico público \cite{yu2018spider,li2023bird}, é deliberada. A base carrega
 características típicas de dados comerciais autênticos: referências órfãs
 entre tabelas, datas registradas por extenso em português, nomes de coluna
 que misturam termos de negócio e convenções técnicas, e medidas
@@ -363,7 +363,7 @@ nenhum sinal sobre a correção do resultado, apenas sobre falhas técnicas.
 
 Foram usados dois modelos de pesos abertos de famílias distintas, ambos
 servidos pela camada gratuita da API da Groq, compatível com a interface da
-OpenAI (\autoref{tab:modelos}). O modelo principal é o
+OpenAI \cite{groq_models,groq_openai} (\autoref{tab:modelos}). O modelo principal é o
 \arq{openai/gpt-oss-120b}. O \arq{qwen/qwen3.8-27b}, menor e de outra
 família, foi adicionado para avaliar se o efeito depende do modelo
 (decisão D-007). O identificador do modelo devolvido pelo provedor é gravado
@@ -379,7 +379,7 @@ em cada registro bruto.
     \midrule
     Identificador & \arq{openai/gpt-oss-120b} & \arq{qwen/qwen3.8-27b} \\
     Família & GPT-OSS (OpenAI) & Qwen (Alibaba) \\
-    Parâmetros & 120 bilhões & 27 bilhões \\
+    Parâmetros & 117 bilhões (5,1 ativos) & 27 bilhões (denso) \\
     Provedor & Groq (camada gratuita) & Groq (camada gratuita) \\
     \arq{temperature} & 0 & 0 \\
     \arq{max_tokens} & 800 & 800 \\
@@ -387,15 +387,22 @@ em cada registro bruto.
     \bottomrule
   \end{tabular}
   \fonte{Elaborado pelo autor a partir de \arq{src/tccsql/experiment/runner.py},
-    \arq{docs/decisions.md} e \arq{artifacts/raw/}.}
+    \arq{docs/decisions.md} e \arq{artifacts/raw/}. Parâmetros:
+    \citeonline{openai2025gptoss} e \citeonline{qwen2026qwen38}.}
 \end{table}
 
-\pendente{citar a fonte primária (model card) da contagem de parâmetros de cada modelo}
+O \arq{gpt-oss-120b} é um modelo de mistura de especialistas: dos cerca de
+117 bilhões de parâmetros, cerca de 5,1 bilhões são usados em cada
+\textit{token} \cite{openai2025gptoss}. O \arq{qwen3.8-27b} é um modelo
+denso de 27 bilhões de parâmetros \cite{qwen2026qwen38}. O número no nome
+do primeiro arredonda o total.
 
 A temperatura zero reduz a variabilidade da geração, mas não a elimina:
-o código não fixa semente (\textit{seed}) na requisição, e provedores de
-inferência não garantem saída idêntica entre chamadas. Essa limitação é
-discutida na \autoref{sec:validade}.
+o provedor a converte em um valor positivo muito pequeno
+\cite{groq_openai}, o código não fixa semente (\textit{seed}) na
+requisição, e provedores de inferência não garantem saída idêntica entre
+chamadas \cite{atil2025nondeterminism}. Essa limitação é discutida na
+\autoref{sec:validade}.
 
 O uso de modelos abertos servidos gratuitamente é uma escolha de projeto:
 o experimento inteiro roda sem custo financeiro e sem dependência de
@@ -531,8 +538,8 @@ A análise, implementada em \arq{scripts/analyze_results.py}, calcula:
   \item o \textbf{ajuste de Holm} dos valores-p dentro de cada família de
         três comparações.
 \end{alineas}
-
-\pendente{citar referências para McNemar, Wilcoxon e o intervalo de confiança}
+Os testes e o intervalo estão definidos na \autoref{sec:estatistica}
+\cite{mcnemar1947note,fagerland2013mcnemar,wilcoxon1945individual,agresti1998approximate}.
 
 O teste de McNemar foi escolhido porque a correção é binária e as mesmas
 perguntas são observadas em todas as condições: apenas os pares
@@ -542,19 +549,18 @@ em conjunto com os testes pareados.
 
 Adota-se nível de significância de 5\%. Como cada modelo envolve três
 comparações pareadas, os valores-p de cada família de três testes são
-ajustados pelo procedimento de Holm, que controla a taxa de erro por
-família sem a perda de poder do ajuste de Bonferroni simples. Os
-resultados apresentam o valor-p bruto e o ajustado lado a lado; a
-significância é decidida pelo ajustado. O mesmo ajuste é aplicado aos
+ajustados pelo procedimento de Holm \cite{holm1979simple}, que controla a
+taxa de erro por família sem a perda de poder do ajuste de Bonferroni
+simples. Os resultados apresentam o valor-p bruto e o ajustado lado a lado;
+a significância é decidida pelo ajustado. O mesmo ajuste é aplicado aos
 testes de latência.
-
-\pendente{citar referência para o procedimento de Holm}
 
 A latência do modelo é o tempo de parede entre o envio da requisição e o
 recebimento da resposta, medido pelo cliente. Ela inclui as esperas de
 retentativa que o cliente faz quando o provedor responde com limite de taxa
-excedido (HTTP 429) ou erro temporário. Na camada gratuita, o limite de
-tokens por minuto faz com que prompts maiores esperem mais. Assim, a
+excedido (HTTP 429) ou erro temporário. O provedor limita o número de
+requisições e de \textit{tokens} por minuto para toda a conta
+\cite{groq_ratelimits}, de modo que prompts maiores esperem mais. Assim, a
 latência medida reflete o custo do prompt maior nas condições de uso deste
 estudo, e não apenas o tempo de inferência do modelo.
 
@@ -623,9 +629,10 @@ específica. Ainda assim, a possibilidade de viés é reconhecida na
 \section{Ambiente e reprodutibilidade}
 \label{sec:reprodutibilidade}
 
-O experimento é implementado em Python 3.12 e usa PostgreSQL 16 executado
-em contêiner Docker. As principais bibliotecas são \textit{psycopg} para
-acesso ao banco, \textit{sqlglot} para validação de SQL, \textit{pandas} e
+O experimento é implementado em Python 3.12 e usa PostgreSQL 16
+\cite{postgresql16} executado em contêiner Docker. As principais
+bibliotecas são \textit{psycopg} para acesso ao banco, \textit{sqlglot}
+\cite{sqlglot} para validação de SQL, \textit{pandas} \cite{pandas2010} e
 \textit{SciPy} para a análise, e \textit{openpyxl} para a leitura das
 planilhas. As etapas são encadeadas por um \textit{Makefile}: avaliação das
 bases candidatas, preparação e carga do banco, testes automatizados, estudo

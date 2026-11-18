@@ -18,6 +18,8 @@ Run pdflatex $latex
 Run bibtex @('build/main')
 Run pdflatex $latex
 Run pdflatex $latex
+# Passada extra só quando o log pede (referências cruzadas ou backref mudaram).
+if (Select-String -Path build/main.log -Pattern 'Rerun to get|has changed' -Quiet) { Run pdflatex $latex }
 
 $log = Get-Content build/main.log -Raw
 $pages = [regex]::Match($log, 'Output written on[\s\S]{0,300}?\((\d+) pages').Groups[1].Value
