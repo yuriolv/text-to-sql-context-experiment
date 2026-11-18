@@ -1,9 +1,43 @@
 % Abstract — mesmo formato do resumo (Guia UECE p. 47-49), com "Keywords".
+% Tradução da primeira versão do resumo (18/11/2026); manter os dois em
+% sincronia. Números: os mesmos do resumo (ponto decimal em inglês).
 \begin{resumo}[ABSTRACT]
   \begin{otherlanguage*}{english}
-    \pendente{abstract — tradução do resumo}
+    Agents based on language models generate SQL queries from a textual
+    description of the database, and the correctness of these queries
+    depends on what that description contains. This work measures the
+    effect of three additive levels of context on the correctness of the
+    generated SQL: the technical definition of the tables; the same
+    definition with catalog descriptions of tables and columns; and the
+    catalog extended with a textual semantic layer containing grain rules,
+    temporal rules, relationship rules, synonyms and response style. The
+    experiment uses a real, de-identified commercial database with 11
+    PostgreSQL tables, 40 questions in Portuguese and two open-weight
+    models from different families, \textit{gpt-oss-120b} and
+    \textit{qwen3.8-27b}, accessed through a free API. Each question is
+    answered under the three conditions, correctness is checked by
+    comparing the result of the generated query with that of a reference
+    query, and the conditions are compared with the exact McNemar test
+    with Holm adjustment. With \textit{qwen3.8-27b}, accuracy goes from
+    57.5\% to 60.0\% and to 87.5\%, and the semantic condition outperforms
+    the catalog condition (adjusted \textit{p} of 0.002) and the technical
+    one (adjusted \textit{p} of 0.001). With \textit{gpt-oss-120b},
+    accuracy goes from 62.5\% to 70.0\% and to 82.5\%, with no significant
+    difference after adjustment (smallest adjusted \textit{p} of 0.064).
+    The catalog does not differ from the technical condition in either
+    model. The errors fixed only by the semantic layer involve the
+    handling of orphan references and the return of columns that were not
+    requested, and the median latency of the semantic condition, measured
+    on the provider's free tier, is about 5 times that of the technical
+    one. The conclusion is that correctness
+    is raised by rules on how the database should be queried, not by
+    column descriptions; that a text file attached to the prompt
+    reproduces the pattern reported by industry with proprietary
+    platforms, with no license cost; and that this context acts as an
+    instruction, not as a guarantee.
 
     \vspace{\onelineskip}
-    \noindent\textbf{Keywords}: text-to-SQL; language models; semantic layer; \pendente{other terms}.
+    \noindent\textbf{Keywords}: text-to-SQL; language models; semantic
+    layer; prompt engineering; data catalog.
   \end{otherlanguage*}
 \end{resumo}

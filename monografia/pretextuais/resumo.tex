@@ -1,19 +1,47 @@
 % Resumo — Guia UECE p. 47-49: informativo (finalidade, metodologia,
 % resultados, conclusões), voz ativa, 3ª pessoa do singular, 150 a 500
 % palavras, parágrafo único. Palavras-chave separadas por ponto e vírgula,
-% minúsculas, terminando em ponto. Escrito por último (após a Conclusão).
+% minúsculas, terminando em ponto.
+% Primeira versão (18/11/2026). A skill revisao-resumos-cientificos pede
+% resumo "criativo" com menos de 100 palavras quando há texto completo;
+% prevalece a norma UECE (150-500 palavras, informativo), na forma do
+% resumo convencional da skill. Contagem: ~280 palavras.
+% Números: artifacts/reports/results_final_{gpt-oss-120b,qwen3-27b}-tiers.md
+% (valores-p com 3 casas, como na Tabela de pares em 05-resultados);
+% latência 5,6x / 5,1x como em 05-resultados (sec. de latência).
 \setlength{\absparsep}{18pt}
 \begin{resumo}
-  \pendente{resumo — redigir depois da Conclusão}
+  Agentes baseados em modelos de linguagem geram consultas SQL a partir de
+  uma descrição textual do banco de dados, e a correção dessas consultas
+  depende do que essa descrição contém. Este trabalho mede o efeito de
+  três níveis aditivos de contexto sobre a correção do SQL gerado: a
+  definição técnica das tabelas; a mesma definição com descrições de
+  catálogo para tabelas e colunas; e o catálogo acrescido de uma camada
+  semântica textual, com regras de grão, regras temporais, regras de
+  relacionamento, sinônimos e estilo de resposta. O experimento usa uma
+  base comercial real descaracterizada, com 11 tabelas em PostgreSQL, 40
+  perguntas em português e dois modelos de pesos abertos de famílias
+  distintas, \textit{gpt-oss-120b} e \textit{qwen3.8-27b}, acessados por
+  uma API gratuita. Cada pergunta é respondida nas três condições, a
+  correção é verificada pela igualdade entre o resultado da consulta
+  gerada e o de uma consulta de referência, e as condições são comparadas
+  pelo teste de McNemar exato com ajuste de Holm. No
+  \textit{qwen3.8-27b}, a acurácia passa de 57,5\% para 60,0\% e para
+  87,5\%, e a condição semântica supera a de catálogo (\textit{p} ajustado
+  de 0,002) e a técnica (\textit{p} ajustado de 0,001). No
+  \textit{gpt-oss-120b}, a acurácia passa de 62,5\% para 70,0\% e para
+  82,5\%, sem diferença significativa após o ajuste (menor \textit{p}
+  ajustado de 0,064). O catálogo não difere da condição técnica em nenhum
+  dos modelos. Os erros corrigidos apenas pela camada semântica envolvem o
+  tratamento de referências órfãs e a devolução de colunas não pedidas, e
+  a latência mediana da condição semântica, medida na camada gratuita do
+  provedor, é cerca de 5 vezes a da técnica. Conclui-se que o que aumenta a correção são as regras sobre
+  como a base deve ser consultada, e não as descrições de colunas; que um
+  arquivo de texto anexado ao \textit{prompt} reproduz o padrão relatado
+  pela indústria com plataformas proprietárias, sem custo de licença; e
+  que esse contexto atua como instrução, e não como garantia.
 
-\begin{esboco}
-  Finalidade: medir o efeito de enriquecer o contexto de esquema
-  (DDL -> catálogo -> camada semântica) na correção do SQL gerado por agente.
-  Metodologia: experimento pareado, 40 perguntas, 3 condições aditivas,
-  2 modelos open-weights, McNemar exato.
-  Resultados: números de artifacts/reports/results_final_*-tiers.md.
-  Conclusão: o salto vem da camada semântica, não do catálogo.
-\end{esboco}
-
-  \textbf{Palavras-chave}: text-to-SQL; modelos de linguagem; camada semântica; \pendente{demais termos}.
+  \vspace{\onelineskip}
+  \noindent\textbf{Palavras-chave}: text-to-SQL; modelos de linguagem;
+  camada semântica; engenharia de \textit{prompt}; catálogo de dados.
 \end{resumo}
