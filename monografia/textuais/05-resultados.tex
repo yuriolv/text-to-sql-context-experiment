@@ -314,8 +314,16 @@ foram acertadas em cada condição.
     classes B e C e é contada nas duas.}
 \end{table}
 
-\pendente{revisar a classificação de Q017, Q031 (classe A) e Q036 (classe
-D), que só erram no qwen3.8-27b e foram classificadas nesta versão do texto}
+% Classificação de Q017, Q031 (A) e Q036 (D), que só erram no qwen3.8-27b
+% (scripts/results_tables.py, EXTENDED), conferida em 18/11/2026 contra o
+% SQL da rodada 07a25f55 (artifacts/raw/, última tentativa):
+%  - Q017 catálogo: COUNT(DISTINCT representative_id) conta representantes,
+%    não metas -> unidade de contagem errada (A). Não é B: técnico e
+%    semântico usam IS NOT NULL e acertam, logo não há órfãs em targets.
+%  - Q031 técnico: junta order_items e soma itens agrupando por pedido ->
+%    grão errado (A).
+%  - Q036 técnico e catálogo: EXTRACT(YEAR), EXTRACT(MONTH) em duas colunas
+%    em vez de DATE_TRUNC('month') em uma -> formato temporal (D).
 
 Três padrões aparecem na tabela.
 
