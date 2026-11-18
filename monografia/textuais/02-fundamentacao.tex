@@ -1,49 +1,228 @@
 % =============================================================================
-% 2 FUNDAMENTAÇÃO TEÓRICA — passo 7 da ordem (junto com Trabalhos Relacionados).
-% Repositório NÃO tem literatura (briefing §9): só esqueleto + temas a buscar.
+% 2 FUNDAMENTAÇÃO TEÓRICA — primeira versão (18/11/2026).
+% Define só os conceitos que os capítulos 4 a 6 usam, sem histórico
+% exaustivo (skill estruturacao-introducao-logica: foco, não erudição).
+% O repositório não tem literatura: definições de livro-texto vão escritas
+% com \pendente{citação}; nada aqui traz número de outro trabalho.
+% Fontes internas: docs/architecture.md (atenção, "garantia"),
+% docs/semantic_layer_mapping.md (cinco categorias), 04-metodologia
+% (sec:avaliacao, sec:analise). Fórmulas de McNemar e Holm conferidas
+% contra artifacts/reports/results_final_*-tiers.md (0:12 -> 0,00049;
+% x3 -> 0,0015; 1:9 -> 0,021; x3 -> 0,064).
 % =============================================================================
 \chapter{Fundamentação teórica}
 \label{cap:fundamentacao}
 
+Este capítulo define os conceitos usados no restante do trabalho: os
+modelos de linguagem e o modo como usam o contexto, a tarefa de tradução
+de linguagem natural para SQL e sua avaliação, as formas de representar o
+esquema no \textit{prompt}, a camada semântica e os testes estatísticos
+pareados usados na análise.
+
+% -----------------------------------------------------------------------------
 \section{Modelos de linguagem de grande escala}
 \label{sec:llm}
+
+Um modelo de linguagem de grande escala é uma rede neural treinada para
+prever o próximo \textit{token} de um texto a partir dos anteriores
+\pendente{citação}. Os modelos atuais usam a arquitetura
+\textit{Transformer}, cujo componente central é o mecanismo de atenção: a
+cada \textit{token} gerado, o modelo calcula pesos sobre todos os
+\textit{tokens} da entrada e combina suas representações de acordo com
+esses pesos \pendente{citação}. A resposta é produzida um \textit{token}
+por vez, e cada \textit{token} gerado passa a fazer parte da entrada do
+passo seguinte.
+
+Tudo o que o modelo recebe em uma chamada, instruções, descrição do banco e
+pergunta, forma uma única sequência de \textit{tokens}, limitada pela
+janela de contexto do modelo. Não há, nessa sequência, distinção
+estrutural entre uma regra e um dado: uma instrução presente no contexto
+influencia a resposta na medida em que recebe peso da atenção, e não por
+ser executada. Essa propriedade é a base da distinção, usada na
+\autoref{sec:garantia}, entre instrução e garantia.
+
+A temperatura controla o grau de aleatoriedade na escolha de cada
+\textit{token}: com temperatura zero, o modelo escolhe sempre o
+\textit{token} mais provável \pendente{citação}. Mesmo assim, servidores de
+inferência não garantem saídas idênticas entre chamadas, por diferenças de
+execução numérica e de agrupamento das requisições
+\pendente{citação}.
+
+Modelos de pesos abertos são aqueles cujos parâmetros treinados são
+publicados e podem ser executados por terceiros, em infraestrutura
+própria ou de um provedor de inferência \pendente{citação}. Neste
+trabalho, os dois modelos avaliados são de pesos abertos e foram acessados
+por um provedor de inferência gratuito (\autoref{sec:modelos}).
+
 \begin{esboco}
-  Transformer e atenção (base para a discussão de "garantia" em docs/architecture.md);
-  modelos open-weights; decodificação determinística (temperature = 0).
-  Temas a buscar: Transformer; model cards de gpt-oss e Qwen.
+  Candidatos: Transformer [vaswani2017attention]; um survey de LLMs;
+  model cards de gpt-oss e Qwen; documentação da Groq sobre
+  determinismo/temperatura, se houver; trabalho sobre não determinismo de
+  inferência com temperatura zero.
 \end{esboco}
 
+% -----------------------------------------------------------------------------
 \section{Tradução de linguagem natural para SQL}
 \label{sec:text2sql}
+
+A tradução de linguagem natural para SQL (\textit{text-to-SQL}) é a tarefa
+de, dada uma pergunta em linguagem natural e o esquema de um banco de dados
+relacional, produzir uma consulta SQL cujo resultado responde à pergunta
+\pendente{citação}. As abordagens evoluíram de sistemas baseados em regras
+e gramáticas para modelos neurais treinados na tarefa e, mais recentemente,
+para modelos de linguagem de uso geral orientados por \textit{prompt}
+\pendente{citação}. Neste último caso, o modelo não é treinado sobre o
+banco: tudo o que ele sabe do banco é o que está no \textit{prompt}.
+
+Um sistema de \textit{text-to-SQL} pode ser avaliado de duas formas
+principais \pendente{citação}. A correspondência exata compara o texto da
+consulta gerada com o de uma consulta de referência, e penaliza consultas
+escritas de outra forma que produzem o mesmo resultado. A acurácia de
+execução executa as duas consultas na mesma base e compara os resultados.
+Este trabalho usa a segunda forma, com as normalizações descritas na
+\autoref{sec:avaliacao}: uma consulta é correta quando seu resultado é
+igual ao da consulta de referência.
+
+Neste trabalho, o agente é o programa que recebe a pergunta, monta o
+\textit{prompt}, chama o modelo, valida a consulta devolvida e a executa
+no banco (\autoref{sec:agente}). O termo é usado em sentido estrito: o
+agente não planeja, não usa ferramentas e não encadeia chamadas.
+
 \begin{esboco}
-  Definição da tarefa; abordagens (regras -> seq2seq -> LLM com prompt);
-  métricas: exact match vs execution accuracy (o trabalho usa igualdade de resultado).
-  Temas a buscar: surveys de text-to-SQL; métricas de execução.
+  Candidatos: survey de text-to-SQL com LLM [hong2024survey;
+  shi2024survey]; Spider e BIRD para as métricas (exact match, execution
+  accuracy) [yu2018spider; li2023bird]; definição de agente baseado em
+  LLM (a mesma pendente da Introdução).
 \end{esboco}
 
-\section{Representação do esquema no prompt}
+% -----------------------------------------------------------------------------
+\section{Representação do esquema no \textit{prompt}}
 \label{sec:representacao-esquema}
+
+Como o modelo só conhece o banco pelo \textit{prompt}, a forma de
+descrever o esquema é parte do sistema. As formas mais usadas são o texto
+de definição das tabelas, com nomes de colunas, tipos e chaves; descrições
+em linguagem natural de tabelas e colunas; exemplos de pares de pergunta e
+consulta (\textit{few-shot}); e amostras de linhas das tabelas
+\pendente{citação}. Em bancos grandes, uma etapa anterior seleciona as
+tabelas e colunas relevantes para a pergunta (\textit{schema linking}),
+para que o esquema caiba no \textit{prompt} \pendente{citação}.
+
+Cada acréscimo aumenta o número de \textit{tokens} de entrada e, com ele, o
+custo e o tempo de cada chamada. Este trabalho não usa exemplos, amostras
+de linhas nem seleção de esquema, e varia apenas o texto que descreve o
+banco, em três níveis (\autoref{sec:condicoes}). Os dois primeiros níveis
+seguem as formas acima: a definição das tabelas e a definição acrescida de
+descrições de colunas. O terceiro acrescenta um tipo de conteúdo diferente,
+apresentado na seção seguinte.
+
 \begin{esboco}
-  Formas de apresentar o esquema ao modelo: DDL, descrições de colunas,
-  exemplos de linhas, few-shot; engenharia de prompt.
-  Temas a buscar: schema linking; prompt engineering para text-to-SQL.
+  Candidatos: DAIL-SQL (comparação de representações do esquema)
+  [gao2024dail]; avaliação zero-shot do ChatGPT [liu2023chatgpt];
+  DIN-SQL [pourreza2023din]; CHESS [talaei2024chess].
 \end{esboco}
 
-\section{Camada semântica}
+% -----------------------------------------------------------------------------
+\section{Catálogo de dados e camada semântica}
 \label{sec:camada-semantica}
+
+Um catálogo de dados registra metadados sobre as tabelas de uma
+organização, entre eles a descrição de cada tabela e coluna
+\pendente{citação}. Em bancos relacionais, essas descrições costumam ser
+mantidas como comentários associados aos objetos
+(\arq{COMMENT ON TABLE}, \arq{COMMENT ON COLUMN}). Uma descrição de
+catálogo diz o que um objeto significa, e está presa a ele.
+
+Uma camada semântica é um conjunto de definições mantido entre as tabelas
+físicas e quem consulta os dados, que descreve a base em termos de negócio
+e determina como ela deve ser consultada \pendente{citação}. As ferramentas
+industriais diferem na sintaxe, mas carregam as mesmas cinco categorias de
+informação (\arq{docs/semantic_layer_mapping.md}):
+\begin{alineas}
+  \item definições por campo: o que cada medida e dimensão significa em
+        linguagem de negócio;
+  \item grão: a chave de cada tabela e o nível de agregação que ela
+        representa;
+  \item dimensões temporais: qual coluna de data é a data de cada medida;
+  \item relacionamentos: como combinar tabelas e o que fazer quando a
+        integridade referencial é imperfeita;
+  \item sinônimos: a ponte entre o vocabulário dos usuários e os nomes do
+        esquema.
+\end{alineas}
+
+A primeira categoria se sobrepõe ao catálogo. As outras quatro não
+pertencem a nenhuma coluna isolada: são regras sobre a base como um todo.
+Essa é a diferença que o desenho do experimento isola, entre o nível de
+catálogo e o nível semântico.
+
+Nas ferramentas industriais, a camada semântica é consultada por meio de
+um compilador: o consumidor pede uma medida e um agrupamento, e o
+compilador gera o SQL a partir das definições \pendente{citação}. Neste
+trabalho, a camada semântica é apenas texto anexado ao \textit{prompt}, e o
+SQL é escrito pelo modelo. Por isso, o contexto semântico inclui também
+regras sobre a forma da resposta, que nas ferramentas industriais são
+asseguradas pelo compilador (\autoref{sec:industriais}).
+
 \begin{esboco}
-  Conceito: definições de métricas, grão, dimensões temporais,
-  relacionamentos, sinônimos. As cinco categorias "irredutíveis" de
-  docs/semantic_layer_mapping.md. Exemplos industriais: dbt Semantic Layer
-  (MetricFlow), Unity Catalog (comentários e metric views), LookML, Cube.
-  Temas a buscar: documentação oficial de cada ferramenta; literatura de
-  data governance / metadados.
+  Candidatos: documentação oficial do dbt Semantic Layer/MetricFlow, Unity
+  Catalog (COMMENT, metric views), LookML, Cube; referência de catálogo de
+  dados/metadados (DAMA-DMBOK ou equivalente); documentação do PostgreSQL
+  para COMMENT.
 \end{esboco}
 
+% -----------------------------------------------------------------------------
 \section{Avaliação estatística pareada}
 \label{sec:estatistica}
+
+Quando as mesmas unidades são observadas em duas condições, a comparação
+deve usar testes pareados, que consideram a diferença dentro de cada
+unidade \pendente{citação}. Neste trabalho, as unidades são as perguntas,
+e cada uma é respondida nas três condições.
+
+Para um desfecho binário, como acerto ou erro, o teste de McNemar compara
+duas condições usando apenas os pares discordantes \pendente{citação}.
+Sejam $b$ o número de perguntas acertadas na primeira condição e erradas na
+segunda, e $c$ o número de perguntas na situação inversa, com $n = b + c$.
+Sob a hipótese nula de que as duas condições têm a mesma probabilidade de
+acerto, $b$ segue uma distribuição binomial com $n$ ensaios e probabilidade
+$1/2$. A versão exata do teste usa essa distribuição diretamente; o valor-p
+bilateral é
+\begin{equation}
+  p = \min\left(1,\; 2 \sum_{k=0}^{\min(b,c)} \binom{n}{k}
+      \left(\frac{1}{2}\right)^{n}\right).
+  \label{eq:mcnemar}
+\end{equation}
+As perguntas acertadas ou erradas nas duas condições não entram no cálculo,
+porque não informam sobre a diferença entre elas.
+
+Para uma medida contínua pareada, como a latência, o teste de postos
+sinalizados de Wilcoxon ordena os valores absolutos das diferenças dentro
+de cada par e compara a soma dos postos das diferenças positivas com a das
+negativas, sem supor distribuição normal \pendente{citação}.
+
+Quando uma mesma família de dados é submetida a vários testes, a
+probabilidade de ao menos um falso positivo cresce com o número de testes.
+O procedimento de Holm controla essa probabilidade para a família
+\pendente{citação}. Ordenados os $m$ valores-p brutos em ordem crescente,
+$p_{(1)} \le \dots \le p_{(m)}$, o valor-p ajustado do $i$-ésimo é
+\begin{equation}
+  \tilde{p}_{(i)} = \max_{j \le i}\; \min\bigl(1,\; (m - j + 1)\, p_{(j)}\bigr),
+  \label{eq:holm}
+\end{equation}
+e cada hipótese é rejeitada quando seu valor-p ajustado é menor que o
+nível de significância. O procedimento é uniformemente mais poderoso que
+o ajuste de Bonferroni, que multiplica todos os valores-p por $m$
+\pendente{citação}. Neste trabalho, $m = 3$ para cada modelo: os três
+pares de condições (\autoref{sec:analise}).
+
+A acurácia de cada condição é acompanhada de um intervalo de confiança
+de 95\% pela aproximação normal da proporção,
+$\hat{p} \pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/N}$, em que $\hat{p}$ é a
+proporção de acertos e $N$ o número de perguntas \pendente{citação}.
+
 \begin{esboco}
-  Teste de McNemar exato (pares discordantes, binomial), teste de Wilcoxon
-  pareado para latência, intervalo de confiança da proporção (aproximação normal).
-  Temas a buscar: referências clássicas de McNemar e Wilcoxon.
+  Candidatos: McNemar [mcnemar1947note]; Wilcoxon
+  [wilcoxon1945individual]; Holm [holm1979simple]; um livro-texto de
+  estatística não paramétrica ou de bioestatística para testes pareados e
+  para o intervalo de confiança da proporção.
 \end{esboco}
