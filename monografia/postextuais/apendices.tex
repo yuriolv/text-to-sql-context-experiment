@@ -87,11 +87,17 @@ catálogo, o segundo; a semântica, o segundo seguido do bloco
 ``SEMÂNTICA:'' e do terceiro. Os arquivos contêm apenas metadados do
 esquema e regras, sem valores de linha da base (decisão D-003).
 
-\lstinputlisting[caption={Contexto técnico (\arq{technical_context.sql})},label={lst:ctx-tecnico},language={},columns=flexible,keepspaces=true]{../data/datasets/commercial/technical_context.sql}
+% Localmente, os contextos são lidos de ../data/datasets/commercial/. No
+% Overleaf, que só recebe a pasta monografia/, uma cópia fica em contextos/.
+\IfFileExists{contextos/technical_context.sql}
+  {\def\ctxdir{contextos/}}
+  {\def\ctxdir{../data/datasets/commercial/}}
+
+\lstinputlisting[caption={Contexto técnico (\arq{technical_context.sql})},label={lst:ctx-tecnico},language={},columns=flexible,keepspaces=true]{\ctxdir technical_context.sql}
 \fonte{\arq{data/datasets/commercial/technical_context.sql}.}
 
-\lstinputlisting[caption={Contexto de catálogo (\arq{catalog_context.sql})},label={lst:ctx-catalogo},language={},columns=flexible,keepspaces=true]{../data/datasets/commercial/catalog_context.sql}
+\lstinputlisting[caption={Contexto de catálogo (\arq{catalog_context.sql})},label={lst:ctx-catalogo},language={},columns=flexible,keepspaces=true]{\ctxdir catalog_context.sql}
 \fonte{\arq{data/datasets/commercial/catalog_context.sql}.}
 
-\lstinputlisting[caption={Contexto semântico (\arq{semantic_context.yaml})},label={lst:ctx-semantico},language={},columns=flexible,keepspaces=true]{../data/datasets/commercial/semantic_context.yaml}
+\lstinputlisting[caption={Contexto semântico (\arq{semantic_context.yaml})},label={lst:ctx-semantico},language={},columns=flexible,keepspaces=true]{\ctxdir semantic_context.yaml}
 \fonte{\arq{data/datasets/commercial/semantic_context.yaml}.}
