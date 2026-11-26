@@ -1,5 +1,5 @@
 % =============================================================================
-% 3 TRABALHOS RELACIONADOS — segunda versão (18/11/2026), encorpada.
+% 3 TRABALHOS RELACIONADOS — versão com literatura (18/11/2026).
 % Organização por tema, e não por autor (skill estruturacao-introducao-
 % logica). Cada seção fecha com o que a linha deixa em aberto; a Seção 3.5
 % junta as lacunas. Todo número de outro trabalho vem da fonte citada,
@@ -19,57 +19,38 @@ questão de pesquisa do trabalho.
 \section{Benchmarks de \textit{text-to-SQL}}
 \label{sec:benchmarks}
 
-O Spider estabeleceu o cenário de avaliação entre domínios, com 10.181
-perguntas e 5.693 consultas sobre 200 bancos de 138 domínios, e bancos
-diferentes no treino e no teste: o modelo precisa generalizar para
-esquemas que não viu \cite{yu2018spider}. Os bancos vieram de material
-didático, como disciplinas, tutoriais e livros de SQL, de modelos de
-esquema populados com dados gerados e de tabelas da Wikipédia
-reorganizadas. Na versão original, a métrica principal era a
-correspondência exata da consulta. São bancos pequenos e organizados,
-adequados para medir a tradução da pergunta, mas distantes de uma base
-operacional.
-
-O BIRD aproximou a avaliação de dados reais \cite{li2023bird}. Seus 95
-bancos, com 33,4~GB no total, cobrem 37 domínios profissionais e vêm de
-fontes abertas: cerca de um terço do Kaggle, metade de um repositório
-acadêmico de bancos relacionais e o restante de tabelas abertas
-organizadas pelos autores. Os valores são ``sujos'', como salários
-armazenados em texto com símbolo de moeda, e a avaliação usa a acurácia
-de execução. Cada banco traz um arquivo de descrição das colunas, e cada
-pergunta traz uma evidência de conhecimento externo escrita por
-anotadores, com fórmulas, sinônimos ou valores. Antes dele, o KaggleDBQA
-já usava bancos reais publicados na web e mostrava que a documentação do
-banco melhorava os analisadores da época \cite{lee2021kaggledbqa}.
+O Spider estabeleceu o cenário de avaliação entre domínios: cerca de 10
+mil perguntas sobre 200 bancos, com bancos diferentes no treino e no teste
+\cite{yu2018spider}. Os bancos vieram de material didático, como
+disciplinas, tutoriais e livros de SQL, de modelos de esquema populados
+com dados gerados e de tabelas da Wikipédia reorganizadas, e a métrica
+principal era a correspondência exata da consulta. O BIRD aproximou a
+avaliação de dados reais: 95 bancos de fontes abertas, em 37 domínios
+profissionais, com valores ``sujos'', como salários armazenados em texto,
+e avaliação pela acurácia de execução \cite{li2023bird}. Cada banco traz
+um arquivo de descrição das colunas, e cada pergunta traz uma evidência de
+conhecimento externo escrita por anotadores. O KaggleDBQA, por sua vez,
+usa bancos reais publicados na web e sua documentação \cite{lee2021kaggledbqa}.
 
 \textit{Benchmarks} mais recentes tratam do cenário corporativo. O Spider
-2.0 reúne 632 tarefas de fluxos de trabalho reais, sobre bancos com
-centenas de colunas em sistemas como BigQuery, Snowflake e PostgreSQL. Um
-agente com o modelo o1-preview resolveu 21,3\% delas, contra 91,2\% no
-Spider original e 73,0\% no BIRD \cite{lei2025spider2}. O BEAVER reúne
-9.128 pares de pergunta e consulta sobre 812 tabelas de \textit{data
-warehouses} privados, extraídos de registros reais de consultas e
-complementados por consultas sintetizadas; agentes com o GPT-5.2 chegaram
-a cerca de 10,8\% de acurácia, e a cerca de 30,1\% quando receberam
-anotações-oráculo para as subtarefas \cite{chen2024beaver}.
-
-Em português, a linha começou com a tradução do Spider e o treinamento de
-modelos bilíngues \cite{jose2021mrat}. Avaliações mais recentes compararam
-17 modelos de linguagem no Spider em português e em inglês, com o esquema
-apresentado como texto ou como definição das tabelas
-\cite{carvalho2025benchmarking}. Com dados públicos brasileiros, o
-JABUTI-SQL reúne 69 pares sobre dados reais do DATASUS, com as
-inconsistências típicas de bases governamentais \cite{botelho2026jabuti}.
-Em um \textit{benchmark} unificado em português, seis modelos passaram de
-70\% de acurácia de execução no Spider, mas o melhor resultado sobre a
-base do DATASUS foi 27,5\% \cite{fonseca2026avaliacao}.
+2.0 reúne 632 tarefas de fluxos de trabalho reais sobre bancos com
+centenas de colunas, em vários sistemas de dados, e um agente com o modelo
+o1-preview resolveu 21,3\% delas, contra 91,2\% no Spider original
+\cite{lei2025spider2}. O BEAVER usa \textit{data warehouses} privados de
+organizações reais e também registra acurácias baixas
+\cite{chen2024beaver}. Em português, há traduções do Spider
+\cite{jose2021mrat}, avaliações de modelos em português e inglês
+\cite{carvalho2025benchmarking} e \textit{benchmarks} com dados públicos
+brasileiros reais \cite{botelho2026jabuti}. Em um deles, seis modelos
+passaram de 70\% de acurácia de execução no Spider, mas o melhor resultado
+sobre a base do DATASUS foi 27,5\% \cite{fonseca2026avaliacao}.
 
 Esses trabalhos mostram que a acurácia cai quando a base se aproxima da
-realidade, mas medem modelos e sistemas, e não o efeito do tipo de
-contexto. Nos que fornecem conhecimento, como o BIRD, ele vem pronto e por
-pergunta, como uma dica, e não como um conjunto de regras da base mantido
-pela organização. Nenhum deles varia, sobre uma mesma base comercial, o
-tipo de informação que o modelo recebe.
+realidade, mas medem modelos e sistemas, e não o efeito do contexto. Nos
+que fornecem conhecimento, como o BIRD, ele vem pronto e por pergunta, e
+não como um conjunto de regras da base mantido pela organização. Nenhum
+deles varia, sobre uma mesma base comercial, o tipo de informação que o
+modelo recebe.
 
 % -----------------------------------------------------------------------------
 \section{Engenharia de prompt e contexto em \textit{text-to-SQL}}
@@ -77,61 +58,36 @@ tipo de informação que o modelo recebe.
 
 Com modelos de linguagem, a tradução de perguntas em SQL passou a ser
 feita por meio do prompt, e a forma de descrever o banco tornou-se objeto
-de estudo. Os primeiros trabalhos compararam formatos de esquema com o
-modelo Codex: o texto de criação das tabelas acompanhado de três linhas de
-cada tabela foi o melhor formato, com 67,0\% de acurácia de execução no
-conjunto de desenvolvimento do Spider, à frente de listas de colunas e de
-documentação em estilo de API \cite{rajkumar2022evaluating}. O DAIL-SQL
-comparou cinco representações de pergunta e esquema em vários modelos e
-mediu o efeito de detalhes do prompt: incluir as chaves estrangeiras
-melhorou a acurácia de execução em 0,6 a 2,9 pontos percentuais na
-maioria dos casos, e retirar a instrução de não explicar a resposta a
-reduziu em 1,3 a 2,4 pontos \cite{gao2024dail}. Pequenas regras sobre o
-formato da resposta, portanto, já têm efeito mensurável.
+de estudo. Os primeiros trabalhos compararam formatos de esquema: o
+texto de criação das tabelas com algumas linhas de exemplo funcionou
+melhor que listas de colunas ou documentação em estilo de API
+\cite{rajkumar2022evaluating}. O DAIL-SQL comparou cinco representações
+de pergunta e esquema e mostrou que detalhes como incluir as chaves
+estrangeiras ou instruir o modelo a não explicar a resposta alteram a
+acurácia em alguns pontos percentuais \cite{gao2024dail}. Outros
+trabalhos decompõem a tarefa em etapas, como a seleção das tabelas, a
+classificação da pergunta e a autocorreção \cite{pourreza2023din}, ou
+recuperam do catálogo apenas as descrições e valores relevantes para
+esquemas grandes \cite{talaei2024chess}.
 
-Outros trabalhos mudam o processo, e não só o prompt. O DIN-SQL decompõe
-a geração em etapas, com seleção das tabelas, classificação da pergunta
-por complexidade, geração e autocorreção, e chegou a 85,3\% de acurácia
-de execução no teste do Spider e 55,9\% no do BIRD
-\cite{pourreza2023din}. O CHESS usa agentes para recuperar do catálogo as
-descrições e os valores relevantes e para podar esquemas grandes; a poda
-deu cerca de 2 pontos percentuais a mais com cinco vezes menos
-\textit{tokens}, e o sistema chegou a 71,10\% no teste do BIRD
-\cite{talaei2024chess}.
-
-Uma terceira linha acrescenta conhecimento ao prompt e mede o ganho. No
-BIRD, fornecer a evidência de cada pergunta elevou a acurácia de execução
-do GPT-4 no teste de 34,88\% para 54,89\% \cite{li2023bird}. Em uma
-ablação incremental com um modelo de contexto longo, a mesma evidência
-levou a acurácia de 43,87\% para 60,23\%, e os acréscimos seguintes,
-valores de exemplo das colunas e autocorreção, levaram a 61,99\% e
-64,80\%; a documentação de SQL quase não alterou o resultado
-\cite{chung2025longcontext}. Variando apenas as descrições de colunas no
-BIRD, descrições geradas pelo Qwen2 elevaram a acurácia do GPT-4o de
-0,301 para 0,368 e a do Mixtral 8x22B de 0,175 para 0,296; já as
-descrições geradas pelo GPT-4o reduziram a do Qwen2-72B de 0,289 para
-0,260 \cite{wretblad2024synthetic}. Descrições ajudam, mas uma descrição
-pior pode atrapalhar.
-
-O estudo mais próximo deste trabalho é uma ablação sobre um banco de
-telemetria da Intel, com 25 tabelas, 30 perguntas e o modelo proprietário
-GPT-4.1 \cite{bouattour2026prompting}. Partindo de 43,3\% de acurácia, as
-descrições de tabelas e colunas tiradas do dicionário de dados levaram a
-56,7\%, os exemplos resolvidos a 53,3\%, e a combinação dos dois a
-83,3\%; com validação das consultas, a configuração completa chegou a
-90,0\%. A configuração completa também foi a mais cara, com custo por
-consulta cerca de 3,7 vezes o da configuração de partida. Os autores
-associam o peso das descrições aos nomes abreviados e à terminologia
-específica do esquema de telemetria e indicam como trabalho futuro
-testar modelos abertos menores.
+Uma segunda linha acrescenta conhecimento ao prompt. No BIRD, fornecer a
+evidência de cada pergunta elevou a acurácia de execução do GPT-4 de
+34,88\% para 54,89\% \cite{li2023bird}, e, em uma ablação com modelo de
+contexto longo, essa evidência foi o acréscimo de maior efeito, à frente
+de exemplos de valores e de documentação de SQL
+\cite{chung2025longcontext}. Descrições de colunas geradas por modelos
+elevaram a acurácia de vários modelos abertos e proprietários no BIRD
+\cite{wretblad2024synthetic}. Em um banco de telemetria da Intel, as
+descrições de tabelas e colunas foram a maior melhora isolada em um estudo
+de ablação com o modelo proprietário GPT-4.1, e a combinação com exemplos
+foi a mais eficaz \cite{bouattour2026prompting}.
 
 Essas ablações separam formatos, exemplos e descrições, mas não separam
 as descrições de colunas das regras de consulta válidas para a base
 inteira: grão, junções com integridade imperfeita e formato da resposta.
-A evidência do BIRD mistura os dois tipos e é escrita para cada pergunta;
-o dicionário de dados da Intel corresponde ao nível de catálogo. Este
-trabalho mantém fixos o modelo, as instruções e o formato da resposta, e
-varia apenas o conteúdo do contexto, em três níveis aditivos
+A evidência do BIRD mistura os dois tipos e é escrita para cada pergunta.
+Este trabalho mantém fixos o modelo, as instruções e o formato da
+resposta, e varia apenas o conteúdo do contexto, em três níveis aditivos
 (\autoref{sec:condicoes}).
 
 % -----------------------------------------------------------------------------
@@ -144,44 +100,31 @@ temporais e relacionamentos, mantido fora das tabelas e usado para gerar
 as consultas \cite{jones2024semanticlayer}. São exemplos o dbt Semantic
 Layer \cite{dbt_semanticlayer}, as \textit{metric views} do Databricks
 Unity Catalog \cite{databricks_metricviews}, o LookML do Looker
-\cite{looker_lookml} e o Cube \cite{cube_datamodel}, descritos na
-\autoref{sec:camada-semantica}. A correspondência entre essas ferramentas
-e o contexto semântico deste trabalho está no \autoref{qua:industriais}.
+\cite{looker_lookml} e o Cube \cite{cube_datamodel}. Nessas ferramentas, o
+consumidor pede uma métrica e um agrupamento, e um compilador gera o SQL
+\cite{dbt_slarchitecture}. A correspondência entre essas ferramentas e o
+contexto semântico deste trabalho está no \autoref{qua:industriais}.
 
 Os fornecedores e a comunidade passaram a medir o efeito dessas
 definições sobre agentes de linguagem. Um relato publicado na comunidade
 Databricks acrescentou camadas cumulativas de contexto ao agente da
-plataforma, com 30 perguntas e duas execuções por camada, e registrou 40\%
-de acurácia com apenas as tabelas, 47\% com as descrições do catálogo e
-97\% com as \textit{metric views}; exemplos de SQL e instruções em texto,
-acrescentados depois, levaram a 100\% e 97\% \cite{databricks2026genie}.
-O relato não informa o modelo usado pelo agente nem traz teste
-estatístico.
-
-A dbt Labs comparou o modelo escrevendo SQL diretamente com o modelo
-consultando a camada semântica, que gera o SQL
-\cite{ganz2023semanticlayer,ganz2026benchmark}. Na versão de 2026, sobre
-uma base de seguros de 15 tabelas, com 11 perguntas executadas 20 vezes
-cada, a camada semântica acertou 98,2\% e 100\% das respostas com dois
-modelos proprietários, contra 90,0\% e 84,1\% do SQL escrito pelo modelo
-\cite{ganz2026benchmark}. Fora do escopo das métricas definidas, a camada
-semântica não responde, em vez de errar. O próprio relato registra que a
-empresa vende o produto avaliado e que o estudo usa uma única base. Sobre
-a mesma base de seguros, um estudo anterior mostrou que o GPT-4 acertava
-16\% das perguntas escrevendo SQL sobre o esquema e 54\% consultando uma
-representação do banco em grafo de conhecimento, com ontologia e
-mapeamentos \cite{sequeda2023benchmark}.
+plataforma e registrou 40\% de acurácia com apenas as tabelas, 47\% com
+as descrições do catálogo e 97\% com as \textit{metric views}
+\cite{databricks2026genie}. A dbt Labs comparou o modelo escrevendo SQL
+diretamente com o modelo consultando a camada semântica e relatou
+vantagem para a camada semântica nas perguntas que ela cobre
+\cite{ganz2023semanticlayer,ganz2026benchmark}. Em uma base de seguros,
+o GPT-4 acertou 16\% das perguntas escrevendo SQL sobre o esquema e 54\%
+consultando uma representação do mesmo banco em grafo de conhecimento
+\cite{sequeda2023benchmark}.
 
 Trabalhos acadêmicos recentes também anexam definições semânticas ao
-prompt, sem compilador. Um estudo pareado com 100 perguntas sobre uma
-base de varejo comparou o esquema sozinho com o esquema acrescido de um
-documento semântico de 4~KB, escrito à mão, com medidas, convenções e
-regras de desambiguação \cite{rumiantsau2026semantic}. Com três modelos
-proprietários, a acurácia passou de 45,5--50,5\% para 67,7--68,7\%, um
-ganho de 17 a 23 pontos percentuais, significativo em todos os modelos; as
-diferenças entre os modelos, dentro de cada condição, não foram
-significativas. Outro trabalho propõe definições governadas de métricas,
-junções e grão, com validação das consultas geradas, para reduzir
+prompt. Um estudo pareado com três modelos proprietários comparou o
+esquema sozinho com o esquema acrescido de um documento semântico de
+4~KB, com medidas, convenções e regras de desambiguação, e encontrou
+ganhos de 17 a 23 pontos percentuais em todos os modelos
+\cite{rumiantsau2026semantic}. Outro propõe definições governadas de
+métricas, junções e grão, com validação das consultas, para reduzir
 respostas inventadas em análises corporativas \cite{pillai2026ground}.
 
 Esses resultados apontam na mesma direção, mas cada um deixa uma
@@ -201,25 +144,18 @@ Um agente que gera e executa SQL sobre dados de uma organização levanta
 duas questões além da acurácia: o que é enviado ao provedor do modelo e o
 que a consulta gerada pode fazer no banco. Ataques de injeção por meio do
 prompt conseguem levar aplicações integradas a modelos de linguagem a
-executar consultas SQL não pretendidas \cite{pedro2025prompt}. O estudo
-que caracterizou esses ataques os reproduziu em sete modelos de linguagem
-e propôs quatro defesas: restringir as permissões do usuário de banco
-usado pela aplicação, de modo que só leituras sejam possíveis; reescrever
-as consultas geradas para limitar os registros visíveis a cada usuário;
-usar um segundo modelo, sem acesso ao banco, para inspecionar os
-resultados em busca de injeções; e carregar previamente no prompt os
-dados do usuário, para que a aplicação não precise consultar dados de
-outros \cite{pedro2025prompt}. A lista de riscos da OWASP para aplicações
-com modelos de linguagem inclui, entre outros, a injeção de prompt, a
+executar consultas SQL não pretendidas, inclusive de escrita
+\cite{pedro2025prompt}. A lista de riscos da OWASP para aplicações com
+modelos de linguagem inclui, entre outros, a injeção de prompt, a
 divulgação de informação sensível, o tratamento inadequado da saída do
 modelo e o excesso de autonomia concedida ao agente
 \cite{owasp2025llm}.
 
-Este trabalho adota a primeira dessas defesas e uma restrição de
-privacidade: a consulta gerada passa por um validador que só aceita
-leitura e é executada por um usuário sem permissão de escrita
-(\autoref{sec:agente}), e nenhum valor de linha é enviado ao provedor
-(\autoref{sec:privacidade}). A camada semântica também tem papel de
+Este trabalho adota as salvaguardas mais simples contra esses riscos:
+nenhum valor de linha é enviado ao provedor (\autoref{sec:privacidade}), e
+a consulta gerada passa por um validador que só aceita leitura antes de
+ser executada por um usuário sem permissão de escrita
+(\autoref{sec:agente}). A camada semântica também tem papel de
 governança: ela fixa o que a organização entende por cada métrica e por
 cada relacionamento, em vez de deixar essa definição ao modelo.
 
@@ -243,9 +179,6 @@ contexto, os modelos e a dependência de plataforma proprietária.
     \citeonline{li2023bird} & 95 bancos públicos, dados reais, em inglês
       & evidência por pergunta, com e sem & abertos e proprietários &
       nenhuma \\ \hline
-    \citeonline{wretblad2024synthetic} & BIRD & só as descrições de
-      colunas, de várias origens & abertos e proprietários & nenhuma \\
-      \hline
     \citeonline{bouattour2026prompting} & telemetria da Intel, 25 tabelas
       & descrições, exemplos e validação, em ablação & GPT-4.1
       (proprietário) & nenhuma \\ \hline
@@ -255,9 +188,6 @@ contexto, os modelos e a dependência de plataforma proprietária.
     \citeonline{sequeda2023benchmark} & esquema de seguros & SQL direto
       ou consulta a grafo de conhecimento & GPT-4 (proprietário) & grafo
       de conhecimento \\ \hline
-    \citeonline{ganz2026benchmark} & esquema de seguros, 15 tabelas & SQL
-      direto ou consulta à camada semântica & modelos proprietários & dbt
-      Semantic Layer \\ \hline
     \citeonline{databricks2026genie} & base de exemplo da plataforma &
       camadas cumulativas: tabelas, descrições, \textit{metric views},
       exemplos, instruções & não informado & proprietária \\ \hline

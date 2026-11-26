@@ -238,10 +238,10 @@ Como descrito na \autoref{sec:analise}, a latência medida inclui as
 esperas por limite de taxa da camada gratuita do provedor. A distribuição
 no \arq{qwen3.8-27b} sugere que esse efeito domina a medida: na condição
 semântica, metade das chamadas ficou entre 14,70 e 14,89 segundos, uma
-dispersão incompatível com a variação natural do tempo de geração.
-\pendente{confirmar nos registros brutos (cabeçalho Retry-After não foi
-gravado); sem isso, a interpretação acima é uma inferência}
-A latência deve, portanto, ser lida como o custo do prompt maior sob as
+dispersão incompatível com a variação natural do tempo de geração. Essa
+leitura é uma inferência: os registros brutos não guardam as esperas
+feitas pelo cliente, de modo que a parcela da latência devida ao limite
+de taxa não pode ser separada da devida à geração. A latência deve, portanto, ser lida como o custo do prompt maior sob as
 condições de uso deste estudo, e não como o tempo de inferência do modelo.
 
 % -----------------------------------------------------------------------------
