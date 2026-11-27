@@ -14,17 +14,20 @@
   \end{SingleSpacing}
   \par\vspace{1cm}
   \raggedright
-  Aprovado(a) em: \dataaprovacao.
+  Aprovado(a) em:
+  \ifx\dataaprovacao\empty
+    \underline{\hspace{1cm}}/\underline{\hspace{1cm}}/\underline{\hspace{1.6cm}}.
+  \else
+    \dataaprovacao.
+  \fi
   \par\vspace{1cm}
   \centering\textbf{BANCA EXAMINADORA}
   \par\vspace{1cm}
   \begin{SingleSpacing}
   \imprimirorientador\ (Orientador) \\
   Universidade Estadual do Ceará -- UECE
-  \par\vspace{1cm}
-  \membrobancaum
-  \par\vspace{1cm}
-  \membrobancadois
+  \ifx\membrobancaum\empty\else\par\vspace{1cm}\membrobancaum\fi
+  \ifx\membrobancadois\empty\else\par\vspace{1cm}\membrobancadois\fi
   \end{SingleSpacing}
   \vspace*{\fill}
 \end{folhadeaprovacao}
